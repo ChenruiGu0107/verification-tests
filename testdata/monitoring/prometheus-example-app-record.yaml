@@ -63,3 +63,27 @@ metadata:
   name: not-to-be-reconciled
 spec:
   serviceAccountName: default
+  enforcedNamespaceLabel: namespace
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: prometheus-example-app
+    role: prometheus-example
+  name: story-rules
+spec:
+  groups:
+  - name: recording.rules
+    rules:
+    - record: requests_total
+      expr: rate(requests_total {job="myjob"}[5m])
+  - name: monitor
+    rules:
+    - alert: CCOTargetNamespaceMissing
+      expr: cco_credentials_requests_conditions{condition="MissingTargetNamespace"} > 0
+      for: 5m
+      labels:
+        severity: none
+      message:
+        CredentialsRequest(s) pointing to non-existant namespace

@@ -550,3 +550,25 @@ Feature: query browser
     When I perform the :check_metric_query_result web action with:
       | table_text | cluster_quantile:apiserver_request_duration_seconds:histogram_quantile |
     Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-23243
+  @admin
+  Scenario: The alert graphs should display error messages returned by the Prometheus API
+    Given the master version >= "4.1"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+    #search in Query Browser
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics | openshift_build_total{phase=\"Complete\"} >= 0 |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | An error occurred |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | parse error: unexpected character inside braces: |
+    Then the step should succeed
+   

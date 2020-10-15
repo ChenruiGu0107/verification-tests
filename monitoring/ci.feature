@@ -255,10 +255,9 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: [BZ 1821268] Thanos Ruler should send alerts to all Alertmanager pods
     Given the master version >= "4.5"
-    And I switch to cluster admin pseudo user
-    And I use the "openshift-monitoring" project
+    And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-    Given admin ensures "test-ocp-29748" prometheusrule is deleted from the "openshift-monitoring" project after scenario
+ 
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -266,10 +265,12 @@ Feature: Install and configuration related scenarios
       | overwrite | true                                           |
     Then the step should succeed
     #Deploy prometheus rules under user's namespace
-    Given I obtain test data file "monitoring/prometheus_rules-OCP-29748.yaml"
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I obtain test data file "monitoring/prometheus_rules-drill.yaml"
     When I run the :apply client command with:
-      | f         | prometheus_rules-OCP-29748.yaml |
-      | overwrite | true                            |
+      | f         | prometheus_rules-drill.yaml |
+      | overwrite | true                        |
     Then the step should succeed
     #Check the newly created alert are sent to pod alertmanager-main-0 for we can't check all the pods in a loop and wait time at the same time
     And I wait up to 180 seconds for the steps to pass:
@@ -288,7 +289,8 @@ Feature: Install and configuration related scenarios
     """ 
     # get alerts pods
     When I run the :get client command with:
-      | resource | pod |
+      | resource | pod                  |
+      | n        | openshift-monitoring |
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)alertmanager-main(.*)/]}.compact!` is stored in the :alert_pods clipboard
     #Check the newly created alert are sent to all Alertmanager pods
@@ -497,8 +499,7 @@ Feature: Install and configuration related scenarios
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     And admin ensures "ocp-28957-proj1" project is deleted after scenario
     And admin ensures "ocp-28957-proj2" project is deleted after scenario
-    And admin ensures "ocp-28957.rules" prometheusrule is deleted from the "ocp-28957-proj1" project after scenario
-    And admin ensures "ocp-28957.rules" prometheusrule is deleted from the "ocp-28957-proj2" project after scenario
+
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -1374,7 +1375,7 @@ Feature: Install and configuration related scenarios
     And I switch to cluster admin pseudo user
     Given admin ensures "user-workload-monitoring-config" configmap is deleted from the "openshift-user-workload-monitoring" project after scenario
     And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-   #enable UserWorkload
+    #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
       | f         | config_map_enableUserWorkload.yaml |
@@ -1401,32 +1402,19 @@ Feature: Install and configuration related scenarios
     And the expression should be true> deployment("prometheus-operator").containers_spec(cached: false).first.args.include?("--log-level=error")
     """
 
-    #disable UserWorkload
-    Given I obtain test data file "monitoring/config_map_disableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_disableUserWorkload.yaml |
-      | overwrite | true                                |
-    Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    Then the project should be empty
-    """
-
   # @author hongyli@redhat.com
   # @case_id OCP-29824
   @admin
   @destructive
   Scenario: Implement and deploy monitoring-rules-edit role
     Given the master version >= "4.5"
-    And I switch to cluster admin pseudo user
-    Given admin ensures "ocp-29824-proj" project is deleted after scenario
+    And the first user is cluster-admin
 
     Given I check that the "monitoring-rules-edit" cluster_role exists
 
     #Create one project with PrometheusRule
-    When I run the :new_project client command with:
-      | project_name | ocp-29824-proj |
-    Then the step should succeed
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
     Given I obtain test data file "monitoring/prometheus_rules.yaml"
     When I run the :apply client command with:
       | f         | prometheus_rules.yaml |
@@ -1436,7 +1424,7 @@ Feature: Install and configuration related scenarios
     When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | monitoring-rules-edit              |
       | user_name | <%= user(1, switch: false).name %> |
-      | n         | ocp-29824-proj                     |
+      | n         | <%= cb.proj_name %>                |
     Then the step should succeed
 
     Given I switch to the second user
@@ -1447,27 +1435,28 @@ Feature: Install and configuration related scenarios
       | Error from server (Forbidden) |
 
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29824-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
 
-    And I obtain test data file "monitoring/prometheus_rules-ocp-29824_new.yaml"
+    And I obtain test data file "monitoring/prometheus_rules-watchdog.yaml"
     When I run the :apply client command with:
-      | f         | prometheus_rules-ocp-29824_new.yaml |
-      | overwrite | true                                |
+      | f         | prometheus_rules-watchdog.yaml |
+      | overwrite | true                           |
+      | n         | <%= cb.proj_name %>            |
     Then the step should succeed
 
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29824-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | watchdog.rules |
     
     When I run the :delete client command with:
-      | object_type       | PrometheusRule |
-      | object_name_or_id | watchdog.rules |
-      | n                 | ocp-29824-proj |
+      | object_type       | PrometheusRule      |
+      | object_name_or_id | watchdog.rules      |
+      | n                 | <%= cb.proj_name %> |
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -1476,8 +1465,7 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: Implement and deploy monitoring-rules-view role
     Given the master version >= "4.5"
-    And I switch to cluster admin pseudo user
-    Given admin ensures "ocp-29823-proj" project is deleted after scenario
+    And the first user is cluster-admin
 
     When I run the :get client command with:
       | resource | clusterrole |
@@ -1485,8 +1473,8 @@ Feature: Install and configuration related scenarios
       | monitoring-rules-view |
 
     #Create one project with PrometheusRule
-    When I run the :new_project client command with:
-      | project_name | ocp-29823-proj |
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
     Then the step should succeed
     Given I obtain test data file "monitoring/prometheus_rules.yaml"
     When I run the :apply client command with:
@@ -1497,7 +1485,7 @@ Feature: Install and configuration related scenarios
     When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | monitoring-rules-view              |
       | user_name | <%= user(1, switch: false).name %> |
-      | n         | ocp-29823-proj                     |
+      | n         | <%= cb.proj_name %>                |
     Then the step should succeed
 
     Given I switch to the second user
@@ -1508,15 +1496,15 @@ Feature: Install and configuration related scenarios
       | Error from server (Forbidden) |
 
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29823-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
     
     When I run the :delete client command with:
-      | object_type       | PrometheusRule |
-      | object_name_or_id | story-rules    |
-      | n                 | ocp-29823-proj |
+      | object_type       | PrometheusRule      |
+      | object_name_or_id | story-rules         |
+      | n                 | <%= cb.proj_name %> |
     Then the output should contain:
       | Error from server (Forbidden) |
 
@@ -1650,3 +1638,151 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | <%= cb.proj_name %> |
     """ 
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-26063
+  @admin
+  @destructive
+  Scenario: Add security / multi-tenancy to the Thanos querier API
+    Given the master version >= "4.3"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    #enable techPreviewUserWorkload
+    Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                           |
+    Then the step should succeed
+
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/prometheus-example-app-record.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus-example-app-record.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+
+    Given I switch to the second user
+
+    #assign view access
+    When I run the :oadm_policy_add_role_to_user admin command with:
+      | role_name | view                               |
+      | user_name | <%= user(1, switch: false).name %> |
+      | n         | <%= cb.proj_name %>                |
+    Then the step should succeed
+    #with view access
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                                               |
+      | pod              | prometheus-k8s-0                                                                                                                                                                   |
+      | c                | prometheus                                                                                                                                                                         |
+      | oc_opts_end      |                                                                                                                                                                                    |
+      | exec_command     | sh                                                                                                                                                                                 |
+      | exec_command_arg | -c                                                                                                                                                                                 |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://thanos-querier.openshift-monitoring.svc:9092/api/v1/query?query=version&namespace=<%= cb.proj_name %>' |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-example-app |
+    """
+    #without namespace
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                 |
+      | pod              | prometheus-k8s-0                                                                                                                                     |
+      | c                | prometheus                                                                                                                                           |
+      | oc_opts_end      |                                                                                                                                                      |
+      | exec_command     | sh                                                                                                                                                   |
+      | exec_command_arg | -c                                                                                                                                                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://thanos-querier.openshift-monitoring.svc:9092/api/v1/query?query=version' |
+    Then the step should succeed
+    And the output should contain:
+      | Bad Request. The request or configuration is malformed |
+    #with wrong namespace
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                               |
+      | pod              | prometheus-k8s-0                                                                                                                                                   |
+      | c                | prometheus                                                                                                                                                         |
+      | oc_opts_end      |                                                                                                                                                                    |
+      | exec_command     | sh                                                                                                                                                                 |
+      | exec_command_arg | -c                                                                                                                                                                 |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://thanos-querier.openshift-monitoring.svc:9092/api/v1/query?query=version&namespace=ns1' |
+    Then the step should succeed
+    And the output should contain:
+      | Forbidden |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-25864
+  @admin
+  @destructive
+  Scenario: Configure deny list for all openshift-* namespaces
+    Given the master version >= "4.3"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+   
+    #enable techPreviewUserWorkload
+    Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                           |
+    Then the step should succeed
+
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait for the "user-workload" prometheus to appear up to 120 seconds
+    And evaluation of `deployment('prometheus-operator').container_spec(name: 'prometheus-operator').args.map{|n| n[/deny-namespaces=(.*)/]}.compact![0].split('=')[1].split(',')` is stored in the :deny_namespaces clipboard
+
+    When I run the :get client command with:
+      | resource | ns |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)openshift(.*)/]}.compact!` is stored in the :openshift_namespaces clipboard
+    
+    When I repeat the following steps for each :deny_namespace in cb.deny_namespaces:
+    """
+    When I run the :get client command with:
+      | resource      | ns                   |
+      | resource_name | #{cb.deny_namespace} |
+      | o             | yaml                 |
+    Then the step should succeed
+    Then the output should contain:
+      | openshift.io/cluster-monitoring: "true" |
+    """
+    And evaluation of `cb.openshift_namespaces-cb.deny_namespaces` is stored in the :unmonitoring_namespaces clipboard
+    When I repeat the following steps for each :unmonitoring_namespace in cb.unmonitoring_namespaces:
+    """
+    When I run the :get client command with:
+      | resource      | ns                           |
+      | resource_name | #{cb.unmonitoring_namespace} |
+      | o             | yaml                         |
+    Then the step should succeed
+    Then the output should not contain:
+      | openshift.io/cluster-monitoring: "true" |
+    """
+
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/prometheus-example-app-record.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus-example-app-record.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+    #oc -n openshift-user-workload-monitoring exec  -c  prometheus prometheus-user-workload-0 -- cat /etc/prometheus/config_out/prometheus.env.yaml
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-user-workload-monitoring                 |
+      | pod              | prometheus-user-workload-0                         |
+      | c                | prometheus                                         |
+      | oc_opts_end      |                                                    |
+      | exec_command     | sh                                                 |
+      | exec_command_arg | -c                                                 |
+      | exec_command_arg | cat /etc/prometheus/config_out/prometheus.env.yaml |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-example-monitor |
+    """

@@ -871,7 +871,6 @@ Feature: alerts browser
     Given the master version >= "4.6"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-    And admin ensures "ocp-32216-proj" project is deleted after scenario
 
     #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
@@ -879,15 +878,32 @@ Feature: alerts browser
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
-    #When I run the :new_project client command with:
-    #  | project_name | ocp-32216-proj |
-    #Then the step should succeed
-    And I use the "openshift-monitoring" project
+
+    Given I create a project with non-leading digit name
+    Then the step should succeed
     Given I obtain test data file "monitoring/prometheus_rules_example_alert.yaml"
     When I run the :apply client command with:
       | f         | prometheus_rules_example_alert.yaml |
       | overwrite | true                                |
     Then the step should succeed
+    When I use the "openshift-monitoring" project
+    # get sa/prometheus-k8s token
+    And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    When I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-ruler.openshift-user-workload-monitoring.svc:9091/alerts |
+    Then the step should succeed
+    And the output should contain:
+      | TestAlert |
+    """ 
+
     Given I open admin console in a browser
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -910,13 +926,6 @@ Feature: alerts browser
     When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | HighErrors |
       | table_text | HighErrors |
-    Then the step should succeed
-
-    #enable UserWorkload
-    Given I obtain test data file "monitoring/config_map_disableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_disableUserWorkload.yaml |
-      | overwrite | true                                |
     Then the step should succeed
 
   # @author hongyli@redhat.com
