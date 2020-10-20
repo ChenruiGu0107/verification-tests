@@ -130,7 +130,7 @@ Feature: cloud credential operator
     When I run the :create client command with:
       | f | cr-namespace-no-exist.yaml |
     Then the step should succeed
-    And admin ensures "my-cred-request-err" credentialsrequest is deleted from the "openshift-cloud-credential-operator" project after scenario
+    And admin ensures "my-cred-request-err" credentials_request is deleted from the "openshift-cloud-credential-operator" project after scenario
     #check alert is firing
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -141,7 +141,7 @@ Feature: cloud credential operator
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["alertstate"] =~ /pending|firing/
     """
     #delete the wrong cr
-    And admin ensures "my-cred-request-err" credentialsrequest is deleted from the "openshift-cloud-credential-operator" project
+    And admin ensures "my-cred-request-err" credentials_request is deleted from the "openshift-cloud-credential-operator" project
     #check the alert for CloudCredentialOperatorTargetNamespaceMissing disappear
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -163,7 +163,7 @@ Feature: cloud credential operator
     When I run the :create client command with:
       | f | cr-namespace-no-exist.yaml |
     Then the step should succeed
-    And admin ensures "my-cred-request-err" credentialsrequest is deleted from the "openshift-cloud-credential-operator" project after scenario
+    And admin ensures "my-cred-request-err" credentials_request is deleted from the "openshift-cloud-credential-operator" project after scenario
     #check alert is firing
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -203,8 +203,8 @@ Feature: cloud credential operator
     When I run the :create client command with:
       | f | cr.yaml |
     Then the step should succeed
-    And admin ensures "my-cred-request" credentialsrequest is deleted from the "openshift-cloud-credential-operator" project after scenario
-    And I wait up to 10 seconds for the steps to pass:
+    And admin ensures "my-cred-request" credentials_request is deleted from the "openshift-cloud-credential-operator" project after scenario
+    And I wait up to 30 seconds for the steps to pass:
     """
     Given I run the :get client command with:
       | resource     | secret                             |
@@ -224,7 +224,7 @@ Feature: cloud credential operator
       | object_type       | secret                 |
       | object_name_or_id | my-cred-request-secret |
     And the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     Given I run the :get client command with:
       | resource     | secret                             |
