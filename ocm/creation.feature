@@ -1,6 +1,18 @@
 Feature: only about page related to cluster login page
 
   # @author xueli@redhat.com
+  # @case_id OCP-23526
+  Scenario: Check the elements on AWS creation page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | aws |
+    Then the step should succeed
+    When I run the :check_osd_creation_page web action
+    Then the step should succeed
+
+  # @author xueli@redhat.com
   # @case_id OCP-22042
   Scenario: Check vpcCIDR , podCIDR and serviceCIDR textbox on UI page.
     Given I open ocm portal as an regularUser user
@@ -13,8 +25,8 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     # Have to select machine_type due to known issue: SDA-1463
     When I perform the :fill_in_required_items_on_osd_creation_page web action with:
-      | cluster_name | sdqe-ui-cidr-temp |
-      | machine_type | m5.xlarge         | 
+      | cluster_name | sdqe-ui-cidr |
+      | machine_type | m5.xlarge    |
     Then the step should succeed
 
     Given I saved following keys to list in :cidrs clipboard:
@@ -119,11 +131,11 @@ Feature: only about page related to cluster login page
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-cidr-temp|
+      | cluster_name | sdqe-ui-cidr |
     Then the step should succeed
     When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | sdqe-ui-cidr-temp |
-      | input_text   | sdqe-ui-cidr-temp |
+      | cluster_name | sdqe-ui-cidr |
+      | input_text   | sdqe-ui-cidr |
     Then the step should succeed
     """
     When I run the :click_create_button web action
@@ -268,18 +280,6 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I run the :cluster_detail_page_loaded web action
     Then the step should succeed
-    And I register clean-up steps:
-    """
-    When I run the :go_to_cluster_list_page web action
-    Then the step should succeed
-    When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-33439 |
-    Then the step should succeed
-    When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | sdqe-ui-33439 |
-      | input_text   | sdqe-ui-33439 |
-    Then the step should succeed
-    """
 
   # @author xueli@redhat.com
   # @case_id OCP-25424
@@ -454,9 +454,9 @@ Feature: only about page related to cluster login page
     Given I open ocm portal as an orgAdmin user
     Then the step should succeed
     When I perform the :create_osd_cluster web action with:
-      | product_id     | osd                      |
-      | cloud_provider | aws                      |
-      | cluster_name   | sdqe-orgadmin-ui-default |
+      | product_id     | osd           |
+      | cloud_provider | aws           |
+      | cluster_name   | sdqe-ui-admin |
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
     Then the step should succeed
@@ -470,7 +470,7 @@ Feature: only about page related to cluster login page
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-orgadmin-ui-default |
+      | cluster_name | sdqe-ui-admin |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
@@ -484,7 +484,7 @@ Feature: only about page related to cluster login page
     When I perform the :create_osd_cluster web action with:
       | product_id     | osd              |
       | cloud_provider | aws              |
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance  |
       | region_id      | eu-central-1     |
       | multi_az       | true             |
       | machine_type   | r5.xlarge        |

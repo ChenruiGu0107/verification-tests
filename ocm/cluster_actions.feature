@@ -226,7 +226,7 @@ Feature: only about page related to cluster actions
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-adminowned-ui-disconnected |
+      | cluster_name | sdqe-ui-adminowned-disconnected |
     Then the step should succeed
     When I perform the :check_cluster_registration_dialog web action with:
       | vcpu_type ||
@@ -243,7 +243,7 @@ Feature: only about page related to cluster actions
       | cancel       |      |
     Then the step should succeed
     When I perform the :open_cluster_registration_dialog_from_cluster_list_page web action with:
-      | cluster_name | sdqe-adminowned-ui-disconnected |
+      | cluster_name | sdqe-ui-adminowned-disconnected |
     Then the step should succeed
     When I perform the :check_cluster_registration_dialog web action with:
       | vcpu_type ||
@@ -263,26 +263,26 @@ Feature: only about page related to cluster actions
     Given I open ocm portal as an orgAdmin user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
     Then the step should succeed
     When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name   | sdqe-ui-advanced |
-      | input_text     | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
+      | input_text     | sdqe-ui-advance |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | uninstalling |
     Then the step should succeed
     When I perform the :uninstall_succ_prompt_message_displayed web action with:
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
     Then the step should succeed
     When I perform the :uninstall_succ_prompt_message_missing web action with:
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-advanced |
+      | cluster_name   | sdqe-ui-advance |
     Then the step should fail
 
   # @author yuwan@redhat.com

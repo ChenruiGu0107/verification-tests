@@ -6,9 +6,9 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as a orgAdmin user
     Then the step should succeed
     When I perform the :create_osd_cluster web action with:
-      | product_id     | osd                 |
-      | cloud_provider | aws                 |
-      | cluster_name   | sdqe-ui-logs-view01 |
+      | product_id     | osd          |
+      | cloud_provider | aws          |
+      | cluster_name   | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :check_cluster_logs web action with:
       | installation ||
@@ -18,7 +18,7 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as a regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-logs-view01 |
+      | cluster_name | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :check_osd_usage_in_detail_page web action with:
       | installing ||
@@ -27,14 +27,14 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     Given I open ocm portal as a orgAdmin user
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-logs-view01 |
+      | cluster_name | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | sdqe-ui-logs-view01 |
-      | input_text   | sdqe-ui-logs-view01 |
+      | cluster_name | sdqe-ui-logs |
+      | input_text   | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-logs-view01 |
+      | cluster_name | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :check_cluster_logs web action with:
       | uninstallation ||
@@ -44,7 +44,7 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as a regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-logs-view01 |
+      | cluster_name | sdqe-ui-logs |
     Then the step should succeed
     When I perform the :check_osd_usage_in_detail_page web action with:
       | uninstalling ||
@@ -213,6 +213,7 @@ Feature: Only for case related to cluster detail page
       | service_cidr        | 172.30.0.0/16   |
       | pod_cidr            | 10.128.0.0/14   |
       | host_prefix         | /23             |
+      | timeout             | 300             |
     Then the step should succeed
     When I run the :click_enable_additional_route web action
     Given I saved following keys to list in :labels clipboard:
@@ -247,16 +248,17 @@ Feature: Only for case related to cluster detail page
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-orgadmin-ui-default |
+      | cluster_name | sdqe-ui-admin |
     Then the step should succeed
-    When I run the :click_networking_tab web action
+    When I perform the :click_networking_tab web action with:
+      | timeout | 5 |
     Then the step should succeed
     When I perform the :check_disabled_buttons_on_networking_tab web action with:
-      | trimed_cluster_name | sdqe-orgadmin-u |
-      | machine_cidr        | 10.0.0.0/16     |
-      | service_cidr        | 172.30.0.0/16   |
-      | pod_cidr            | 10.128.0.0/14   |
-      | host_prefix         | /23             |
+      | trimed_cluster_name | sdqe-ui-admin |
+      | machine_cidr        | 10.0.0.0/16   |
+      | service_cidr        | 172.30.0.0/16 |
+      | pod_cidr            | 10.128.0.0/14 |
+      | host_prefix         | /23           |
     Then the step should succeed
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
@@ -266,9 +268,9 @@ Feature: Only for case related to cluster detail page
   Scenario: Monitoring tab should show correct message for cluster in installing/disconnected status and no metrics data from telemetry
     Given I open ocm portal as a regularUser user
     When  I perform the :create_osd_cluster web action with:
-      | cluster_name   | sdqe-ui-metric-temp |
-      | product_id     | osd                 |
-      | cloud_provider | aws                 |
+      | cluster_name   | sdqe-ui-metric |
+      | product_id     | osd            |
+      | cloud_provider | aws            |
     Then the step should succeed
     Then I wait up to 600 seconds for the steps to pass:
     """
@@ -280,10 +282,12 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I run the :check_installing_cluster_monitoring_tab web action
     Then the step should succeed
+    When I run the :last_checkin_loaded web action
+    Then the step should fail
     # Delete the cluster to clean the env
     When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | sdqe-ui-metric-temp |
-      | input_text   | sdqe-ui-metric-temp |
+      | cluster_name | sdqe-ui-metric |
+      | input_text   | sdqe-ui-metric |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-disconnected |
@@ -399,3 +403,45 @@ Feature: Only for case related to cluster detail page
       | result_keyword | Info |
     Then the step should succeed
     
+  # @author xueli@redhat.com
+  # @case_id OCP-29669
+  Scenario: Networking tab only shows for the ready OSD cluster with provider AWS
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :create_osd_cluster web action with:
+      | cluster_name   | sdqe-ocp-29669 |
+      | product_id     | osd            |
+      | cloud_provider | aws            |
+    Then the step should succeed
+    When I perform the :click_networking_tab web action with:
+      | timeout | 5 |
+    Then the step should fail
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-archive |
+    Then the step should succeed
+    When I perform the :click_networking_tab web action with:
+      | timeout | 5 |
+    Then the step should fail
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-gcp |
+    Then the step should succeed
+    When I perform the :click_networking_tab web action with:
+      | timeout | 5 |
+    Then the step should fail
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :delete_cluster_from_cluster_list_page web action with:
+      | cluster_name | sdqe-ocp-29669 |
+      | input_text   | sdqe-ocp-29669 |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ocp-29669 |
+    Then the step should succeed
+    When I perform the :click_networking_tab web action with:
+      | timeout | 5 |
+    Then the step should fail
+
