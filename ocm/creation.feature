@@ -519,7 +519,7 @@ Feature: only about page related to cluster login page
     When I perform the :create_osd_cluster web action with:
       | product_id     | osd                |
       | cloud_provider | gcp                |
-      | cluster_name   | sdqe-ui-gcp        |
+      | cluster_name   | sdqe-ui-gcp-1      |
       | multi_az       | true               |
       | machine_type   | custom-4-32768-ext |
       | node_number    | 4                  |
