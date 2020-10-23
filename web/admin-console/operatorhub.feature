@@ -1242,4 +1242,56 @@ Feature: operatorhub feature related
       | resource_kind    | ArgoCD              |
       | resource_name    | example-argocd      |
     Then the step should succeed
-     
+
+  # @author yapei@redhat.com
+  # @case_id OCP-33053
+  @admin
+  @destructive
+  Scenario: Check Operand description, subscription status and event tab
+    Given the master version >= "4.6"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators@sha256:feb39d5dca35fcbf73713672016b8c802146252a96e3864a0a34209b154b6482"
+    Given I switch to the first user
+    Given I have a project
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+
+    # check operand description on operator subscription page
+    When I perform the :check_operand_des_during_operator_subscription web action with:
+      | package_name     | argocd-operator     |
+      | catalog_name     | ui-auto-operators   |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    Given admin waits for the "argocd-operator" subscriptions to become ready in the "<%= project.name %>" project up to 360 seconds
+    And evaluation of `subscription("argocd-operator").current_csv` is stored in the :argocd_csv clipboard
+
+    # check operand description on operator details page and Subscription page details
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | <%= project.name %>  |
+      | csv_name     | <%= cb.argocd_csv %> |
+    Then the step should succeed
+    When I run the :check_truncated_description web action
+    Then the step should succeed
+    When I perform the :check_operator_subscription_details web action with:
+      | subscription_name  | argocd-operator   |
+      | catalogsource_name | ui-auto-operators |
+    Then the step should succeed
+
+    # check operand description on operand creation form
+    When I perform the :check_operand_des_during_creating_operand web action with:
+      | project_name | <%= project.name %>  |
+      | csv_name     | <%= cb.argocd_csv %> |
+      | operand_kind | Application          |
+    Then the step should succeed
+    Given admin wait for the "guestbook" application to appear in the "<%= project.name %>" project up to 10 seconds
+
+    # then check operand Events page
+    When I perform the :goto_operand_events_page web action with:
+      | project_name    | <%= project.name %>  |
+      | csv_name        | <%= cb.argocd_csv %> |
+      | operand_group   | argoproj.io          |
+      | operand_version | v1alpha1             |
+      | operand_kind    | Application          |
+      | operand_name    | guestbook            |
+    Then the step should succeed
+    When I run the :check_event_is_streaming web action
+    Then the step should succeed

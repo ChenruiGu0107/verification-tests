@@ -1,0 +1,9 @@
+apiVersion: metering.openshift.io/v1
+kind: Report
+metadata:
+  name: node-cpu-capacity-invalid
+spec:
+  query: node-cpu-capacity
+  reportingStart: '2022-01-01T00:00:00Z'
+  reportingEnd: '2020-12-30T23:59:59Z'
+  runImmediately: true

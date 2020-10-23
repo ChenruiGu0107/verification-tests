@@ -139,3 +139,63 @@ Feature: mega menu on console
       | task_name    | update-deployment          |
       | project_name | autotest-pipeline-tutorial |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-24270
+  @admin
+  @destructive
+  Scenario: Check Chargeback Reports
+    Given the master version >= "4.3"
+    Given metering service has been installed successfully
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And I open admin console in a browser
+    When I perform the :goto_chargeback_reports_page web action with:
+      | namespace | <%= cb.metering_namespace.name %> |
+    Then the step should succeed
+    Given admin ensures "namespace-memory-request" report is deleted from the "<%= cb.metering_namespace.name %>" project after scenario
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+    Given admin wait for the "namespace-memory-request" report to appear in the "<%= cb.metering_namespace.name %>" project up to 10 seconds
+    When I perform the :check_reports_table web action with:
+      | namespace         | <%= cb.metering_namespace.name %>  |
+      | report_name       | namespace-memory-request           |
+      | reportquery_name  | namespace-memory-request           |
+    Then the step should succeed
+    When I perform the :check_reportquery_details web action with:
+      | namespace           | <%= cb.metering_namespace.name %> |
+      | reportquery_name    | namespace-memory-request          |
+      | meteringconfig_name | <%= cb.meteringconfig_name %>     |
+    Then the step should succeed
+    When I perform the :check_owner_reference web action with:
+      | owner_resource_namespace | <%= cb.metering_namespace.name %> |
+      | owner_resource_group     | metering.openshift.io             |
+      | owner_resource_version   | v1                                |
+      | owner_resource_kind      | MeteringConfig                    |
+      | owner_resource_name      | <%= cb.meteringconfig_name %>     |
+    Then the step should succeed
+    When I perform the :check_usage_report_table web action with:
+      | namespace   | <%= cb.metering_namespace.name %> |
+      | report_name | namespace-memory-request          |
+    Then the step should succeed
+    Given admin ensures "node-cpu-capacity-invalid" report is deleted from the "<%= cb.metering_namespace.name %>" project after scenario
+    Given admin ensures "namespace-memory-request-invalid" report is deleted from the "<%= cb.metering_namespace.name %>" project after scenario
+    Given I obtain test data file "metering/reports/invalid-date.yaml"
+    Given I obtain test data file "metering/reports/non-exist-reportquery.yaml"
+    When I run the :create admin command with:
+      | f | invalid-date.yaml                 |
+      | f | non-exist-reportquery.yaml        |
+      | n | <%= cb.metering_namespace.name %> |
+    Then the step should succeed
+    When I perform the :goto_one_report_page web action with:
+      | namespace   | <%= cb.metering_namespace.name %> |
+      | report_name | node-cpu-capacity-invalid         |
+    Then the step should succeed
+    When I run the :check_invalid_start_end_date_conditions_table web action
+    Then the step should succeed
+    When I perform the :goto_one_report_page web action with:
+      | namespace   | <%= cb.metering_namespace.name %> |
+      | report_name | namespace-memory-request-invalid  |
+    Then the step should succeed
+    When I run the :check_non_exist_reportquery_conditions_table web action
+    Then the step should succeed
