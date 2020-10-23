@@ -9,14 +9,7 @@ spec:
   domain: router-test.example.com
   replicas: 1
   endpointPublishingStrategy:
-    type: HostNetwork
-  nodePlacement:
-    nodeSelector:
-      matchLabels:
-        beta.kubernetes.io/os: linux
-    tolerations:
-    - effect: NoSchedule
-      operator: Exists
+    type: NodePortService
   routeSelector:
     matchLabels:
       route: router-test
