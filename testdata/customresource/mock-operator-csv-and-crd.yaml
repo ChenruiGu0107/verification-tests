@@ -1,0 +1,304 @@
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: mock-resources.test.tectonic.com
+  labels:
+    automatedTestName: operand-auto-test
+spec:
+  group: test.tectonic.com
+  version: v1
+  scope: Namespaced
+  names:
+    plural: mock-resources
+    singular: mock-resource
+    kind: MockResource
+    listKind: MockResources
+  validation:
+    openAPIV3Schema:
+      type: object
+      properties:
+        metadata:
+          type: object
+          additionalProperties: true
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        status:
+          type: object
+          additionalProperties: true
+        spec:
+          type: object
+          required:
+            - password
+            - select
+          properties:
+            password:
+              type: string
+              minLength: 1
+              maxLength: 25
+              pattern: "^[a-zA-Z0-9._\\-%]*$"
+            number:
+              type: integer
+              minimum: 2
+              maximum: 4
+            select:
+              type: string
+            fieldGroup:
+              type: object
+              description: "[SCHEMA] field group - Quis cupidatat in sint occaecat quis dolore irure ea minim sint aliquip nisi aliquip."
+              title: "[SCHEMA] Field Group"
+              properties:
+                itemOne:
+                  type: string
+                itemTwo:
+                  type: integer
+            arrayFieldGroup:
+              type: array
+              title: "[SCHEMA] Array Field Group"
+              description: "[SCHEMA] array field group - Quis excepteur nostrud qui sunt reprehenderit reprehenderit deserunt eu aute laboris id aliqua."
+              items:
+                type: object
+                properties:
+                  itemOne:
+                    type: string
+                  itemTwo:
+                    type: integer
+            hiddenFieldGroup:
+              type: object
+              properties:
+                hiddenItem:
+                  type: object
+            podCount:
+              type: integer
+            endpointList:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+            resourceRequirements:
+              type: object
+              additionalProperties: true
+            k8sResourcePrefix:
+              type: string
+            booleanSwitch:
+              type: boolean
+            checkbox:
+              type: boolean
+            imagePullPolicy:
+              type: string
+            updateStrategy:
+              type: object
+              additionalProperties: true
+            text:
+              type: string
+            nodeAffinity:
+              type: object
+              additionalProperties: true
+            podAffinity:
+              type: object
+              additionalProperties: true
+            podAntiAffinity:
+              type: object
+              additionalProperties: true
+            advanced:
+              type: string
+            fieldDependencyControl:
+              type: boolean
+            fieldDependency:
+              type: string
+            hidden:
+              type: string
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: mock-operator
+  labels:
+    automatedTestName: operand-auto-test
+  annotations:
+    alm-examples: '[{"apiVersion":"test.tectonic.com/v1","kind":"MockResource","metadata":{"name":"mock-resource-instance","namespace":"operand-auto-test","labels":{"automatedTestName":"operand-auto-test"}},"spec":{"fieldGroup":{"itemOne":"Field group item 1","itemTwo":2},"arrayFieldGroup":[{"itemOne":"Array field group item 1","itemTwo":2}],"select":"WARN","k8sResourcePrefix":"operand-auto-test","podCount":3,"endpointList":[{"port":8080,"scheme":"TCP"}],"label":"app=openshift","resourceRequirements":{"limits":{"cpu":"500m","memory":"50Mi","ephemeral-storage":"500Gi"},"requests":{"cpu":"500m","memory":"50Mi","ephemeral-storage":"500Gi"}},"namespaceSelector":{"matchNames":["default"]},"booleanSwitch":true,"password":"password123","checkbox":true,"imagePullPolicy":"Never","updateStrategy":{"type":"Recreate"},"text":"Some text","number":2},"status":{"podStatuses":{"ready":["pod-0","pod-1"],"unhealthy":["pod-2"],"stopped":["pod-3"]},"podCount":3,"w3Link":"https://google.com","conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-08-22T23:27:55Z","lastTransitionTime":"2018-08-22T23:27:55Z","reason":"AppReady","message":"App is ready."}],"text":"Some text","prometheusEndpoint":"my-svc.my-namespace.svc.cluster.local","k8sPhase":"Available","k8sPhaseReason":"AppReady"}}]'
+spec:
+  displayName: Mock Operator
+  install:
+    strategy: deployment
+    spec:
+      permissions: []
+      deployments:
+        - name: test-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                name: test-operator-alm-owned
+            template:
+              metadata:
+                name: test-operator-alm-owned
+                labels:
+                  name: test-operator-alm-owned
+              spec:
+                serviceAccountName: test-operator
+                containers:
+                  - name: test-operator
+                    image: nginx
+  customresourcedefinitions:
+    owned:
+      - name: mock-resources.test.tectonic.com
+        version: v1
+        kind: MockResource
+        displayName: Mock Resource
+        description: Mock resource instance for testing descriptors
+        resources: []
+        specDescriptors:
+          - path: fieldDependency
+            description: fieldDependency - Voluptate ea tempor amet eiusmod.
+            displayName: "[DESCRIPTOR] Field Dependency"
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:fieldDependency:fieldDependencyControl:true"
+          - path: select
+            description: select - Eu nisi fugiat occaecat laborum.
+            displayName: "[DESCRIPTOR] Select"
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:select:DEBUG"
+              - "urn:alm:descriptor:com.tectonic.ui:select:INFO"
+              - "urn:alm:descriptor:com.tectonic.ui:select:WARN"
+              - "urn:alm:descriptor:com.tectonic.ui:select:ERROR"
+              - "urn:alm:descriptor:com.tectonic.ui:select:FATAL"
+          - path: k8sResourcePrefix
+            description: "[DESCRIPTOR] k8sResourcePrefix - Amet magna ea exercitation sint et dolor deserunt quis."
+            displayName: "[DESCRIPTOR] K8s Resource Prefix"
+            x-descriptors:
+              - "urn:alm:descriptor:io.kubernetes:Project"
+          - description: "[DESCRIPTOR] podCount - Quis laboris ea Lorem deserunt mollit commodo."
+            displayName: "[DESCRIPTOR] Pod Count"
+            path: podCount
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:podCount"
+          - description: "[DESCRIPTOR] endpointList - Consequat nostrud anim labore nulla incididunt exercitation ex officia dolor Lorem consequat veniam."
+            displayName: "[DESCRIPTOR] Endpoint List"
+            path: endpointList
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:endpointList"
+          - description: "[DESCRIPTOR] label - Aliqua voluptate qui do ullamco."
+            displayName: "[DESCRIPTOR] Label"
+            path: label
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:label"
+          - description: "[DESCRIPTOR] resourceRequirements - Laboris do non aliquip cupidatat sit irure."
+            displayName: "[DESCRIPTOR] Resource Requirements"
+            path: resourceRequirements
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:resourceRequirements"
+          - description: "[DESCRIPTOR] namespaceSelector - Esse magna exercitation Lorem exercitation officia exercitation excepteur id."
+            displayName: "[DESCRIPTOR] Namespace Selector"
+            path: namespaceSelector
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:namespaceSelector"
+          - description: "[DESCRIPTOR] booleanSwitch - Aliquip magna eu aute ea veniam ea culpa nulla."
+            displayName: "[DESCRIPTOR] Boolean Switch"
+            path: booleanSwitch
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:booleanSwitch"
+          - description: "[DESCRIPTOR] password - Et culpa officia eiusmod labore eiusmod occaecat."
+            displayName: "[DESCRIPTOR] Password"
+            path: password
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:password"
+          - description: "[DESCRIPTOR] checkbox - Excepteur cillum quis proident sunt nulla ut in fugiat."
+            displayName: "[DESCRIPTOR] Checkbox"
+            path: checkbox
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:checkbox"
+          - description: "[DESCRIPTOR] imagePullPolicy - Ut adipisicing et aliqua tempor velit proident officia officia reprehenderit consequat voluptate irure esse."
+            displayName: "[DESCRIPTOR] Image Pull Policy"
+            path: imagePullPolicy
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:imagePullPolicy"
+          - description: "[DESCRIPTOR] updateStrategy - Amet minim ad cillum veniam exercitation excepteur aliqua anim cillum officia do aliquip."
+            displayName: "[DESCRIPTOR] Update Strategy"
+            path: updateStrategy
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:updateStrategy"
+          - description: "[DESCRIPTOR] text - Culpa qui mollit velit do incididunt."
+            displayName: "[DESCRIPTOR] Text"
+            path: text
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:text"
+          - description: "[DESCRIPTOR] number - Eu dolore duis sit Lorem eu et ad veniam qui."
+            displayName: "[DESCRIPTOR] Number"
+            path: number
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:number"
+          - description: "[DESCRIPTOR] nodeAffinity - Labore officia esse consequat in sit ut laborum ex est elit tempor tempor."
+            displayName: "[DESCRIPTOR] Node Affinity"
+            path: nodeAffinity
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:nodeAffinity"
+          - description: "[DESCRIPTOR] podAffinity - Et sit aliquip fugiat nostrud ex enim reprehenderit mollit consequat laborum consectetur enim consequat."
+            displayName: "[DESCRIPTOR] Pod Affinity"
+            path: podAffinity
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:podAffinity"
+          - description: "[DESCRIPTOR] podAntiAffinity - Laborum est magna ullamco qui nulla minim ut."
+            displayName: "[DESCRIPTOR] Pod Anti Affinity"
+            path: podAntiAffinity
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:podAntiAffinity"
+          - description: "[DESCRIPTOR] advanced - Veniam ea aliqua aliqua sint proident consequat laborum sit laborum et deserunt est aliqua exercitation."
+            displayName: "[DESCRIPTOR] Advanced"
+            path: advanced
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:advanced"
+          - description: "[DESCRIPTOR] hidden - Sunt culpa Lorem ad ad ullamco."
+            displayName: "[DESCRIPTOR] Hidden"
+            path: hidden
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:hidden"
+        statusDescriptors:
+          - description: "[DESCRIPTOR] podStatuses - Deserunt ea duis culpa nostrud veniam."
+            displayName: Pod Statuses
+            path: podStatuses
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:podStatuses"
+          - description: "[DESCRIPTOR] podCount - Culpa amet cupidatat ipsum commodo ad dolore reprehenderit dolore esse non culpa."
+            displayName: Pod Count
+            path: podCount
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:podCount"
+          - description: "[DESCRIPTOR] w3Link - Minim in exercitation veniam laborum quis officia pariatur."
+            displayName: W3 Link
+            path: w3Link
+            x-descriptors:
+              - "urn:alm:descriptor:org.w3:link"
+          - description: "[DESCRIPTOR] conditions - Exercitation magna eu tempor exercitation amet enim sit consectetur commodo esse consectetur."
+            displayName: Conditions
+            path: conditions
+            x-descriptors:
+              - "urn:alm:descriptor:io.kubernetes.conditions"
+          - description: "[DESCRIPTOR] text - Fugiat ipsum cillum elit aliqua ea fugiat esse eiusmod minim voluptate enim."
+            displayName: Text
+            path: text
+            x-descriptors:
+              - "urn:alm:descriptor:text"
+          - description: "[DESCRIPTOR] prometheusEndpoint - Adipisicing ullamco est mollit eu Lorem pariatur."
+            displayName: Prometheus Endpoint
+            path: prometheusEndpoint
+            x-descriptors:
+              - "urn:alm:descriptor:prometheusEndpoint"
+          - description: "[DESCRIPTOR] k8sPhase - Sit cupidatat amet id voluptate do labore exercitation sit labore qui officia."
+            displayName: K8s Phase
+            path: k8sPhase
+            x-descriptors:
+              - "urn:alm:descriptor:io.kubernetes.phase"
+          - description: "[DESCRIPTOR] k8sPhaseReason - Amet ad pariatur magna aliqua sit."
+            displayName: K8s Phase Reason
+            path: k8sPhaseReason
+            x-descriptors:
+              - "urn:alm:descriptor:io.kubernetes.phase:reason"
+          - description: "[DESCRIPTOR] hidden - Occaecat esse ea commodo duis do fugiat dolore excepteur dolore deserunt qui esse aliquip ipsum."
+            displayName: Hidden
+            path: hidden
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:hidden"
+

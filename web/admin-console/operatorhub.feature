@@ -1295,3 +1295,143 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_event_is_streaming web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-28832
+  @admin
+  Scenario: Basic sync of YAML and Form for creating operator instance
+    Given the master version >= "4.4"
+    Given I have a project
+    Given admin ensures "mock-resources.test.tectonic.com" custom_resource_definition is deleted after scenario
+    Given I obtain test data file "customresource/mock-operator-csv-and-crd.yaml"
+    When I run the :create admin command with:
+      | f | mock-operator-csv-and-crd.yaml |
+      | n | <%= project.name %>            |
+    Then the step should succeed
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :goto_operand_list_page web action with:
+      | project_name  | <%= project.name %>  |
+      | csv_name      | mock-operator |
+      | operand_name  | test.tectonic.com~v1~MockResource |
+    Then the step should succeed
+    When I perform the :click_create_operand_button web action with:
+      | operand_kind | MockResource |
+    Then the step should succeed
+    When I perform the :set_operand_name web action with:
+      | operand_name | mock-resource-instance-test |
+    Then the step should succeed
+    When I run the :remove_operand_label web action
+    Then the step should succeed
+    When I perform the :set_selector_value web action with:
+      | selector_value | ERROR |
+    Then the step should succeed
+    When I perform the :set_password web action with:
+      | password | testpassword |
+    Then the step should succeed
+    When I perform the :set_k8s_resource web action with:
+      | k8s_resource | default |
+    Then the step should succeed
+    When I perform the :set_pod_count web action with:
+      | pod_count | 5 |
+    Then the step should succeed
+    When I run the :increase_pod_count web action
+    Then the step should succeed
+    When I run the :decrease_pod_count web action
+    Then the step should succeed
+    When I run the :toggle_boolean_switch web action
+    Then the step should succeed
+    When I run the :toggle_checkbox web action
+    Then the step should succeed
+    When I perform the :set_image_pull_policy web action with:
+      | image_pull_policy | Always |
+    Then the step should succeed
+    When I perform the :set_update_strategy web action with:
+      | update_strategy | RollingUpdate |
+    Then the step should succeed
+    When I perform the :set_simple_text web action with:
+      | simple_text | my_simple_text_test |
+    Then the step should succeed
+    When I perform the :set_simple_number web action with:
+      | simple_number | 3 |
+    Then the step should succeed
+    When I perform the :set_field_group web action with:
+      | field_group_value_one | groupvalueone |
+      | field_group_value_two | 6             |
+    Then the step should succeed
+    When I perform the :set_array_field_group web action with:
+      | array_field_group_value_one            | my_arraygroup_value_one     |
+      | array_field_group_value_two            | 8                           |
+      | additional_array_field_group_value_one | my_add_arraygroup_value_one |
+      | additional_array_field_group_value_two | 10                          |
+    Then the step should succeed
+    When I perform the :set_advanced_configuration web action with:
+      | advanced_text | this_is_advanced_configuration |
+    Then the step should succeed
+    When I run the :switch_to_yaml_view web action
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | name                        |
+      | value | mock-resource-instance-test |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | advanced                       |
+      | value | this_is_advanced_configuration |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | checkbox |
+      | value | false    |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | k8sResourcePrefix |
+      | value | default           |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | number |
+      | value | 3      |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | podCount |
+      | value | 5        |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | text                |
+      | value | my_simple_text_test |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | imagePullPolicy |
+      | value |  Always         |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | password     |
+      | value | testpassword |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | select |
+      | value | ERROR  |
+    Then the step should succeed
+    When I perform the :check_yaml_line_content web action with:
+      | key   | booleanSwitch |
+      | value | false         |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    Given I wait up to 5 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | mockresource.test.tectonic.com |
+      | resource_name | mock-resource-instance-test    |
+      | n             | <%= project.name %>            |
+      | o             | yaml                           |
+    Then the step should succeed
+    """
+    Then the output by order should match:
+      | fieldGroup                              |
+      | itemOne: Field group item groupvalueone |
+      | itemTwo: 6                              |
+    Then the output by order should match:
+      | arrayFieldGroup                        |
+      | - itemOne: my_arraygroup_value_one     |
+      | itemTwo: 8                             |
+      | - itemOne: my_add_arraygroup_value_one |
+      | itemTwo: 10                            |
