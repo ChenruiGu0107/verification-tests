@@ -341,7 +341,7 @@ Feature: Node management
     Then the step should succeed
     And the output should match:
       | quay.io/openshifttest/hello-pod.*latest |
-    And I wait up to 600 seconds for the steps to pass:
+    And I wait up to 1200 seconds for the steps to pass:
     """
     When I run the :get admin command with:
       | resource      | node                 |
@@ -360,34 +360,17 @@ Feature: Node management
     Given I store the schedulable nodes in the :nodes clipboard
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | podman pull quay.io/openshifttest/caddy-docker-2@sha256:1e6184a09a0bd2f6e075dc302daa64769e664bfe0e180357cc77f95ce5c46243   |
-      | podman pull quay.io/openshifttest/nginx@sha256:3936fb3946790d711a68c58be93628e43cbca72439079e16d154b5db216b58da            |
       | podman pull quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |
-      | podman images --digests \| grep -E "caddy-docker-2\|nginx\|mysql-56-centos7"                                               |
+      | podman images --digests \| grep "mysql-56-centos7"                                                                         |
     Then the step should succeed
-    And I wait up to 600 seconds for the steps to pass:
+    And I wait up to 1200 seconds for the steps to pass:
     """
     When I run the :get admin command with:
       | resource      | no                      |
       | resource_name | <%= cb.nodes[0].name %> |
       | o             | yaml                    |
     Then the output should contain:
-      | quay.io/openshifttest/caddy-docker-2@sha256:1e6184a09a0bd2f6e075dc302daa64769e664bfe0e180357cc77f95ce5c46243   |
-      | quay.io/openshifttest/nginx@sha256:3936fb3946790d711a68c58be93628e43cbca72439079e16d154b5db216b58da            |
       | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |         
-    """
-    Given I use the "<%= cb.nodes[0].name %>" node
-    Given I run commands on the host:
-      | podman image rm  quay.io/openshifttest/nginx@sha256:3936fb3946790d711a68c58be93628e43cbca72439079e16d154b5db216b58da |
-    Then the step should succeed
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When I run the :get admin command with:
-      | resource      | no                      |
-      | resource_name | <%= cb.nodes[0].name %> |
-      | o             | yaml                    |
-    Then the output should not contain:
-      | quay.io/openshifttest/nginx@sha256:3936fb3946790d711a68c58be93628e43cbca72439079e16d154b5db216b58da |
     """
 
   # @author minmli@redhat.com
