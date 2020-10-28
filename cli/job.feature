@@ -174,7 +174,7 @@ Feature: job.feature
   # @author knarra@redhat.com
   # @case_id OCP-34224
   Scenario: Normal user should be able to create job from existing cronjob
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     Given I have a project
     When I run the :create_cronjob client command with:
       | name     | cronjob-34224                                                                                                 |
