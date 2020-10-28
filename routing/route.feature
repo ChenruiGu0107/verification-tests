@@ -1238,3 +1238,67 @@ Feature: Testing route
     When I open web server via the "https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>" url
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34106
+  Scenario: Routes annotated with  "haproxy.router.openshift.io/rewrite-target=/path" will replace and rewrite http request with specified "/path"
+    Given the master version >= "4.6"
+    And I have a project
+
+    # Create  project resource and route followed by curl to generate access traffic
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+    Then the expression should be true> service('service-unsecure').exists?
+
+    # Deploy route with specific path annotation to test the rewrite
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                    |
+      | resourcename | service-unsecure                                         |
+      | keyval       | haproxy.router.openshift.io/rewrite-target=/path/second/ |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    And the output should contain "second-test http-8080"
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34168
+  Scenario: Routes can be annotated with "haproxy.router.openshift.io/rewrite-target" to rewrite paths in HTTP request before forwarding
+    Given the master version >= "4.6"
+    And I have a project
+
+    # Create  project resource and route followed by curl to generate access traffic
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+    Then the expression should be true> service('service-unsecure').exists?
+
+    # Deploy route with default rewrite annotation to check all paths are reachable
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                        |
+      | resourcename | service-unsecure                             |
+      | keyval       | haproxy.router.openshift.io/rewrite-target=/ |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    And the output should contain "Hello-OpenShift-1 http-8080"
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/test/" url
+    And the output should contain "Hello-OpenShift-Path-Test http-8080"
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/path/second/" url
+    And the output should contain "second-test http-8080"
+    """
