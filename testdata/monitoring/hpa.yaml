@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpa-example
+spec:
+  selector:
+    matchLabels:
+      run: hpa-example
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: hpa-example
+    spec:
+      containers:
+      - name: hpa-example
+        image: gcr.io/google-samples/hello-app:2.0
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hpa-example
+spec: 
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    run: hpa-example
+  sessionAffinity: None
+

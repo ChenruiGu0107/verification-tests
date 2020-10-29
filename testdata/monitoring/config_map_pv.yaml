@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    prometheusK8s:
+      volumeClaimTemplate:
+        metadata:
+          name: monitorpvc
+        spec:
+          volumeMode: Filesystem
+          resources:
+            requests:
+              storage: 2Gi
+    alertmanagerMain:
+      volumeClaimTemplate:
+        metadata:
+          name: monitorpvc
+        spec:
+          volumeMode: Filesystem
+          resources:
+            requests:
+              storage: 1Gi

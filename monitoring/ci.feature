@@ -1206,15 +1206,14 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: Implement and deploy monitoring-edit role
     Given the master version >= "4.5"
-    And I switch to cluster admin pseudo user
-    Given admin ensures "ocp-29837-proj" project is deleted after scenario
+    And the first user is cluster-admin
 
     Given I check that the "monitoring-edit" cluster_role exists
 
     #Create one project with PrometheusRule/ServiceMonitor/PodMonitor
-    When I run the :new_project client command with:
-      | project_name | ocp-29837-proj |
-    Then the step should succeed
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
     Given I obtain test data file "monitoring/pod_servicemonitor_rule-ocp-29837.yaml"
     When I run the :apply client command with:
       | f         | pod_servicemonitor_rule-ocp-29837.yaml |
@@ -1224,7 +1223,7 @@ Feature: Install and configuration related scenarios
     When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | monitoring-edit                    |
       | user_name | <%= user(1, switch: false).name %> |
-      | n         | ocp-29837-proj                     |
+      | n         | <%= cb.proj_name %>                |
     Then the step should succeed
 
     Given I switch to the second user
@@ -1235,41 +1234,43 @@ Feature: Install and configuration related scenarios
       | Error from server (Forbidden) |
 
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29837-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
     
     And I obtain test data file "monitoring/pod_servicemonitor_rule-ocp-29837_new.yaml"
+    Given I replace lines in "pod_servicemonitor_rule-ocp-29837_new.yaml":
+      | replaceme-proj | <%= cb.proj_name %> |
     When I run the :apply client command with:
       | f         | pod_servicemonitor_rule-ocp-29837_new.yaml |
       | overwrite | true                                       |
     Then the step should succeed
 
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29837-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
       | drill.rules |
     When I run the :get client command with:
-      | resource | ServiceMonitor |
-      | n        | ocp-29837-proj |
+      | resource | ServiceMonitor      |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | new-servicemonitor         |
       | prometheus-example-monitor |
     When I run the :get client command with:
-      | resource | PodMonitor     |
-      | n        | ocp-29837-proj |
+      | resource | PodMonitor          |
+      | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | example        |
       | new-podmonitor |
   
     When I run the :get client command with:
-      | resource      | PrometheusRule |
-      | resource_name | drill.rules    |
-      | n             | ocp-29837-proj |
-      | o             | yaml           |
+      | resource      | PrometheusRule      |
+      | resource_name | drill.rules         |
+      | n             | <%= cb.proj_name %> |
+      | o             | yaml                |
     Then the step should succeed
     And I save the output to file> drill-rules-ocp-29837.yaml
     When I run the :apply client command with:
@@ -1278,33 +1279,33 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     When I run the :delete client command with:
-      | object_type       | PrometheusRule |
-      | object_name_or_id | drill.rules    |
-      | n                 | ocp-29837-proj |
+      | object_type       | PrometheusRule      |
+      | object_name_or_id | drill.rules         |
+      | n                 | <%= cb.proj_name %> |
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type       | ServiceMonitor     |
-      | object_name_or_id | new-servicemonitor |
-      | n                 | ocp-29837-proj     |
+      | object_type       | ServiceMonitor      |
+      | object_name_or_id | new-servicemonitor  |
+      | n                 | <%= cb.proj_name %> |
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type       | PodMonitor     |
-      | object_name_or_id | new-podmonitor |
-      | n                 | ocp-29837-proj |
+      | object_type       | PodMonitor          |
+      | object_name_or_id | new-podmonitor      |
+      | n                 | <%= cb.proj_name %> |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | PrometheusRule |
-      | n        | ocp-29837-proj |
+      | resource | PrometheusRule      |
+      | n        | <%= cb.proj_name %> |
     Then the output should not contain:
       | drill.rules |
     When I run the :get client command with:
-      | resource | ServiceMonitor |
-      | n        | ocp-29837-proj |
+      | resource | ServiceMonitor      |
+      | n        | <%= cb.proj_name %> |
     Then the output should not contain:
       | new-servicemonitor         |
     When I run the :get client command with:
-      | resource | PodMonitor     |
-      | n        | ocp-29837-proj |
+      | resource | PodMonitor          |
+      | n        | <%= cb.proj_name %> |
     Then the output should not contain:
       | new-podmonitor |
 
@@ -1536,7 +1537,7 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: custom metrics API is usable
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
 
     Given I obtain test data file "monitoring/custome_metric-deploy.yaml"
@@ -1785,4 +1786,233 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | prometheus-example-monitor |
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-22010
+  @admin
+  @destructive
+  Scenario: Horizontal scale pods on any metrics that the cluster monitoring stack collects
+    Given the master version >= "4.1"
+    And the first user is cluster-admin
+
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/hpa.yaml"
+    When I run the :apply client command with:
+      | f         | hpa.yaml |
+      | overwrite | true     |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=hpa-example |
+
+    Given evaluation of `endpoints('hpa-example').subsets.first.addresses.first.ip.to_s` is stored in the :hpa_service_ip clipboard
+
+    When I run the :exec admin command with:
+      | n                | <%= cb.proj_name %>                            |
+      | pod              | <%= pod.name %>                                |
+      | oc_opts_end      |                                                |
+      | exec_command     | sh                                             |
+      | exec_command_arg | -c                                             |
+      | exec_command_arg | wget -O - http://<%= cb.hpa_service_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain:
+      | Hello, world! |
+
+    When I run the :autoscale client command with:
+      | name        | deployment/hpa-example |
+      | min         | 1                      |
+      | max         | 10                     |
+      | cpu-percent | 50                     |
+    Then the step should succeed
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | hpa         |
+      | resource_name | hpa-example |
+    Then the step should succeed
+    And the output should contain:
+      | 0%/50% |
+    """
+    When I run the :run client command with:
+      | name             | vegeta                                                                                               |
+      | image            | peterevans/vegeta                                                                                    |
+      | oc_opt_end       |                                                                                                      |
+      | exec_command     | sh                                                                                                   |
+      | exec_command_arg | -c                                                                                                   |
+      | exec_command_arg | echo 'GET http://<%= cb.hpa_service_ip %>:8080' \|vegeta attack -rate=1000 \|vegeta report -every 5s |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then expression should be true> hpa('hpa-example').current_replicas(cached: false) == 2
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-22526
+  @admin
+  @destructive
+  Scenario: Attach PVs for cluster monitoring
+    Given the master version >= "4.1"
+    And the first user is cluster-admin
+    Given I obtain test data file "monitoring/config_map_pv.yaml"
+
+    When I run the :get client command with:
+      | resource | sc |
+    Then the step should succeed
+    And the output should contain:
+      | default |
+
+    When I run the :apply client command with:
+      | f         | config_map_pv.yaml |
+      | overwrite | true               |
+    Then the step should succeed
+
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pvc                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And the output should contain:
+      | alertmanager   |
+      | prometheus-k8s |
+    """
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}` is stored in the :monitoring_pvcs clipboard
+    When I repeat the following steps for each :pvc in cb.monitoring_pvcs:
+    """
+    Given admin ensures "#{cb.pvc}" pvc is deleted from the "openshift-monitoring" project after scenario
+    """
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+ 
+    When I run the :get client command with:
+      | n             | openshift-monitoring |
+      | resource      | statefulset          |
+      | resource_name | alertmanager-main    |
+      | o             | yaml                 |
+    Then the step should succeed
+    And the output should contain:
+      | monitorpvc |
+      | 1Gi        |
+    When I run the :get client command with:
+      | n             | openshift-monitoring |
+      | resource      | statefulset          |
+      | resource_name | prometheus-k8s       |
+      | o             | yaml                 |
+    Then the step should succeed
+    And the output should contain:
+      | monitorpvc |
+      | 2Gi        |
+
+    # get sa/prometheus-k8s token
+    When I run the :serviceaccounts_get_token admin command with:
+      | serviceaccount_name | prometheus-k8s       |
+      | n                   | openshift-monitoring |
+    Then the step should succeed
+    And evaluation of `@result[:stdout]` is stored in the :sa_token clipboard
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=kube_pod_spec_volumes_persistentvolumeclaims_info |
+    Then the step should succeed
+    And the output should contain:
+      | monitorpvc |
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-25288
+  @admin
+  @destructive
+  Scenario: Allow making tolerations configurable for monitoring components
+    Given the master version >= "4.4"
+    And the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    Given I store the masters in the :masters clipboard
+    When I repeat the following steps for each :master in cb.masters:
+    """
+    Given the "<%= cb.master.name %>" node labels are restored after scenario
+    Then label "monitoring=deploy" is added to the "<%= cb.master.name %>" node
+    """
+    # get monitoring pods
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pod                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}` is stored in the :monitoring_pods_b clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)cluster-monitoring-operator(.*)/]}.compact!` is stored in the :cmo_pods_b clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)node-exporter(.*)/]}.compact!` is stored in the :ne_pods_b clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)alertmanager-main(.*)/]}.compact!` is stored in the :prom_pods_b clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)prometheus-k8s(.*)/]}.compact!` is stored in the :alert_pods_b clipboard
+    And evaluation of `cb.monitoring_pods_b-cb.cmo_pods_b-cb.ne_pods_b-cb.prom_pods_b-cb.alert_pods_b` is stored in the :other_pods_b clipboard
+
+    Given I obtain test data file "monitoring/toleration.yaml"
+    When I run the :apply client command with:
+      | f         | toleration.yaml |
+      | overwrite | true            |
+    Then the step should succeed
+
+    When I repeat the following steps for each :pod_b in cb.other_pods_b:
+    """
+    Then I wait for the resource "pod" named "#{cb.pod_b}" to disappear within 240 seconds
+    And the step should succeed
+    """
+    # get monitoring pods
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pod                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}` is stored in the :monitoring_pods_a clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)cluster-monitoring-operator(.*)/]}.compact!` is stored in the :cmo_pods_a clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)node-exporter(.*)/]}.compact!` is stored in the :ne_pods_a clipboard
+    And evaluation of `cb.monitoring_pods_a-cb.cmo_pods_a-cb.ne_pods_a` is stored in the :other_pods_a clipboard
+ 
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    And the expression should be true> pod('prometheus-k8s-0').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
+    And the expression should be true> pod('alertmanager-main-0').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
+    And the expression should be true> pod('prometheus-k8s-0').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
+    And the expression should be true> pod('alertmanager-main-0').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
+    """ 
+    When I repeat the following steps for each :pod_a in cb.other_pods_a:
+    """
+    Given the pod named "#{cb.pod_a}" status becomes :running within 240 seconds
+    And the expression should be true> pod('#{cb.pod_a}').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
+    And the expression should be true> pod('#{cb.pod_a}').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
+    """  
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-35518
+  @admin
+  @destructive
+  Scenario: Default openshift install should not requests too many CPU resources to install all components
+    Given the master version >= "4.3"
+    And the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+
+    # get monitoring pods
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pod                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}` is stored in the :monitoring_pods clipboard
+
+    When I repeat the following steps for each :pod_name in cb.monitoring_pods:
+    """
+    When I check containers cpu request for pod named "#{cb.pod_name}" under limit:
+      | prometheus    | 71 |
+      | default_limit | 11 |
+    Then the step should succeed
     """

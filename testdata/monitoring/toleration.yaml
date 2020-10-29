@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    alertmanagerMain:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    grafana:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    kubeStateMetrics:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    k8sPrometheusAdapter:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    nodeExporter:
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    prometheusK8s:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    prometheusOperator:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    telemeterClient:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    openshiftStateMetrics:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+    thanosQuerier:
+      nodeSelector:
+        monitoring: deploy
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"

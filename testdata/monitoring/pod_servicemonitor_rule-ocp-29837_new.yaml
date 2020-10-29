@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: drill.rules
-  namespace: ocp-29837-proj
+  namespace: replaceme-proj
 spec:
   groups:
   - name: alerting rules
@@ -20,7 +20,7 @@ metadata:
   labels:
     app: prometheus-example-app
   name: new-podmonitor
-  namespace: ocp-29837-proj
+  namespace: replaceme-proj
 spec:
   podMetricsEndpoints:
   - interval: 30s
@@ -35,7 +35,7 @@ metadata:
   labels:
     k8s-app: prometheus-example-monitor
   name: new-servicemonitor
-  namespace: ocp-29837-proj
+  namespace: replaceme-proj
 spec:
   endpoints:
   - interval: 30s
