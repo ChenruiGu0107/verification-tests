@@ -20,7 +20,7 @@ Feature: MachineHealthCheck Test Scenarios
       | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-cluster"]    | <%= machine_set.cluster %>  |
       | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-machineset"] | <%= machine_set.name %>     |
     Then the step should succeed
-    And I ensure "mhc-<%= machine_set.name %>" machinehealthcheck is deleted after scenario
+    And I ensure "mhc-<%= machine_set.name %>" machine_health_check is deleted after scenario
 
     # Annotate external remediation
     When I run the :annotate client command with:
