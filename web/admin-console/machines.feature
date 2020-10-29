@@ -173,7 +173,7 @@ Feature: machineconfig/machineconfig pool related
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
-    And I check that there are no machinehealthcheck in the project
+    And I check that there are no machine_health_check in the project
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-21399
