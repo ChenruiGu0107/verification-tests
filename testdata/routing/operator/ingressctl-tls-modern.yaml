@@ -8,12 +8,7 @@ spec:
     name: router-certs-default
   domain: router-test.example.com
   replicas: 1
-  nodePlacement:
-    nodeSelector:
-      matchLabels:
-        beta.kubernetes.io/os: linux
-    tolerations:
-    - effect: NoSchedule
-      operator: Exists
+  endpointPublishingStrategy:
+    type: NodePortService
   tlsSecurityProfile:
     type: Modern

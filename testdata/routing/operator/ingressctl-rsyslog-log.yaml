@@ -9,13 +9,6 @@ spec:
   domain: internalapps.example.com
   endpointPublishingStrategy:
     type: NodePortService
-  nodePlacement:
-    nodeSelector:
-      matchLabels:
-        beta.kubernetes.io/os: linux
-    tolerations:
-    - effect: NoSchedule
-      operator: Exists
   replicas: 1
   logging: 
     access:
