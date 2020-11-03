@@ -233,12 +233,15 @@ Feature: Scheduler predicates and priority test suites
       | f | my-scheduler-<%= cb.master_version %>.yaml |
     Then the step should succeed
     And the output should contain "deployment.apps/my-scheduler created"
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get admin command with:
       | resource       | pod                 |
       | all_namespaces | true                |
       | l              | component=scheduler |
     Then the step should succeed
     And the output should contain "kube-system"
+    """
     When I run the :patch admin command with:
       | resource      | clusterrole                                                               |
       | resource_name | system:kube-scheduler                                                     |
