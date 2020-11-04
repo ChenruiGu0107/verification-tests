@@ -495,3 +495,67 @@ Feature: elasticsearch operator related tests
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}['for'] == "5m"
     """
 
+  # @author qitang@redhat.com
+  # @case_id OCP-36102
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: [BZ 1883357] Should show correct error message instead of `Internal Server Error`
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    Given evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_unicode_log_template.json"
+    When I run the :new_app client command with:
+      | file | container_json_unicode_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
+    And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
+
+    Given I register clean-up steps:
+    """
+      Given as admin I successfully merge patch resource "oauth/cluster" with:
+        | {"spec": {"tokenConfig": null}} |
+    """
+    Given as admin I successfully merge patch resource "oauth/cluster" with:
+      | {"spec": {"tokenConfig": {"accessTokenMaxAgeSeconds": 180}}} |
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+
+    Given I switch to the first user
+    When I login to kibana logging web console
+    Then the step should succeed
+    When I perform the :create_index_pattern_in_kibana web action with:
+      | index_pattern_name | app |
+    Then the step should succeed
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :go_to_kibana_discover_page web action
+    Then the step should succeed
+    """
+    # wait for 3 minutes for the oauthaccesstokens.oauth.openshift.io to expire
+    Given 180 seconds have passed
+    When I run the :click_refresh_button_in_kibana web action
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    Given a pod becomes ready with labels:
+      | es-node-master=true |
+    And evaluation of `pod.name` is stored in the :es_pod clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/<%= cb.es_pod %> |
+      | c             | proxy                |
+    Then the step should succeed
+    And the output should contain:
+      | invalid bearer token, token lookup failed |
+    And the output should not contain:
+      | Internal Server Error |
