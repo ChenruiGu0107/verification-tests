@@ -84,7 +84,7 @@ Feature: Testing ingress to route object
       | zhao-ingress.example.com:443:<%= cb.router_ip[0] %> |
       | https://zhao-ingress.example.com/ |
       | --cacert |
-      | /tmp/ca.pem |
+      | /tmp/ca-test.pem |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
 
