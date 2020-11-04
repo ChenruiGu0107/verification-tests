@@ -387,7 +387,7 @@ Feature: Testing route
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
       | --cacert |
-      | /tmp/ca.pem |
+      | /tmp/ca-test.pem |
     Then the output should contain "Hello-OpenShift"
     """
     #create some invalid route
@@ -445,7 +445,7 @@ Feature: Testing route
       | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/ |
       | --cacert |
-      | /tmp/ca.pem |
+      | /tmp/ca-test.pem |
     Then the output should contain "Hello-OpenShift"
     """
 
