@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: example
+  labels:
+    k8s-app: prometheus
+spec:
+  podMetricsEndpoints:
+    - port: web
+      interval: 30s
+  selector:
+    matchLabels:
+      k8s-app: prometheus

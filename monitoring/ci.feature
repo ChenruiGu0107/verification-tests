@@ -1995,7 +1995,6 @@ Feature: Install and configuration related scenarios
   # @author hongyli@redhat.com
   # @case_id OCP-35518
   @admin
-  @destructive
   Scenario: Default openshift install should not requests too many CPU resources to install all components
     Given the master version >= "4.3"
     And the first user is cluster-admin
@@ -2016,3 +2015,214 @@ Feature: Install and configuration related scenarios
       | default_limit | 11 |
     Then the step should succeed
     """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-22178
+  @admin
+  Scenario: Deploy prometheus operator by marketplace
+    Given the master version >= "4.1"
+    And the first user is cluster-admin
+
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
+    When I run the :get client command with:
+      | n        | openshift-marketplace |
+      | resource | packagemanifests      |
+    Then the step should succeed
+    Then the output should contain:
+      | prometheus |
+
+    And I obtain test data file "monitoring/operator_group.yaml"
+    Given I replace lines in "operator_group.yaml":
+      | replaceme-proj | <%= cb.proj_name %> |
+    When I run the :apply client command with:
+      | f         | operator_group.yaml |
+      | overwrite | true                |
+    Then the step should succeed
+
+    And I obtain test data file "monitoring/operator_subscription_prometheus.yaml"
+    When I run the :apply client command with:
+      | f         | operator_subscription_prometheus.yaml |
+      | overwrite | true                                  |
+    Then the step should succeed
+
+    Given I wait for the "prometheus" subscriptions to become ready up to 240 seconds
+    And evaluation of `subscription("prometheus").current_csv` is stored in the :current_csv clipboard
+    Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted after scenario
+    And admin wait for the "<%= cb.current_csv %>" clusterserviceversions to become ready up to 240 seconds
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    Then the output should contain:
+      | prometheus-operator |
+      | Running             |
+ 
+    And I obtain test data file "monitoring/operator_prometheus_example.yaml"
+    Given I replace lines in "operator_prometheus_example.yaml":
+      | replaceme-proj | <%= cb.proj_name %> |
+    When I run the :apply client command with:
+      | f         | operator_prometheus_example.yaml |
+      | overwrite | true                             |
+    Then the step should succeed
+
+    And I obtain test data file "monitoring/operator_prometheus_rule.yaml"
+    When I run the :apply client command with:
+      | f         | operator_prometheus_rule.yaml |
+      | overwrite | true                          |
+    Then the step should succeed
+
+    And I obtain test data file "monitoring/operator_service_monitor.yaml"
+    When I run the :apply client command with:
+      | f         | operator_service_monitor.yaml |
+      | overwrite | true                          |
+    Then the step should succeed
+
+    And I obtain test data file "monitoring/operator_pod_monitor.yaml"
+    When I run the :apply client command with:
+      | f         | operator_pod_monitor.yaml |
+      | overwrite | true                      |
+    Then the step should succeed
+
+    Given I wait for the "prometheus-example-0" pod to appear up to 120 seconds
+    And I check that the "prometheus-example-rules" prometheusrule exists
+    And I check that the "example" service_monitor exists
+    And I check that the "example" pod_monitor exists
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-28081
+  @admin
+  @destructive
+  Scenario: Shouldn't have error if PVCs are created earlier than prometheus
+    Given the master version >= "4.4"
+    And I switch to cluster admin pseudo user
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type | pvc                  |
+      | all         |                      |
+      | n           | openshift-monitoring |
+    Then the step should succeed
+    """
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    Given I ensure "k8s" prometheus is deleted
+
+    When I run the :get client command with:
+      | resource | sc |
+    Then the step should succeed
+    And the output should contain:
+      | default |
+    Given I obtain test data file "monitoring/config_map_pv.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_pv.yaml |
+      | overwrite | true               |
+    Then the step should succeed
+ 
+    Given I use the "openshift-monitoring" project
+    And I wait for the "k8s" prometheus to appear up to 180 seconds
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pvc                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And the output should contain:
+      | alertmanager   |
+      | prometheus-k8s |
+    """
+    Given I wait for the "prometheus-k8s-0" pod to appear up to 120 seconds
+    Then I run the :logs client command with:
+      | resource_name | cluster-monitoring-operator |
+      | c             | cluster-monitoring-operator |
+    And the output should not contain:
+      | sync "openshift-monitoring/cluster-monitoring-config" failed: |
+      | running task Updating Prometheus-k8s failed:                  |
+      | reconciling Prometheus object failed:                         |
+      | creating Prometheus object failed:                            |
+      | Prometheus.monitoring.coreos.com "k8s" is invalid:            |
+
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-20428
+  @admin
+  Scenario: cluster monitoring alertmanager UI check
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('alertmanager-main').spec.host` is stored in the :alert_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    
+    #check default page is graph and displays correctly
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.alert_route %>/
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Alertmanager |
+
+    #query an alert
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.alert_route %>/api/v2/alerts/groups?filter=alertname="Watchdog"&silenced=false&inhibited=false&active=true
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | "alertname":"Watchdog" |
+
+    #check status
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.alert_route %>/api/v2/status
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | cluster       |
+      | config        |
+      | pagerduty_url |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-20456
+  @admin
+  Scenario: cluster monitoring grafana UI check
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('grafana').spec.host` is stored in the :grafana_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    
+    #check default page is graph and displays correctly
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.grafana_route %>/
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Grafana |
+
+    #check default dashboard
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.grafana_route %>/api/search?dashboardIds=1
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | title":"Default","uri":"db/default" |
