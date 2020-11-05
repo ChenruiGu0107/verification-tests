@@ -1435,3 +1435,107 @@ Feature: operatorhub feature related
       | itemTwo: 8                             |
       | - itemOne: my_add_arraygroup_value_one |
       | itemTwo: 10                            |
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-33250
+  @admin
+  Scenario: Hide "non-standalone" Operators from UI
+    Given the master version >= "4.6"
+    Given admin creates "ui-33250-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators@sha256:feb39d5dca35fcbf73713672016b8c802146252a96e3864a0a34209b154b6482" with display name "UI OCP-33250 Test"
+    Given I switch to the first user
+    Given I have a project
+    Given the first user is cluster-admin
+    When I get project packagemanifests
+    Then the output should match:
+      | jaeger.*UI OCP-33250 Test |
+
+    Given I open admin console in a browser
+    # Check jaeger operator is hidden on operatorhub page
+    When I perform the :check_operator_hidden_on_operatorhub_page web action with:
+      | text    | UI OCP-33250 Test |
+      | keyword | jaeger            |
+    Then the step should succeed
+
+    When I perform the :subscribe_operator_to_namespace web action with:
+      | package_name     | etcd                |
+      | catalog_name     | ui-33250-operators  |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+
+    When I perform the :subscribe_operator_to_namespace web action with:
+      | package_name     | strimzi-kafka-operator |
+      | catalog_name     | ui-33250-operators     |
+      | target_namespace | <%= project.name %>    |
+    Then the step should succeed
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I get project csv
+    Then the output should match:
+      | etcdoperator.*Succeeded          |
+      | strimzi-cluster-operator.*Failed |
+    """
+  
+    # Suceeded/Failed csv are shown on intalled operators list page
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_one_ns web action with:
+      | operator_name | Strimzi Kafka       |
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_one_ns web action with:
+      | operator_name | etcd                |
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+
+    And evaluation of `subscription("strimzi-kafka-operator").current_csv` is stored in the :kafka_csv clipboard
+    And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard
+    Given I successfully merge patch resource "csv/<%= cb.kafka_csv %>" with:
+      | {"metadata":{"annotations":{"operators.operatorframework.io/operator-type":"non-standalone"}}} |
+    Given I successfully merge patch resource "csv/<%= cb.etcd_csv %>" with:
+      | {"metadata":{"annotations":{"operators.operatorframework.io/operator-type":"non-standalone"}}} |
+
+    #Check succeeded csv is hidden and failed csv is shown after add annotation.
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_one_ns web action with:
+      | operator_name | Strimzi Kafka       |
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_one_ns web action with:
+      | operator_name | etcd                |
+      | project_name  | <%= project.name %> |
+    Then the step should fail
+
+    #Check related resources are shown even csv is hidden
+    When I perform the :goto_deployment_page web action with:
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | etcd-operator |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | strimzi-cluster-operator |
+    Then the step should succeed
+
+    When I run the :goto_crds_page web action
+    Then the step should succeed
+    When I perform the :set_strings_in_filter_box web action with:
+      | test_id_value | item-filter |
+      | filter_text   | etcd        |
+    Then the step should succeed
+
+    When I perform the :check_page_contains web action with:
+      | content | Etcd |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | EtcdBackup |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | EtcdCluster |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | EtcdRestore |
+    Then the step should succeed
+
