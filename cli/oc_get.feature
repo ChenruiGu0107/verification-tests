@@ -206,3 +206,51 @@ Feature: oc get related command
       | resource_name | ocp34701 |
     Then the output should contain:
       | Error from server (NotFound): namespaces "ocp34701" not found |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-24219
+  @admin
+  Scenario: Custom resource watchers should terminate instead of hang when its CRD is deleted or modified
+    Given I have a project
+    And I obtain test data file "cli/OCP-24219/crd.yaml"
+    And I obtain test data file "cli/OCP-24219/cr.yaml"
+    And admin ensures "testcrs.example.com" crd is deleted after scenario
+    When I run the :create admin command with:
+      | f | crd.yaml |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | cr.yaml             |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :get background admin command with:
+      | resource | :false                                                     |
+      | raw      | /apis/example.com/v1/namespaces/<%= project.name %>/testcrs?watch=True |
+    Then the step should succeed
+
+    When I replace lines in "cr.yaml":
+      | asdf | This change to the CR results in a MODIFIED event |
+    And I run the :apply admin command with:
+      | f  | cr.yaml             |
+      | n  | <%= project.name %> |
+    Then the step should succeed
+    When I check status of last background process
+    Then the output should match "type.*MODIFIED.*my-test-cr.*MODIFIED event"
+
+    When I replace lines in "crd.yaml":
+      | /(  )a:/ | \\1b: |
+    And I run the :apply admin command with:
+      | f  | crd.yaml |
+    Then the step should succeed
+    And the expression should be true> @bg_processes.last.finished?
+
+    When I run the :get background admin command with:
+      | resource | :false                                                     |
+      | raw      | /apis/example.com/v1/namespaces/<%= project.name %>/testcrs?watch=True |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_name_or_id | crd/testcrs.example.com  |
+    Then the step should succeed
+    And the expression should be true> @bg_processes.last.finished?
+    When I check status of last background process
+    Then the output should match:
+      | "type":"DELETED".*"object":.*"kind":"TestCR" |
