@@ -184,8 +184,8 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `cb.mediawiki.first.name` is stored in the :bundle_id_2 clipboard
 
     #delete two bundles
-    And admin ensure "<%= cb.bundle_id_1 %>" bundle is deleted
-    And admin ensure "<%= cb.bundle_id_2 %>" bundle is deleted
+    And admin ensures "<%= cb.bundle_id_1 %>" bundle is deleted
+    And admin ensures "<%= cb.bundle_id_2 %>" bundle is deleted
 
     # asb will refresh after 'refresh_interval' and the bundles will come back
     Given admin wait for the "<%= cb.bundle_id_1 %>" bundle to appear in the "openshift-ansible-service-broker" project up to 90 seconds
@@ -438,7 +438,7 @@ Feature: Ansible-service-broker related scenarios
       | resource | project |
     Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb-prov.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
     """
-    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
+    And admin ensures "<%= cb.wiki_prov_prj %>" project is deleted after scenario
 
     # Check log of sandbox pod
     Given I use the "<%= cb.wiki_prov_prj %>" project

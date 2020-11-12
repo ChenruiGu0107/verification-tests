@@ -34,7 +34,7 @@ Feature: PVC resizing Test
     """
 
     # re-create the pod
-    Given I ensures "mypod-<%= project.name %>" pod is deleted
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
 
     Given I obtain test data file "storage/misc/pod.yaml"
     When I run oc create over "pod.yaml" replacing paths:

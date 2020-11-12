@@ -127,7 +127,7 @@ Feature: Update sql apb related feature
 
     #update the secret,
     #delete then create a new
-    Given I ensures "<%= cb.prefix %>-postgresql-apb-parameters" secret is deleted from the project
+    Given I ensure "<%= cb.prefix %>-postgresql-apb-parameters" secret is deleted from the project
     Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
       | f | serviceinstance-parameters-template.yaml      |

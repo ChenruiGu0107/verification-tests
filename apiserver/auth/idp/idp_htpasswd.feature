@@ -16,7 +16,7 @@ Feature: idp feature
       | from_file   | htpasswd               |
       | n           | openshift-config       |
     Then the step should succeed
-    And admin ensure "htpass-secret-ocp23517" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-ocp23517" secret is deleted from the "openshift-config" project after scenario
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"htpassidp-23517","mappingMethod":"lookup","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23517"}}}]}} |
     Given I wait for the steps to pass:
@@ -40,12 +40,12 @@ Feature: idp feature
     Given I run the :create admin command with:
       | f | ocp23517_user.json |
     Then the step should succeed
-    And admin ensure "ocp23517_user" user is deleted after scenario
+    And admin ensures "ocp23517_user" user is deleted after scenario
     Given I obtain test data file "authorization/idp/OCP-23517/ocp23517_identity.json"
     Given I run the :create admin command with:
       | f |ocp23517_identity.json |
     Then the step should succeed
-    And admin ensure "htpassidp-23517:ocp23517_user" identity is deleted after scenario
+    And admin ensures "htpassidp-23517:ocp23517_user" identity is deleted after scenario
     Given I obtain test data file "authorization/idp/OCP-23517/ocp23517_useridentitymapping.json"
     Given I run the :create admin command with:
       | f | ocp23517_useridentitymapping.json |
@@ -88,7 +88,7 @@ Feature: idp feature
       | from_file   | htpasswd               |
       | n           | openshift-config       |
     Then the step should succeed
-    And admin ensure "htpass-secret-ocp23514" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-ocp23514" secret is deleted from the "openshift-config" project after scenario
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
     Given I wait for the steps to pass:
@@ -161,7 +161,7 @@ Feature: idp feature
       | from_file   | htpasswd               |
       | n           | openshift-config       |
     Then the step should succeed
-    And admin ensure "htpass-secret-ocp23515" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-ocp23515" secret is deleted from the "openshift-config" project after scenario
 
     # Adding htpasswd idp as claim method
     Given as admin I successfully merge patch resource "oauth/cluster" with:
@@ -243,7 +243,7 @@ Feature: idp feature
       | from_file   | htpasswd               |
       | n           | openshift-config       |
     Then the step should succeed
-    And admin ensure "htpass-secret-ocp29916" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-ocp29916" secret is deleted from the "openshift-config" project after scenario
     Given I obtain test data file "authorization/idp/OCP-29916/OCP-29916_idp_spec.json"
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | <%= File.read("OCP-29916_idp_spec.json") %> |

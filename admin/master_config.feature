@@ -61,7 +61,7 @@ Feature: test master config related steps
       | from_file   | htpasswd            |
       | n           | openshift-config    |
     Then the step should succeed
-    And admin ensure "htpass-secret-11928" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-11928" secret is deleted from the "openshift-config" project after scenario
     When I run the :patch admin command with:
       | resource      | oauth        |
       | resource_name | cluster      |
@@ -253,7 +253,7 @@ Feature: test master config related steps
       | from_file   | htpasswd            |
       | n           | openshift-config    |
     Then the step should succeed
-    And admin ensure "htpass-secret-12050" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-12050" secret is deleted from the "openshift-config" project after scenario
     When I run the :patch admin command with:
       | resource      | oauth        |
       | resource_name | cluster      |
@@ -313,7 +313,7 @@ Feature: test master config related steps
       | from_file   | htpasswd            |
       | n           | openshift-config    |
     Then the step should succeed
-    And admin ensure "htpass-secret-12207" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-12207" secret is deleted from the "openshift-config" project after scenario
     When I run the :patch admin command with:
       | resource      | oauth        |
       | resource_name | cluster      |
@@ -370,7 +370,7 @@ Feature: test master config related steps
       | from_file   | htpasswd            |
       | n           | openshift-config    |
     Then the step should succeed
-    And admin ensure "htpass-secret-12146" secret is deleted from the "openshift-config" project after scenario
+    And admin ensures "htpass-secret-12146" secret is deleted from the "openshift-config" project after scenario
     When I run the :patch admin command with:
       | resource      | oauth        |
       | resource_name | cluster      |
