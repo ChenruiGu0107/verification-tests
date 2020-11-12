@@ -89,9 +89,8 @@ Feature: quota related feature
       | quota_name           | myquota1 |
       | cpu_request_ratio    | 5%       |
     Then the step should succeed
-    When I perform the :check_chart_color web action with:
+    When I perform the :check_cpu_request_chart_color web action with:
       | quota_name  | myquota1    |
-      | graph_title | CPU Request |
       | chart_color | green       |
     Then the step should succeed
 
@@ -102,9 +101,8 @@ Feature: quota related feature
       | limits    | cpu=1,memory=1Gi      |
       | generator | run-pod/v1            |
     Then the step should succeed
-    When I perform the :check_chart_color web action with:
+    When I perform the :check_cpu_request_chart_color web action with:
       | quota_name  | myquota1    |
-      | graph_title | CPU Request |
       | chart_color | yellow      |
     Then the step should succeed
 
@@ -113,8 +111,7 @@ Feature: quota related feature
       | hard | cpu=500m,memory=100Mi |
       | n    | <%= project.name %>   |
     Then the step should succeed
-    When I perform the :check_chart_color web action with:
+    When I perform the :check_cpu_request_chart_color web action with:
       | quota_name  | myquota3    |
-      | graph_title | CPU Request |
       | chart_color | red         |
     Then the step should succeed
