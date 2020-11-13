@@ -109,3 +109,197 @@ Feature: KUBE API server related features
       | openshift-kube-apiserver-operator                | kube-apiserver-operator                |
       | openshift-kube-controller-manager-operator       | kube-controller-manager-operator       |
       | openshift-kube-storage-version-migrator-operator | kube-storage-version-migrator-operator |
+
+  # @author kewang@redhat.com
+  # @case_id OCP-33427
+  @admin
+  @destructive
+  Scenario: customize audit config of apiservers
+    Given the master version >= "4.6"
+    Given I switch to cluster admin pseudo user
+    Given evaluation of `Time.now.utc.strftime "%s"` is stored in the :now clipboard
+
+    # Checking audit log default setting
+    When I run the :get admin command with:
+      | resource | apiserver/cluster              |
+      | o        | jsonpath={.spec.audit.profile} |
+    Then the step should succeed
+    And the output should contain "Default"
+
+    # To rerun the case at this step, following snippet_read/write maybe return non-zero because there are remnants of the past in audit.log
+    # Solution: Only the records after timestamp of the current run are fetched from /var/log/kube-apiserver/audit.log'
+    When I store the masters in the :masters clipboard
+    And I use the "<%= cb.masters[0].name %>" node
+    # Using snippet script to grab read verbs from the results
+    Given a "snippet_read" file is created with the following lines:
+    """
+    grep -hE '"verb":"(get|list|watch)","user":.*(requestObject|responseObject)' /var/log/kube-apiserver/audit.log > /tmp/grep.json
+    jq -c 'select (.requestReceivedTimestamp | .[0:19] + "Z" | fromdateiso8601 > <%= cb.now %>)' /tmp/grep.json | wc -l
+    jq -c 'select (.requestReceivedTimestamp | .[0:19] + "Z" | fromdateiso8601 > <%= cb.now %>)' /tmp/grep.json | tail -n 1
+    """
+    When I run commands on the host:
+      | <%= File.read("snippet_read") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i == 0
+
+    # write verbs checking in audit log
+    Given a "snippet_write" file is created with the following lines:
+    """
+    grep -hE '"verb":"(create|delete|patch|update)","user":.*(requestObject|responseObject)' /var/log/kube-apiserver/audit.log > /tmp/grep.json
+    jq -c 'select (.requestReceivedTimestamp | .[0:19] + "Z" | fromdateiso8601 > <%= cb.now %>)' /tmp/grep.json | wc -l
+    jq -c 'select (.requestReceivedTimestamp | .[0:19] + "Z" | fromdateiso8601 > <%= cb.now %>)' /tmp/grep.json | tail -n 1
+    """
+    When I run commands on the host:
+      | <%= File.read("snippet_write") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i == 0
+
+    When I use the "openshift-kube-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-kube-apiserver |
+    When I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+      | c             | kube-apiserver  |
+    And the output should contain:
+      | --audit-policy-file="/etc/kubernetes/static-pod-resources/configmaps/kube-apiserver-audit-policies/default.yaml" |
+
+    When I use the "openshift-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-apiserver-a |
+    When I execute on the pod:
+      | grep | /var/run/configmaps/audit/secure-oauth-storage-default.yaml | /var/run/configmaps/config/config.yaml |
+    Then the step should succeed
+
+    When I use the "openshift-oauth-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-oauth-apiserver |
+    When I run the :get admin command with:
+      | resource      | pod                                   |
+      | resource_name | <%= pod.name %>                       |
+      | o             | jsonpath='{.spec.containers[0].args}' |
+    Then the step should succeed
+    And the output should contain:
+      | /var/run/configmaps/audit/secure-oauth-storage-default.yaml |
+
+    # Set WriteRequestBodies profile to audit log
+    Given as admin I successfully merge patch resource "apiserver/cluster" with:
+      | {"spec": {"audit": {"profile": "WriteRequestBodies"}}} |
+    And I register clean-up steps:
+    # Set original Default profile to audti log
+    """
+    Given as admin I successfully merge patch resource "apiserver/cluster" with:
+      | {"spec": {"audit": {"profile": "Default"}}} |
+    Given I wait up to 100 seconds for the steps to pass:
+      | the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True" |
+    Given I wait up to 1200 seconds for the steps to pass:
+      | the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False" |
+    """
+
+    Given I wait up to 100 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    Given I wait up to 1200 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    """
+
+    # Validation for WriteRequestBodies profile setting
+    When I use the "openshift-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-apiserver-a |
+    When I execute on the pod:
+      | grep | /var/run/configmaps/audit/secure-oauth-storage-writerequestbodies.yaml | /var/run/configmaps/config/config.yaml |
+    Then the step should succeed
+
+    When I use the "openshift-oauth-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-oauth-apiserver |
+    When I run the :get admin command with:
+      | resource      | pod                                   |
+      | resource_name | <%= pod.name %>                       |
+      | o             | jsonpath='{.spec.containers[0].args}' |
+    Then the step should succeed
+    And the output should contain:
+      | /var/run/configmaps/audit/secure-oauth-storage-writerequestbodies.yaml |
+
+    When I use the "openshift-kube-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-kube-apiserver |
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+      | c             | kube-apiserver      |
+    And the output should contain:
+      | /etc/kubernetes/static-pod-resources/configmaps/kube-apiserver-audit-policies/writerequestbodies.yaml |
+    # Relevant bug: 1879837
+    When I execute on the pod:
+      | bash | -c | grep -r '"managedFields":{' /var/log/kube-apiserver |
+    Then the step should fail
+
+    # Using snippet script to grab read verbs from the results
+    When I run commands on the host:
+      | <%= File.read("snippet_read") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i == 0
+
+    # write verbs checking in audit log
+    When I run commands on the host:
+      | <%= File.read("snippet_write") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i > 0
+
+    # Set AllRequestBodies profile for audit log
+    Given as admin I successfully merge patch resource "apiserver/cluster" with:
+      | {"spec": {"audit": {"profile": "AllRequestBodies"}}} |
+    Given I wait up to 100 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    Given I wait up to 1200 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    """
+
+    # Validation for AllRequestBodies profile setting
+    When I use the "openshift-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-apiserver-a |
+    When I execute on the pod:
+      | grep | secure-oauth-storage-allrequestbodies.yaml | /var/run/configmaps/config/config.yaml |
+    Then the step should succeed
+
+    When I use the "openshift-oauth-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-oauth-apiserver |
+    When I run the :get admin command with:
+      | resource      | pod                                   |
+      | resource_name | <%= pod.name %>                       |
+      | o             | jsonpath='{.spec.containers[0].args}' |
+    Then the step should succeed
+    And the output should contain:
+      | /var/run/configmaps/audit/secure-oauth-storage-allrequestbodies.yaml |
+
+    When I use the "openshift-kube-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-kube-apiserver |
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+      | c             | kube-apiserver      |
+    And the output should contain:
+      | /etc/kubernetes/static-pod-resources/configmaps/kube-apiserver-audit-policies/allrequestbodies.yaml |
+    # Relevant bug: 1879837
+    When I execute on the pod:
+      | bash | -c | grep -r '"managedFields":{' /var/log/kube-apiserver |
+    Then the step should fail
+
+    # Using snippet script to grab read verbs from the results
+    When I run commands on the host:
+      | <%= File.read("snippet_read") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i > 0
+
+    # write verbs checking in audit log
+    When I run commands on the host:
+      | <%= File.read("snippet_write") %> |
+    Then the step should succeed
+    And the expression should be true> @result[:response].split("\n")[0].to_i > 0
