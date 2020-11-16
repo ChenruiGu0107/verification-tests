@@ -353,3 +353,63 @@ Feature: NodeSelector related tests
     And the output should not match:
       | "region": "west" |
 
+  # @author minmli@redhat.com
+  # @case_id OCP-27086
+  @admin
+  @destructive
+  Scenario: defaultNodeSelector options in scheduler will make pod landing on nodes with proper label
+    Given as admin I successfully merge patch resource "scheduler/cluster" with:
+      | {"spec":{"defaultNodeSelector":"infra=rhel"}} |
+    And I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                             |
+      | resource_name | cluster                                               |
+      | p             | [{"op":"remove", "path":"/spec/defaultNodeSelector"}] |
+      | type          | json                                                  |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+      | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True" |
+    And I wait up to 1200 seconds for the steps to pass:
+      | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False" |
+      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"                    | 
+      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Available')['status'] == "True"                    |
+    """
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 1200 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Available')['status'] == "True"
+    """
+
+    Given I switch to the first user
+    Given I have a project
+    Given I obtain test data file "pods/hello-pod.json"
+    When I run the :create client command with:
+      | f | hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :pending
+    Given I store the schedulable workers in the :nodes clipboard
+    Given label "infra=rhel" is added to the "<%= cb.nodes[0].name %>" node
+    Then the pod named "hello-openshift" status becomes :running
+
+    Given label "infra-" is added to the "<%= cb.nodes[0].name %>" node
+    Given I switch to the second user
+    Given I have a project
+    Given I run the :patch admin command with:
+      | resource      | namespace                                                                                  |
+      | resource_name | <%=project.name%>                                                                          |
+      | p             | {"metadata":{"annotations": {"scheduler.alpha.kubernetes.io/node-selector": "infra=aos"}}} |
+    Then the step should succeed
+    Given I obtain test data file "pods/hello-pod.json"
+    When I run the :create client command with:
+      | f | hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :pending
+    When label "infra=aos" is added to the "<%= cb.nodes[0].name %>" node
+    Then the pod named "hello-openshift" status becomes :running
+
