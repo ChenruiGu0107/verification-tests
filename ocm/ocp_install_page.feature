@@ -218,23 +218,57 @@ Feature: Only about install page
   Scenario: Check elements on the OCP install page - Red Hat Virtualization - UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I run the :go_to_rhv_install_page web action
+    When I run the :go_to_rhv_ipi_install_page web action
     Then the step should succeed
-    When I perform the :check_rhv_install_page web action with:
+    When I perform the :check_rhv_ipi_install_page web action with:
       | title | Install OpenShift on Red Hat Virtualization with installer-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
-      | provider_name | Red Hat Virtualization |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | rhv                                  |
+      | provider_name  | Red Hat Virtualization               |
+      | infrastructure | Installer-provisioned infrastructure |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-36001
+  Scenario: Check elements on the OCP install page - Red Hat Virtualization UPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_rhv_upi_install_page web action
+    Then the step should succeed
+    When I perform the :check_rhv_upi_install_page web action with:
+      | title | Install OpenShift on Red Hat Virtualization with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | rhv                             |
+      | provider_name  | Red Hat Virtualization          |
+      | infrastructure | User-provisioned infrastructure |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-36034
+  Scenario: Check elements on the OCP install page - Bare Metal IPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_bare_metal_ipi_install_page web action
+    Then the step should succeed
+    When I perform the :check_bare_metal_ipi_install_page web action with:
+      | title | Install OpenShift on Bare Metal with installer-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | metal                                |
+      | provider_name  | Bare Metal                           |
+      | infrastructure | Installer-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
   # @case_id OCP-24070
-  Scenario: Check elements on the OCP install page - Bare Metal - UI
+  Scenario: Check elements on the OCP install page - Bare Metal UPI - UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I run the :go_to_bare_metal_install_page web action
+    When I run the :go_to_bare_metal_upi_install_page web action
     Then the step should succeed
-    When I perform the :check_bare_metal_install_page web action with:
+    When I perform the :check_bare_metal_upi_install_page web action with:
       | title | Install OpenShift on Bare Metal with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
