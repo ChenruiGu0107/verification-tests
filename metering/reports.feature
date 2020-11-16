@@ -61,3 +61,18 @@ Feature: reports related scenarios
     And I use the "<%= cb.metering_namespace.name %>" project
     Given all reports can be generated via reportquery
 
+  @admin
+  @destructive
+  # @author pruan@redhat.com
+  # @case_id OCP-24176
+  Scenario: S3 storage is the default for AWS environments
+    # cluster and storage has to be the same vendor
+    Given the expression should be true> infrastructure('cluster').platform == "AWS"
+    Given I switch to cluster admin pseudo user
+    Given admin obtains the cloudcredentials from cluster and store them to the clipboard
+    Given I remove metering service from the "openshift-metering" project
+    And I setup a metering project
+    And I use the "openshift-metering" project
+    And I run oc create as admin over ERB test file: metering/secrets/s3.yaml
+    Given I install metering service using:
+      | meteringconfig | metering/configs/meteringconfig_s3_storage.yaml |
