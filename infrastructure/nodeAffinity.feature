@@ -94,9 +94,12 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml"
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | pod-node-affinity-invalid-doesnotexist.yaml |
     Then the step should fail
+    """
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
     When I run the :get client command with:
