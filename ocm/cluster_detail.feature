@@ -445,3 +445,110 @@ Feature: Only for case related to cluster detail page
       | timeout | 5 |
     Then the step should fail
 
+  # @author tzhou@redhat.com
+  # @case_id OCP-28135
+  Scenario: Only OrganizationAdmin and ClusterOwner can edit subscription settings
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-ocp |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :check_edit_subscription_settings_link web action
+    Then the step should succeed
+    Given I open ocm portal as an orgAdmin user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-ocp |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :check_edit_subscription_settings_link web action
+    Then the step should succeed
+    Given I open ocm portal as an secondRegularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-ocp |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :check_edit_subscription_settings_link web action
+    Then the step should fail
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-33436
+  Scenario: Check the ui elements of the ownership transfer
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-ocp |
+    Then the step should succeed
+    When I perform the :check_filter_cluster_existed web action with:
+      | coloumn_number | 1           |
+      | filter_keyword | sdqe-ui-ocp |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :transfer_cluster_ownership web action
+    Then the step should succeed
+    When I run the :cancel_transfer_cluster_ownership web action
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-35651
+  Scenario: Check the UI layout of support tab in cluster detail page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-admin               |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-admin               |
+    Then the step should succeed
+    When I perform the :check_support_tab web action with:
+      | owner_email    | tzhou+uiorgadmin@redhat.com |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-36294
+  Scenario: Check the permission of support tab in cluster detail page
+    Given I open ocm portal as an orgAdmin user
+    Then the step should succeed
+    Given I saved following keys to list in :clusters clipboard:
+      | sdqe-ui-default ||
+      | sdqe-ui-admin   ||
+    When I repeat the following steps for each :cluster_name in cb.clusters:
+    """
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | #{cb.cluster_name}  |
+    Then the step should succeed
+    When I run the :click_support_tab web action
+    Then the step should succeed
+    When I run the :check_add_notification_contact_button_disabled web action
+    Then the step should fail
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    """
+    Given I open ocm portal as a regularUser user
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-admin   |
+    Then the step should succeed
+    When I run the :click_support_tab web action
+    Then the step should succeed
+    When I run the :check_add_notification_contact_button_disabled web action
+    Then the step should succeed
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :click_support_tab web action
+    Then the step should succeed
+    When I run the :check_add_notification_contact_button_disabled web action
+    Then the step should fail
