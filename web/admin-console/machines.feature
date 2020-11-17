@@ -234,3 +234,54 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :check_page_not_match web action with:
       | content | example |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-28203
+  @admin
+  @destructive
+  Scenario: Node/Host Health Checks
+    Given the master version >= "4.4"
+    Given I have an IPI deployment
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+
+    Given I clone a machineset and name it "machineset-clone-28203"
+
+    # Create MHC
+    Given I obtain test data file "cloud/mhc/mhc1.yaml"
+    When I run oc create over "mhc1.yaml" replacing paths:
+      | n                                                                                  | openshift-machine-api       |
+      | ["metadata"]["name"]                                                               | mhc-<%= machine_set.name %> |
+      | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-cluster"]    | <%= machine_set.cluster %>  |
+      | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-machineset"] | <%= machine_set.name %>     |
+    Then the step should succeed
+    And I ensure "mhc-<%= machine_set.name %>" machine_health_check is deleted after scenario
+
+    # Annotate external remediation
+    When I run the :annotate client command with:
+      | resource     | machinehealthcheck                                           |
+      | resourcename | mhc-<%= machine_set.name %>                                  |
+      | namespace    | openshift-machine-api                                        |
+      | overwrite    | true                                                         |
+      | keyval       | machine.openshift.io/remediation-strategy=external-baremetal |
+    Then the step should succeed      
+
+    # Create unhealthyCondition to trigger machine remediation
+    When I create the 'Ready' unhealthyCondition
+
+    Then I wait up to 600 seconds for the steps to pass:
+    """
+    the expression should be true> machine.annotation("host.metal3.io/external-remediation") == ""
+    the expression should be true> machine.instance_state == "running"
+    """
+
+    Given 300 seconds have passed
+    Given I open admin console in a browser
+    When I perform the :goto_one_node_page web action with:
+      | node_name | <%= machine.node_name %> |
+    Then the step should succeed
+    When I run the :check_unhealthy_health_check_status web action
+    Then the step should succeed
+
