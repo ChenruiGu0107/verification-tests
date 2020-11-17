@@ -26,8 +26,7 @@ Feature: machineconfig/machineconfig pool related
     Then the step should succeed
     """
 
-    When I perform the :click_tab web action with:
-      | tab_name | Machine Configs |
+    When I run the :click_machine_configs_tab web action
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | <%= machine_config_pool('example').spec.configuration_source[0]["name"] %> |

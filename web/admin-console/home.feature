@@ -96,8 +96,7 @@ Feature: Home related pages via admin console
       | namespaced  | true      |
       | short_names | cm        |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Instances |
+    When I run the :click_instances_tab web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | Restricted Access |
@@ -109,14 +108,12 @@ Feature: Home related pages via admin console
       | project_name     | project-ocp-24306 |
       | api_explore_name | core~v1~ConfigMap |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Access Review |
+    When I run the :click_access_review_tab web action
     Then the step should succeed
     When I perform the :check_page_not_match web action with:
       | content | Error Loading Access Review |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Instances |
+    When I run the :click_instances_tab web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | No Config Maps Found |
@@ -141,20 +138,17 @@ Feature: Home related pages via admin console
       | api_version | v1                  |
       | namespaced  | false               |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Schema |
+    When I run the :click_schema_tab web action
     Then the step should succeed
     When I run the :check_info_in_schema web action
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Instances |
+    When I run the :click_instances_tab web action
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | cluster |
       | link_url | /k8s/cluster/config.openshift.io~v1~Build/cluster |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Access Review |
+    When I run the :click_access_review_tab web action
     Then the step should succeed
     When I run the :check_access_review_table web action
     Then the step should succeed

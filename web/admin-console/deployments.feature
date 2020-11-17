@@ -256,8 +256,7 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %>  |
       | dc_name      | hooks                |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Replication Controllers |
+    When I run the :click_replication_controllers_tab web action
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | hooks-1                          |
@@ -269,8 +268,7 @@ Feature: deployment/dc related features via web
       | project_name | openshift-console |
       | deploy_name  | console           |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Replica Sets |
+    When I run the :click_replica_sets_tab web action
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | console-             |

@@ -21,8 +21,7 @@ Feature: imagestream related
       | imagestream_name | testdotnet          |
     Then the step should succeed
 
-    When I perform the :click_tab web action with:
-      | tab_name | History |
+    When I run the :click_history_tab web action
     Then the step should succeed
 
     When I perform the :check_resource_name_and_icon web action with:

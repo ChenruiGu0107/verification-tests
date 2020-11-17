@@ -36,11 +36,9 @@ Feature: cronjob related
       | concurrency_policy | Allow       |
       | last_schedule_time |             |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | YAML |
+    When I run the :click_yaml_tab web action
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Events |
+    When I run the :click_events_tab web action
     Then the step should succeed
     Given a job appears with labels:
       | run=sj3 |

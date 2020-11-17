@@ -27,8 +27,7 @@ Feature: environment related
       | project_name | <%= project.name %>  |
       | bc_name      | python-sample        |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Environment |
+    When I run the :click_environment_tab web action
     Then the step should succeed
     When I run the :check_env_editor_loaded web action
     Then the step should succeed
@@ -68,8 +67,7 @@ Feature: environment related
       | project_name | <%= project.name %>  |
       | bc_name      | python-sample        |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Environment |
+    When I run the :click_environment_tab web action
     Then the step should succeed
     When I run the :check_env_editor_loaded web action
     Then the step should succeed
