@@ -91,3 +91,32 @@ Feature: Descheduler related scenarios
     And the output should contain:
       | Cannot evict pod as it would violate the pod's disruption budget. |
     """
+
+   # @author knarra@redhat.com
+   # @case_id OCP-35000
+   @admin
+   @destructive
+   Scenario: Basic Descheduler - validate if given priorityclass is not present descheduler does not create it
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                                                        |
+       | resource_name | cluster                                                                                                |
+       | p             | [{"op": "replace", "path": "/spec/strategies/0/params/1/name", "value": "thresholdPriorityClassName"}] |
+       | type          | json                                                                                                   |
+     Then the step should succeed
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                                             |
+       | resource_name | cluster                                                                                     |
+       | p             | [{"op": "replace", "path": "/spec/strategies/0/params/1/value", "value": "priorityclass1"}] |
+       | type          | json                                                                                        |
+     Then the step should succeed
+     Given 60 seconds have passed
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :logs client command with:
+       | resource_name | <%= pod.name %> |
+     Then the step should succeed
+     And the output should contain:
+       | err="priorityclasses.scheduling.k8s.io \"priorityclass1\" not found |
