@@ -223,3 +223,44 @@ Feature: Descheduler related scenarios
      And the output should contain:
        | Evicted 1 pods                                                           |
        | Evicted pod: "<%= cb.testpod_name %>" in namespace "<%= cb.proj_name %>" |
+
+   # @author knarra@redhat.com
+   # @case_id OCP-34944
+   @admin
+   @destructive
+   Scenario: Validate PodLifeTime Strategy
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     Then the step should succeed
+     Given I switch to the first user
+     When I run the :new_project client command with:
+       | project_name | ocp34944 |
+     Then the step should succeed
+     And I use the "ocp34944" project
+     When I run the :create_deploymentconfig client command with:
+       | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+       | name  | hello-openshift                                                                                               |
+     Then the step should succeed
+     Given a pod becomes ready with labels:
+       | deploymentconfig=hello-openshift |
+     And I wait up to 80 seconds for the steps to pass:
+     """
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     And the output should contain:
+       | Evicted pod: "<%= pod.name %>" in namespace "ocp34944" (PodLifeTime) |
+     """
