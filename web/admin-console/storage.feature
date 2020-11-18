@@ -65,8 +65,7 @@ Feature: storage (storageclass, pv, pvc) related
       | project_name | <%= project.name %>     |
       | pvc_name     | pvc-<%= project.name %> |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Expand PVC |
+    When I run the :expand_pvc_action web action
     Then the step should succeed
 
     # to smaller value
@@ -164,8 +163,7 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
 
     # resize to larger value but not exceed the quota
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Expand PVC |
+    When I run the :expand_pvc_action web action
     Then the step should succeed
     When I perform the :expand_pvc_size web action with:
       | pvc_request_size | 1.5 |
@@ -176,8 +174,7 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
 
     # resize to a larger value beyonds quota
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Expand PVC |
+    When I run the :expand_pvc_action web action
     Then the step should succeed
     When I perform the :expand_pvc_size web action with:
       | pvc_request_size | 3   |

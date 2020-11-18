@@ -140,8 +140,7 @@ Feature: secrets related
     Then the step should succeed
 
     # Edit secret
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Edit Secret |
+    When I run the :edit_secret_action web action
     Then the step should succeed
     When I perform the :create_generic_secret web action with:
       | one_more       | |

@@ -65,8 +65,7 @@ Feature: cronjob related
       | desired_completions | 1                   |
       | parallelism         | 1                   |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Edit Parallelism |
+    When I run the :edit_parallelism_action web action
     Then the step should succeed
     When I perform the :update_resource_count web action with:
       | resource_count | 2 |
@@ -80,8 +79,7 @@ Feature: cronjob related
       | project_name | <%= project.name %> |
       | cronjob_name | sj3                 |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Delete Cron Job |
+    When I run the :delete_cronjob_action web action
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
       | cascade | true |
