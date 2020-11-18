@@ -241,7 +241,7 @@ Feature: oc get related command
     And I run the :apply admin command with:
       | f  | crd.yaml |
     Then the step should succeed
-    And the expression should be true> @bg_processes.last.finished?
+    And I wait up to 30 seconds for the last background process to finish
 
     When I run the :get background admin command with:
       | resource | :false                                                     |
@@ -250,7 +250,7 @@ Feature: oc get related command
     When I run the :delete admin command with:
       | object_name_or_id | crd/testcrs.example.com  |
     Then the step should succeed
-    And the expression should be true> @bg_processes.last.finished?
+    And I wait up to 30 seconds for the last background process to finish
     When I check status of last background process
     Then the output should match:
       | "type":"DELETED".*"object":.*"kind":"TestCR" |
