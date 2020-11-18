@@ -120,3 +120,31 @@ Feature: Descheduler related scenarios
      Then the step should succeed
      And the output should contain:
        | err="priorityclasses.scheduling.k8s.io \"priorityclass1\" not found |
+
+   # @author knarra@redhat.com
+   # @case_id OCP-34999
+   @admin
+   @destructive
+   Scenario: validate that descheduler does not allow to configure both thresholdPriority & thresholdPriorityClassName
+     Given admin ensures "priorityl" priority_class is deleted after scenario
+     # Create priority class
+     Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"
+     When I run the :create admin command with:
+       | f | priorityl.yaml |
+     Then the step should succeed
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                                                                               |
+       | resource_name | cluster                                                                                                                       |
+       | p             | [{"op": "add", "path": "/spec/strategies/0/params/2", "value": {"name": "thresholdPriorityClassName", "value": "priorityl"}}] |
+       | type          | json                                                                                                                          |
+     Then the step should succeed
+     Given a pod becomes ready with labels:
+       | name=descheduler-operator |
+     When I run the :logs admin command with:
+       | resource_name | <%= pod.name %> |
+     Then the step should succeed
+     And the output should contain:
+       | cannot set both thresholdPriorityClassName and thresholdPriority |
