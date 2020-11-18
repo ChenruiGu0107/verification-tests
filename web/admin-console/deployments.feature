@@ -41,8 +41,7 @@ Feature: deployment/dc related features via web
       | resource_count | 2 |
     Then the step should succeed
     Given I wait until number of replicas match "2" for deployment "example"
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Edit Update Strategy |
+    When I run the :edit_update_strategy_action web action
     Then the step should succeed
     When I perform the :update_rollout_strategy web action with:
       | update_strategy | Recreate |
@@ -79,8 +78,7 @@ Feature: deployment/dc related features via web
       | test_key=test_value |
     When I run the :click_overview_tab web action
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Delete Deployment |
+    When I run the :delete_deployment_action web action
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
       | cascade       | true |
@@ -112,8 +110,7 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %>  |
       | dc_name      | hooks                |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item  | Pause Rollouts |
+    When I run the :pause_rollouts_action web action
     Then the step should succeed
     Given I wait up to 60 seconds for the steps to pass:
     """
@@ -121,8 +118,7 @@ Feature: deployment/dc related features via web
       | content | Resume Rollouts |
     Then the step should succeed
     """
-    When I perform the :click_one_dropdown_action web action with:
-      | item  | Start Rollout |
+    When I run the :start_rollout_action web action
     Then the step should succeed
     When I perform the :check_page_match web action with:
       | content | deployment config "hooks" is paused |
@@ -131,12 +127,10 @@ Feature: deployment/dc related features via web
       | button_text | OK |
     Then the step should succeed
 
-    When I perform the :click_one_dropdown_action web action with:
-      | item  | Resume Rollouts |
+    When I run the :resume_rollouts_action web action
     Then the step should succeed
 
-    When I perform the :click_one_dropdown_action web action with:
-      | item  | Start Rollout |
+    When I run the :start_rollout_action web action
     Then the step should succeed
     When I perform the :check_page_not_match web action with:
       | content | deployment config "hooks" is paused |
@@ -166,8 +160,7 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %> |
       | rc_name      | hooks-2             |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Cancel Rollout |
+    When I run the :cancel_rollout_action web action
     Then the step should succeed
     When I run the :confirm_cancel_rollout web action
     Then the step should succeed

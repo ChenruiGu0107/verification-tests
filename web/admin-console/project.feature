@@ -21,8 +21,7 @@ Feature: projects related features via web
       | name         | <%= cb.pro_name %> |
       | display_name | pro_display        |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Delete Project |
+    When I run the :delete_project_action web action
     Then the step should succeed
     When I perform the :send_delete_string web action with:
       | resource_name | <%= cb.pro_name %>  |
@@ -62,8 +61,7 @@ Feature: projects related features via web
     When I run the :create_resource_by_default_yaml web action
     Then the step should succeed
 
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Delete Service Account |
+    When I perform the :delete_serviceaccount_action web action
     Then the step should succeed
     When I run the :delete_resource_panel web action
     Then the step should succeed

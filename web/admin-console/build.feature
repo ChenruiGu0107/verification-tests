@@ -68,8 +68,7 @@ Feature: build related
       | project_name  | <%= project.name %>  |
       | bc_name       | python-sample        |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Start Build |
+    When I run the :start_build_action web action
     Then the step should succeed
     Given the "python-sample-2" build was created
     When I perform the :goto_one_build_page web action with:
@@ -85,8 +84,7 @@ Feature: build related
       | project_name  | <%= project.name %>  |
       | bc_name       | python-sample        |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Delete Build Config |
+    When I run the :delete_buildconfig_action web action
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
       | cascade | true |
@@ -131,21 +129,18 @@ Feature: build related
       | project_name  | <%= project.name %>  |
       | build_name    | ruby-sample-1        |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Cancel Build |
+    When I run the :cancel_build_action web action
     Then the step should succeed
     When I perform the :confirm_cancel_action web action with:
       | cancel | true |
     Then the step should succeed
 
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Rebuild |
+    When I run the :rebuild_action web action
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Cancel Build |
+    When I run the :cancel_build_action web action
     Then the step should succeed
     When I perform the :confirm_cancel_action web action with:
       | cancel | false |

@@ -43,8 +43,7 @@ Feature: configmap related
     Then the output should contain:
       | annota1: annotaone |
 
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Delete Config Map |
+    When I run the :delete_configmap_action web action
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
       | cascade | true |
