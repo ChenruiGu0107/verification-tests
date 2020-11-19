@@ -29,6 +29,15 @@ Feature: idp feature
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
     """
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | ocp23517_user               |
@@ -101,6 +110,15 @@ Feature: idp feature
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
     """
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | ocp23514_user               |
@@ -125,6 +143,15 @@ Feature: idp feature
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
     """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -177,6 +204,15 @@ Feature: idp feature
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
     """
 
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
+    """
     # Login should successful with user details as claim method
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -203,6 +239,15 @@ Feature: idp feature
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
     """
     # Login should fail as username is already mapped with other idp
     When I run the :login client command with:
@@ -256,6 +301,15 @@ Feature: idp feature
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | pod                      |
+      | l        | app=oauth-openshift      |
+      | n        | openshift-authentication |
+    Then the step should succeed
+    And the output should not contain "Terminating"
     """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
