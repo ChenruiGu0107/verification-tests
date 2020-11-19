@@ -269,7 +269,6 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author mcurlej@redhat.com
-  # @case_id OCP-12039, OCP-12284
   @admin
   Scenario Outline: The process can be ran with the specified user when using MustRunAs or RunAsAny as the RunAsUserStrategy
     Given I have a project
@@ -290,8 +289,8 @@ Feature: SCC policy related scenarios
 
     Examples:
       | scc_file_name      |
-      | scc-user-mustrunas |
-      | scc-runasany       |
+      | scc-runasany       | # @case_id OCP-12039
+      | scc-user-mustrunas | # @case_id OCP-12284
 
   # @author pruan@redhat.com
   # @case_id OCP-11785

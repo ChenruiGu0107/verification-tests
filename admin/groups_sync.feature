@@ -1,10 +1,8 @@
 Feature: Group sync related scenarios
 
   # @author wjiang@redhat.com
-  # @case_id OCP-10714,OCP-11193,OCP-11532
   @admin
   Scenario Outline: Sync ldap groups to openshift groups from ldap server
-	    
     Given I have a project
     Given I have LDAP service in my project
     Given I switch to cluster admin pseudo user
@@ -28,9 +26,9 @@ Feature: Group sync related scenarios
       | <get_regex> |
     Examples:
       | file                                 | group1         | group2         | group3         | file_name        | sync_regex                                                       | get_regex                                                |
-      | groups/ad/sync-config.yaml           | tc509126group1 | tc509126group2 | tc509126group3 | sync-config.yaml | group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3 | tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s |
-      | groups/rfc2307/sync-config.yaml      | tc509125group1 | tc509125group2 | tc509125group3 | sync-config.yaml | group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3 | tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s |
-      | groups/augmented-ad/sync-config.yaml | tc509127group1 | tc509127group2 | tc509127group3 | sync-config.yaml | group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3 | tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s |      
+      | groups/ad/sync-config.yaml           | tc509126group1 | tc509126group2 | tc509126group3 | sync-config.yaml | group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3 | tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s | # @case_id OCP-11532
+      | groups/augmented-ad/sync-config.yaml | tc509127group1 | tc509127group2 | tc509127group3 | sync-config.yaml | group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3 | tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s | # @case_id OCP-11193
+      | groups/rfc2307/sync-config.yaml      | tc509125group1 | tc509125group2 | tc509125group3 | sync-config.yaml | group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3 | tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s | # @case_id OCP-10714
 
   # @author wjiang@redhat.com
   # @case_id OCP-11757

@@ -226,7 +226,6 @@ Feature: deployment related features
       |<%= project.name %>\\s+database-\\d+|
 
   # @author pruan@redhat.com
-  # @case_id OCP-12452, OCP-12460
   Scenario Outline: Failure handler of pre-post deployment hook
     Given I have a project
     Given I obtain test data file "deployment/<file_name>"
@@ -242,8 +241,8 @@ Feature: deployment related features
     """
     Examples:
       | file_name | pod_name          |
-      | pre.json  | hooks-1-hook-pre  |
-      | post.json | hooks-1-hook-post |
+      | post.json | hooks-1-hook-post | # @case_id OCP-12452
+      | pre.json  | hooks-1-hook-pre  | # @case_id OCP-12460
 
   # @author cryan@redhat.com
   # @case_id OCP-9768
@@ -577,7 +576,6 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-9973 OCP-9974
   Scenario Outline: custom deployment for Recreate/Rolling strategy
     Given I have a project
     Given I obtain test data file "deployment/<file>"
@@ -594,8 +592,8 @@ Feature: deployment related features
       | Finished    |
     Examples:
       | file                 |
-      | custom-rolling.yaml  |
-      | custom-recreate.yaml |
+      | custom-recreate.yaml | # @case_id OCP-9973
+      | custom-rolling.yaml  | # @case_id OCP-9974
 
 
   # @author yinzhou@redhat.com
