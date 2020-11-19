@@ -6,9 +6,9 @@ Feature: Service related networking scenarios
     Given I have a project
     And I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
-      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -EA5 '^Name(.*)www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -A5 '^Name:.*www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
     Then the step should succeed
-    And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
+    And evaluation of `@result[:response].chomp.match(/\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}/)[0]` is stored in the :google_ip clipboard
     Given I obtain test data file "networking/external_service.json"
     When I run oc create over "external_service.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.google_ip %> |
@@ -37,7 +37,6 @@ Feature: Service related networking scenarios
       | f |  nodeport_service.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
 
     Given I obtain test data file "networking/list_for_pods.json"
     When I run oc create over "list_for_pods.json" replacing paths:
@@ -45,6 +44,7 @@ Feature: Service related networking scenarios
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
+    And evaluation of `pod.node_ip` is stored in the :hostip clipboard
     When I execute on the pod:
       | curl | <%= cb.hostip %>:<%= cb.port %> |
     Then the step should succeed

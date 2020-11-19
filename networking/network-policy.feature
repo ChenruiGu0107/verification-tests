@@ -1801,6 +1801,8 @@ Feature: Network policy plugin scenarios
       | f | allow-all.yaml |
     Then the step should succeed
 
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should succeed
@@ -1810,12 +1812,12 @@ Feature: Network policy plugin scenarios
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
     Then the step should succeed
     And the output should contain "Hello"
-
-    Given I obtain test data file "networking/networkpolicy/allow-all.yaml"
+    """
     When I run the :delete client command with:
       | f | allow-all.yaml |
     Then the step should succeed
-
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should fail
@@ -1825,6 +1827,7 @@ Feature: Network policy plugin scenarios
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+    """
 
   # @author huirwang@redhat.com
   # @case_id OCP-26207
