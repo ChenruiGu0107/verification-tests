@@ -28,34 +28,27 @@ Feature: Descheduler related scenarios
   @destructive
   Scenario: Basic Descheduler - Descheduler should not violate PodDisruptionBudget
     Given the master version >= "4.4"
-    Given I have a project
-    And evaluation of `project.name` is stored in the :proj_name clipboard
-    Given I store the schedulable workers in the :nodes clipboard
+    Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
     Given I switch to cluster admin pseudo user
     And I use the "openshift-kube-descheduler-operator" project
+    Given a pod becomes ready with labels:
+      | app=descheduler |
     When I run the :patch admin command with:
-      | resource      | kubedescheduler                                                                     |
-      | resource_name | cluster                                                                             |
-      | p             | [{"op": "replace", "path": "/spec/strategies/0/name", "value": "RemoveDuplicates"}] |
-      | type          | json                                                                                |
+      | resource      | kubedescheduler                                                               |
+      | resource_name | cluster                                                                       |
+      | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+      | type          | json                                                                          |
     Then the step should succeed
-    And I wait for the steps to pass:
-    """
+    Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
     Given a pod becomes ready with labels:
       | app=descheduler |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
-    When I run the :logs client command with:
-      | resource_name | pod/<%= cb.pod_name %> |
-    Then the step should succeed
-    And the output should contain:
-      | duplicates.go |
-    """
-    And I use the "<%= cb.proj_name %>" project
+    Given I switch to the first user
+    And I have a project
     When I run the :create_deployment client command with:
       | name  | hello                                                                                                         |
       | image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
     Then the step should succeed
-    And the output should match "deployment.apps/hello created"
     Given a pod becomes ready with labels:
       | app=hello |
     Given I successfully patch resource "deployment/hello" with:
@@ -69,8 +62,8 @@ Feature: Descheduler related scenarios
     Then the step should succeed
     Given I wait up to 80 seconds for the steps to pass:
     """
-    When I run the :logs client command with:
-      | resource_name | pod/<%= cb.pod_name %>              |
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.pod_name %>                  |
       | n             | openshift-kube-descheduler-operator |
     Then the step should succeed
     And the output should contain:
@@ -78,14 +71,15 @@ Feature: Descheduler related scenarios
     """
     Given I ensure "pdbocp17202" poddisruptionbudget is deleted
     When I run the :create_poddisruptionbudget client command with:
-      | name            | pdbocp17202_1 |
-      | max_unavailable | 11            |
-      | selector        | app=hello     |
+      | name            | pdbocp17202 |
+      | max_unavailable | 1           |
+      | selector        | app=hello   |
     Then the step should succeed
     Given I wait up to 80 seconds for the steps to pass:
     """
-    When I run the :logs client command with:
-      | resource_name | pod/<%= cb.pod_name %>              |
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.pod_name %>                  |
+      | since         | 10s                                 |
       | n             | openshift-kube-descheduler-operator |
     Then the step should succeed
     And the output should contain:
