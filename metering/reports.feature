@@ -76,3 +76,21 @@ Feature: reports related scenarios
     And I run oc create as admin over ERB test file: metering/secrets/s3.yaml
     Given I install metering service using:
       | meteringconfig | metering/configs/meteringconfig_s3_storage.yaml |
+
+  @admin
+  @destructive
+  # @author pruan@redhat.com
+  # @case_id OCP-35941
+  Scenario: verify expiration field for Metering Report
+    Given metering service has been installed successfully
+    Given I use the "openshift-metering" project
+    Then I generate a metering report with:
+      | metadata_name | report-ocp-35941         |
+      | query_type    | namespace-memory-request |
+      | expiration    | 2m                       |
+    # wait for the expiration time to pass
+    And 120 seconds have passed
+    # check the report is still there
+    And the expression should be true> report('report-ocp-35941').exists? and (report('report-ocp-35941').age > 120)
+    # report does not get purge immediately, keep looping until timeout
+    And I wait for the resource "report" named "report-ocp-35941" to disappear within 600 seconds
