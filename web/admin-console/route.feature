@@ -373,9 +373,8 @@ Feature: route related
       | project_name | <%= project.name %> |
       | route_name   | mytestroute         |
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Status   |
-      | value | Rejected |
+    When I perform the :check_resource_details web action with:
+      | status | Rejected |
     Then the step should succeed
     When I run the :check_rejected_icon_and_text web action
     Then the step should succeed

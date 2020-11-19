@@ -86,9 +86,8 @@ Feature: operatorhub feature related
     # console will show 'Catalog Source Removed' on Subscription page when CatalogSource is removed
     When I run the :goto_catalog_source_page web action
     Then the step should succeed
-    When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | custom-cs-keycloak   |
-      | kebab_item    | Delete CatalogSource |
+    When I perform the :delete_catalogsource_kabab_operation web action with:
+      | resource_name | custom-cs-keycloak |
     Then the step should succeed
     When I perform the :confirm_deletion web action with:
       | resource_name | custom-cs-keycloak |
@@ -529,9 +528,8 @@ Feature: operatorhub feature related
     # check filter missing after deleting catalogsource
     When I run the :goto_catalog_source_page web action
     Then the step should succeed
-    When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | custom-cs-akka       |
-      | kebab_item    | Delete CatalogSource |
+    When I perform the :delete_catalogsource_kabab_operation web action with:
+      | resource_name | custom-cs-akka |
     Then the step should succeed
     When I perform the :confirm_deletion web action with:
       | resource_name | custom-cs-akka |

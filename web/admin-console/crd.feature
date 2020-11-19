@@ -133,9 +133,8 @@ Feature: CRD related
     Then the step should fail
 
     # check Watchdog alert message before config
-    When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | Watchdog      |
-      | kebab_item    | Edit Receiver |
+    When I perform the :edit_receiver_kebab_operation web action with:
+      | resource_name | Watchdog |
     Then the step should succeed
     And I perform the :check_alert_message web action with:
       | title       | Watchdog                                                  |

@@ -165,9 +165,8 @@ Feature: deployment/dc related features via web
     When I run the :confirm_cancel_rollout web action
     Then the step should succeed
     Given I wait until the status of replication controller "hooks-2" becomes :failed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Phase  |
-      | value | Failed |
+    When I perform the :check_resource_details web action with:
+      | phase | Failed |
     Then the step should succeed
     When I perform the :goto_one_dc_page web action with:
       | project_name | <%= project.name %> |

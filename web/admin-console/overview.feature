@@ -34,9 +34,8 @@ Feature: overview cases
     # check basic info on overview view
     When I run the :click_sidebar_overview_tab web action
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Name          |
-      | value | python-sample |
+    When I perform the :check_resource_details web action with:
+      | name | python-sample |
     Then the step should succeed
     When I perform the :check_key_and_resource_link web action with:
       | key           | Namespace                                   |
@@ -222,9 +221,8 @@ Feature: overview cases
     # check info in Overview sidebar
     When I run the :click_sidebar_overview_tab web action
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Name   |
-      | value | hello  |
+    When I perform the :check_resource_details web action with:
+      | name | hello |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | hello |
@@ -546,9 +544,8 @@ Feature: overview cases
     Then the step should succeed
     When I run the :click_sidebar_overview_tab web action
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Name            |
-      | value | hello-daemonset |
+    When I perform the :check_resource_details web action with:
+      | name | hello-daemonset |
     Then the step should succeed
 
     # make sure the 1st and last pod of daemonset are shown on page

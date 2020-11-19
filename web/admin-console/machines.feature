@@ -166,9 +166,8 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :goto_machinehealthcheck_page web action with:
       | project_name  | <%= project.name %>  |
     Then the step should succeed
-    When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | example  |
-      | kebab_item    | Delete Machine Health Check |
+    When I perform the :delete_machinehealthcheck_kabab_operation web action with:
+      | resource_name | example |
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed

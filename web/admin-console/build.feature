@@ -151,9 +151,8 @@ Feature: build related
       | project_name  | <%= project.name %>  |
     Then the step should succeed
     Given the "ruby-sample-3" build becomes :new
-    When I perform the :click_one_operation_in_kebab web action with:
+    When I perform the :cancel_build_kebab_operation web action with:
       | resource_name  | ruby-sample-3 |
-      | kebab_item     | Cancel Build  |
     Then the step should succeed
     When I perform the :confirm_cancel_action web action with:
       | cancel | true |
