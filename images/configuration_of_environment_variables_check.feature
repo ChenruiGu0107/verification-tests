@@ -1,17 +1,4 @@
 Feature: Configuration of environment variables check
-  # @author cryan@redhat.com
-  # @case_id OCP-11143
-  Scenario: Substitute environment variables into a container's command
-    Given I have a project
-    Given I obtain test data file "container/commandtest.json"
-    When I run the :create client command with:
-      | f | commandtest.json |
-    Then the step should succeed
-    Given the pod named "expansion-pod" status becomes :succeeded
-    When I run the :logs client command with:
-      | resource_name | expansion-pod |
-    Then the step should succeed
-    And the output should contain "http"
 
   # @author pruan@redhat.com
   # @case_id OCP-10646

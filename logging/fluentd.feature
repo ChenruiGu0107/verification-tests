@@ -13,31 +13,6 @@ Feature: fluentd related tests
     Then the expression should be true> cb.fluentd_container_mem_limit[1] == cb.fluentd_pod_mem_limit[1]
 
   # @author pruan@redhat.com
-  # @case_id OCP-10995
-  @admin
-  @destructive
-  Scenario: Check fluentd changes for common data model and index naming
-    Given I switch to the first user
-    Given I create a project with non-leading digit name
-    And evaluation of `project` is stored in the :org_project clipboard
-    Given I obtain test data file "logging/loggen/container_json_log_template.json"
-    When I run the :new_app client command with:
-      | file | container_json_log_template.json |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | run=centos-logtest,test=centos-logtest |
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
-    When I wait 600 seconds for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "es-node-master=true"
-    And the expression should be true> cb.proj_index_regex = /project.#{cb.org_project.name}.#{cb.org_project.uid}.(\d{4}).(\d{2}).(\d{2})/
-    And the expression should be true> cb.op_index_regex = /.operations.(\d{4}).(\d{2}).(\d{2})/
-    Given I log the message> <%= cb.index_data['index'] %>
-    And the expression should be true> cb.proj_index_regex.match(cb.index_data['index'])
-    And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
-    Given I log the message> <%= cb.index_data['index'] %>
-    And the expression should be true> cb.op_index_regex.match(cb.index_data['index'])
-
-  # @author pruan@redhat.com
   @admin
   @destructive
   Scenario Outline: special message type testing
@@ -59,7 +34,6 @@ Feature: fluentd related tests
     """
     Examples:
       | file                                     | message                                                  |
-      | container_json_event_log_template.json   | "anlieventevent"                                         | # @case_id OCP-19431
       | container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
   # @author qitang@redhat.com

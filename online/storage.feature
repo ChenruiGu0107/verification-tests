@@ -53,53 +53,6 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And the output should contain:
       | Disk quota exceeded |
 
-  # @author chaoyang@redhat.com
-  # @case_id OCP-14187
-  Scenario: Basic user could not get deeper storageclass object info
-    Given I have a project
-    When I run the :get client command with:
-      | resource   | storageclass |
-      | no_headers | true         |
-    Then the step should succeed
-    And evaluation of `@result[:response].split(" ")[0]` is stored in the :storageclass clipboard
-
-    When I run the :get client command with:
-      | resource      | storageclass           |
-      | resource_name | <%= cb.storageclass %> |
-      | o             | yaml                   |
-    Then the expression should be true> @result[:success] == env.version_ge("3.6", user: user)
-
-    When I run the :get client command with:
-      | resource | storageclass |
-      | o        | yaml         |
-    Then the step should succeed
-
-    When I run the :describe client command with:
-      | resource | storageclass           |
-      | name     | <%= cb.storageclass %> |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
-
-    When I run the :delete client command with:
-      | object_type       | storageclass           |
-      | object_name_or_id | <%= cb.storageclass %> |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
-
-    Given I obtain test data file "storage/ebs/dynamic-provisioning/storageclass-io1.yaml"
-    When I run the :create client command with:
-      | f | storageclass-io1.yaml |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
-
-    When I run the :get client command with:
-      | resource      | storageclass           |
-      | resource_name | <%= cb.storageclass %> |
-    Then the step should succeed
-
   # @author yasun@redhat.com
   # @case_id OCP-14565
   Scenario: check the storage size description on web console on paid tier

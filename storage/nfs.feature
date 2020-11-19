@@ -110,48 +110,6 @@ Feature: NFS Persistent Volume
       | ReadOnlyMany  | Retain         | released  | succeed     | # @case_id OCP-12656
       | ReadWriteOnce | Recycle        | available | fail        | # @case_id OCP-12653
 
-  # @author jhou@redhat.com
-  # @case_id OCP-11128
-  @admin
-  @destructive
-  Scenario: Retain NFS Persistent Volume on release
-    Given I have a project
-    And I have a NFS service in the project
-
-    Given I obtain test data file "storage/nfs/auto/pv-retain.json"
-    And admin creates a PV from "pv-retain.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %>                |
-      | ["spec"]["nfs"]["server"] | "<%= service("nfs-service").ip_url %>" |
-
-    Given I obtain test data file "storage/nfs/auto/pvc-rwx.json"
-    When I create a manual pvc from "pvc-rwx.json" replacing paths:
-      | ["spec"]["volumeName"] | <%= pv.name %> |
-    Then the step should succeed
-    And the "nfsc" PVC becomes :bound
-
-    # Create tester pod
-    Given I obtain test data file "storage/nfs/auto/web-pod.json"
-    When I run the :create client command with:
-      | f | web-pod.json |
-    Then the step should succeed
-
-    Given the pod named "nfs" becomes ready
-    And I execute on the "nfs" pod:
-      | touch | /mnt/created_testfile |
-    Then the step should succeed
-
-    # Delete pod and PVC to release the PV
-    Given I ensure "nfs" pod is deleted
-    And I ensure "nfsc" pvc is deleted
-    And the PV becomes :released
-
-    # After PV is released, verify the created file in nfs export is reserved.
-    When I execute on the "nfs-server" pod:
-      | ls | /mnt/data/ |
-    Then the output should contain:
-      | created_testfile |
-    And the PV status is :released
-
   # @author lxia@redhat.com
   # @case_id OCP-9846
   @admin
@@ -321,35 +279,6 @@ Feature: NFS Persistent Volume
       | from-pod2 |
     And the output should contain:
       | from-pod1 |
-
-  # @author wehe@redhat.com
-  # @case_id OCP-10146
-  @admin
-  @destructive
-  Scenario: New pod could be running after nfs server lost connection
-    Given I have a project
-    And I have a NFS service in the project
-    Given I obtain test data file "image/db-templates/auto-nfs-pv.json"
-    When admin creates a PV from "auto-nfs-pv.json" where:
-      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>             |
-      | ["spec"]["nfs"]["server"]  | "<%= service("nfs-service").ip_url %>" |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | template | mysql-persistent |
-    Then the step should succeed
-    And the "mysql" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
-    Given a pod becomes ready with labels:
-      | app=mysql-persistent |
-    And I ensure "nfs-server" pod is deleted
-    And I ensure "nfs-service" service is deleted
-    And I ensure "mysql" dc is deleted
-    Given I obtain test data file "pods/hello-pod.json"
-    When I run the :create client command with:
-      | f | hello-pod.json |
-    Then the step should succeed
-    Given the pod named "hello-openshift" status becomes :running
-    Given all existing pods die with labels:
-      | app=mysql-persistent |
 
   # @author jhou@redhat.com
   # @case_id OCP-13912
