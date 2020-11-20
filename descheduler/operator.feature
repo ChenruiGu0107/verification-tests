@@ -384,3 +384,68 @@ Feature: Descheduler related scenarios
        | n             | openshift-kube-descheduler-operator |
      And the output should not contain:
        | in namespace "<%= cb.proj_name %>" (RemoveDuplicates) |
+
+   # @author knarra@redhat.com
+   # @case_id OCP-17095
+   @admin
+   @destructive
+   Scenario: Basic descheduler - RemovePodsViolatingInterPodAntiAffinity strategy
+     Given the CR "descheduler" named "cluster" is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     Given I obtain test data file "descheduler/ocp17095.yaml"
+     Given I switch to first user
+     Given I have a project
+     And evaluation of `project.name` is stored in the :proj_name clipboard
+     When I run the :create client command with:
+      | f | ocp17095.yaml |
+     Then the step should succeed
+     Given a pod becomes ready with labels:
+       | app=testone |
+     Given evaluation of `pod.name` is stored in the :podonename clipboard
+     Given evaluation of `pod.node_name` is stored in the :nodename clipboard
+     Given I obtain test data file "descheduler/ocp170951.yaml"
+     When I run the :create client command with:
+       | f | ocp170951.yaml |
+     Then the step should succeed
+     When I run the :get client command with:
+       | resource | pod      |
+       | l        | app=test |
+       | o        | wide     |
+     Then the step should succeed
+     And the output should contain "<%= cb.nodename %>"
+     When I run the :label client command with:
+       | resource | pod                    |
+       | name     | <%= cb.podonename %>   |
+       | key_val  | key17095=value17095    |
+     Then the step should succeed
+     Given I wait up to 80 seconds for the steps to pass:
+     """
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     Then the step should succeed
+     And the output should match:
+       | Evicted pod.*test.*in namespace "<%= cb.proj_name %>" |
+     """
+     Given I wait up to 80 seconds for the steps to pass:
+     """
+     When I run the :get client command with:
+       | resource | pod      |
+       | l        | app=test |
+       | o        | wide     |
+     Then the step should succeed
+     And the output should not contain "<%= cb.nodename %>"
+     """
