@@ -1,10 +1,10 @@
 @clusterlogging
-@commonlogging
 Feature: fluentd related tests
   # @author pruan@redhat.com
   # @case_id OCP-20242
   @admin
   @destructive
+  @commonlogging
   Scenario: [intservice] [bz1399761] Logging fluentD daemon set should set quota for the pods
     Given a pod becomes ready with labels:
       | component=fluentd |
@@ -15,6 +15,7 @@ Feature: fluentd related tests
   # @author pruan@redhat.com
   @admin
   @destructive
+  @commonlogging
   Scenario Outline: special message type testing
     Given I switch to the first user
     Given I create a project with non-leading digit name
@@ -40,13 +41,15 @@ Feature: fluentd related tests
   # @case_id OCP-21083
   @admin
   @destructive
+  @commonlogging
   Scenario: the priority class are added in Logging collector
     Given the expression should be true> daemon_set('fluentd').template['spec']['priorityClassName'] == "cluster-logging"
-
+ 
   # @author qitang@redhat.com
   # @case_id OCP-22985
   @admin
   @destructive
+  @commonlogging  
   Scenario: Properly handle merge of JSON log messages - fluentd
     Given I switch to the first user
     Given I create a project with non-leading digit name
@@ -211,6 +214,7 @@ Feature: fluentd related tests
   # @case_id OCP-30196
   @admin
   @destructive
+  @commonlogging
   Scenario: The pod label and annotation in Elasticsearch
     Given I switch to the first user
     Given I create a project with non-leading digit name
@@ -229,3 +233,62 @@ Feature: fluentd related tests
       | op           | GET                                                                                                  |
     Then the step should succeed
     And the expression should be true> (@result[:parsed]['hits']['hits'].first['_source']['kubernetes']['flat_labels'] - ["run=centos-logtest", "test=centos-logtest"]).empty?
+
+  # @author qitang@redhat.com
+  # @case_id OCP-24377
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: Fluentd pod should reconnect to Elasticsearch.
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :proj_1 clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
+    When I run the :new_app client command with:
+      | file | container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    Given I wait for the project "<%= cb.proj_1.name %>" logs to appear in the ES pod
+    When I run the :delete client command with:
+      | object_type | pod                     |
+      | l           | component=elasticsearch |
+    Then the step should succeed
+    Given I wait until ES cluster is ready
+    # create a new project to generate some logs, and check if the fluentd could send logs to the new ES pod
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :proj_2 clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
+    When I run the :new_app client command with:
+      | file | container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    And I wait for the project "<%= cb.proj_2.name %>" logs to appear in the ES pod
+    Then the step should succeed
+
+  # @author qitang@redhat.com
+  @admin
+  @destructive
+  @commonlogging
+  Scenario Outline: Fluentd alert rules validation testing
+    Given evaluation of `prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: '<alert_name>').expr.split('>')[0].gsub("\n","")` is stored in the :expr clipboard
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query? |
+      | query | <%= cb.expr %> |
+    Then the step should succeed
+    And the expression should be true>  @result[:parsed]["data"]["result"].count > 0
+    """
+
+    Examples:
+      | alert_name                   |
+      | FluentdQueueLengthBurst      | # @case_id OCP-23739
+      | FluentdQueueLengthIncreasing | # @case_id OCP-23740
+      | FluentDHighErrorRate         | # @case_id OCP-33871
