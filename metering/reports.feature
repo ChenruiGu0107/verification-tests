@@ -94,3 +94,16 @@ Feature: reports related scenarios
     And the expression should be true> report('report-ocp-35941').exists? and (report('report-ocp-35941').age > 120)
     # report does not get purge immediately, keep looping until timeout
     And I wait for the resource "report" named "report-ocp-35941" to disappear within 600 seconds
+
+  @admin
+  @destructive
+  # @author pruan@redhat.com
+  # @case_id OCP-20948
+  Scenario: querying for report using external access to Metering HTTP API
+    Given metering service has been installed successfully
+    And I use the "openshift-metering" project
+    Given I get the "cluster-cpu-capacity" report and store it in the :res_json clipboard using:
+      | query_type | cluster-cpu-capacity |
+    # if we get something back, then that means the external route is working.
+    Then the expression should be true> !cb.res_json.nil?
+
