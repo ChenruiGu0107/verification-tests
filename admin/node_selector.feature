@@ -413,3 +413,78 @@ Feature: NodeSelector related tests
     When label "infra=aos" is added to the "<%= cb.nodes[0].name %>" node
     Then the pod named "hello-openshift" status becomes :running
 
+  # @author minmli@redhat.com
+  # @case_id OCP-33816
+  @admin
+  @destructive
+  Scenario: NodeSelector in pod should merge with clusterDefaultNodeSelector and defaultNodeSelector options in scheduler will make pod landing on nodes with proper label
+    Given as admin I successfully merge patch resource "scheduler/cluster" with:
+      | {"spec":{"defaultNodeSelector":"region=west"}} |
+    And I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                             |
+      | resource_name | cluster                                               |
+      | p             | [{"op":"remove", "path":"/spec/defaultNodeSelector"}] |
+      | type          | json                                                  |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+      | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True" |
+    And I wait up to 1200 seconds for the steps to pass:
+      | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False" |
+      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"                    |
+      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Available')['status'] == "True"                    |
+    """
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 1200 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Available')['status'] == "True"
+    """
+
+    Given I switch to the first user
+    Given I have a project
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector2.yaml"
+    When I run the :create client command with:
+      | f | pod-nodeSelector2.yaml |
+    Then the step should fail
+    And the output should match:
+      | forbidden: pod node label selector conflicts with its project node label selector |
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector1.yaml"
+    When I run the :create client command with:
+      | f | pod-nodeSelector1.yaml |
+    Then the step should succeed
+    When I get project pod named "hello-pod" as JSON
+    Then the output should match:
+      | "env": "test"    |
+      | "os": "fedora"   |
+      | "region": "west" |
+    Given I obtain test data file "pods/hello-pod.json"
+    When I run the :create client command with:
+      | f | hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :pending
+    Given I store the schedulable workers in the :nodes clipboard
+    Given label "region=west" is added to the "<%= cb.nodes[0].name %>" node
+    Then the pod named "hello-openshift" status becomes :running
+
+    Given label "region-" is added to the "<%= cb.nodes[0].name %>" node
+    Given I switch to the second user
+    Given I have a project
+    Given I run the :patch admin command with:
+      | resource      | namespace                                                                                  |
+      | resource_name | <%=project.name%>                                                                          |
+      | p             | {"metadata":{"annotations": {"scheduler.alpha.kubernetes.io/node-selector": "region=east"}}} |
+    Then the step should succeed
+    Given I obtain test data file "pods/hello-pod.json"
+    When I run the :create client command with:
+      | f | hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :pending
+    When label "region=east" is added to the "<%= cb.nodes[0].name %>" node
+    Then the pod named "hello-openshift" status becomes :running
+
