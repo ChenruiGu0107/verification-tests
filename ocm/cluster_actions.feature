@@ -24,22 +24,22 @@ Feature: only about page related to cluster actions
 
   # @author yuwan@redhat.com
   # @case_id OCP-21686
-  Scenario: Check the elements on 'Scale Cluster' dialog
+  Scenario: Check the elements on 'Edit load balancers and persistent storage' dialog
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I perform the :go_to_scale_cluster_dialog_on_cluster_list_page web action with:
+    When I perform the :go_to_edit_loadbalancers_and_storage_dialog_on_cluster_list_page web action with:
       | cluster_name | sdqe-ui-default |
     Then the step should succeed
-    When I run the :check_elements_in_scale_cluster_dialog web action
+    When I run the :check_elements_in_edit_loadbalancers_and_storage_dialog web action
     Then the step should succeed
     When I run the :click_cancel_button web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-default |
     Then the step should succeed
-    When I run the :go_to_scale_cluster_dialog_on_cluster_detail_page web action
+    When I run the :go_to_edit_loadbalancers_and_storage_dialog_on_cluster_detail_page web action
     Then the step should succeed
-    When I run the :check_elements_in_scale_cluster_dialog web action
+    When I run the :check_elements_in_edit_loadbalancers_and_storage_dialog web action
     Then the step should succeed
     When I run the :click_cancel_button web action
     Then the step should succeed
@@ -312,7 +312,7 @@ Feature: only about page related to cluster actions
       | persistent_storage_number | 100 GiB          |
     Then the step should succeed
     """
-    When I perform the :go_to_scale_cluster_dialog_on_cluster_list_page web action with:
+    When I perform the :go_to_edit_loadbalancers_and_storage_dialog_on_cluster_list_page web action with:
       | cluster_name | sdqe-ui-default |
     Then the step should succeed
     When I run the :click_persistent_quota_dropdown web action
