@@ -1,0 +1,14 @@
+kind: IngressController
+apiVersion: operator.openshift.io/v1
+metadata:
+  name: internal
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: router-certs-default
+  domain: internal.example.com
+  replicas: 1
+  endpointPublishingStrategy:
+    loadBalancer:
+      scope: Internal
+    type: LoadBalancerService

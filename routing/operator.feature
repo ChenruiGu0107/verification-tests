@@ -543,3 +543,104 @@ Feature: Testing Ingress Operator related scenarios
     And the expression should be true> service('router-test-33763').annotation("service.beta.kubernetes.io/aws-load-balancer-type") == "nlb"
     And the expression should be true> service('router-test-33763').annotation("service.beta.kubernetes.io/aws-load-balancer-internal") == "0.0.0.0/0"
 
+  # @author hongli@redhat.com
+  # @case_id OCP-24504
+  @admin
+  Scenario: the load balancer scope can be set to Internal when creating ingresscontroller
+    Given the master version >= "4.2"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-24504" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-internal.yaml"
+    When I run oc create over "ingressctl-internal.yaml" replacing paths:
+      | ["metadata"]["name"] | test-24504                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-24504") %> |
+    Then the step should succeed
+
+    # ensure the load balancer service is internal
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-24504 |
+    Then the expression should be true> service('router-test-24504').exists?
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | service                  |
+      | resource_name | router-test-24504        |
+      | template      | {{.status.loadBalancer}} |
+    Then the step should succeed
+    And the output should match:
+      | hostname:internal-.*\|ip:10\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-36891
+  @admin
+  Scenario: ingress operator supports mutating load balancer scope
+    Given the master version >= "4.7"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-36891" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-internal.yaml"
+    When I run oc create over "ingressctl-internal.yaml" replacing paths:
+      | ["metadata"]["name"] | test-36891                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-36891") %> |
+    Then the step should succeed
+
+    # ensure the load balancer service is internal
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-36891 |
+    Then the expression should be true> service('router-test-36891').exists?
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | service                  |
+      | resource_name | router-test-36891        |
+      | template      | {{.status.loadBalancer}} |
+    Then the step should succeed
+    And the output should match:
+      | hostname:internal-.*\|ip:10\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+    """
+
+    # update the load balancer scope to External
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller                                                             |
+      | resource_name | test-36891                                                                    |
+      | n             | openshift-ingress-operator                                                    |
+      | p             | {"spec":{"endpointPublishingStrategy":{"loadBalancer":{"scope":"External"}}}} |
+      | type          | merge                                                                         |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | service                  |
+      | resource_name | router-test-36891        |
+      | template      | {{.status.loadBalancer}} |
+    Then the step should succeed
+    And the output should not match:
+      | hostname:internal-.*\|ip:10\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+    And the output should match:
+      | hostname:.*\|ip:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+    """
+
+    # update the load balancer scope to Internal
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller                                                             |
+      | resource_name | test-36891                                                                    |
+      | n             | openshift-ingress-operator                                                    |
+      | p             | {"spec":{"endpointPublishingStrategy":{"loadBalancer":{"scope":"Internal"}}}} |
+      | type          | merge                                                                         |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | service                  |
+      | resource_name | router-test-36891        |
+      | template      | {{.status.loadBalancer}} |
+    Then the step should succeed
+    And the output should match:
+      | hostname:internal-.*\|ip:10\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+    """
