@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: initcontainer
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      initContainers:
+        - name: wait
+          image: centos:centos7
+          command: ['sh', '-c', 'echo The Pod is running && exit 1']
+      containers:
+        - name: hello-openshift
+          image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
+          command: ['sh', '-c', 'echo The Pod is running && exit 1']
+          ports:
+            - containerPort: 8080

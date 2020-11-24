@@ -264,3 +264,53 @@ Feature: Descheduler related scenarios
      And the output should contain:
        | Evicted pod: "<%= pod.name %>" in namespace "ocp34944" (PodLifeTime) |
      """
+
+   # @author knarra@redhat.com
+   @admin
+   @destructive
+   Scenario Outline: Basic descheduler - RemovePodsHavingTooManyRestarts
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     Then the step should succeed
+     Given I obtain test data file "descheduler/<podfilename>"
+     Given I switch to the first user
+     When I run the :new_project client command with:
+       | project_name | <project_name> |
+     Then the step should succeed
+     And I use the "<project_name>" project
+     When I run the :create client command with:
+       | f | "<podfilename>" |
+     Then the step should succeed
+     Given a pod is present with labels:
+       | app=hello |
+     Given evaluation of `pod.name` is stored in the :testpodname clipboard
+     And I wait up to 300 seconds for the steps to pass:
+     """
+       When I get project pod named "<%= cb.testpodname %>" as JSON
+       Then the expression should be true> @result[:parsed]['status']['<statuses>'][0]['restartCount'] == 3
+     """
+     And I wait up to 80 seconds for the steps to pass:
+     """
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     And the output should contain:
+       | Evicted pod: "<%= cb.testpodname %>" in namespace "<project_name>" (TooManyRestarts) |
+     """
+     Examples:
+       | podfilename   | statuses              | project_name |
+       | ocp30710.yaml | containerStatuses     | ocp30710     | # @case_id OCP-30710
+       | ocp37032.yaml | initContainerStatuses | ocp37032     | # @case_id OCP-37032
