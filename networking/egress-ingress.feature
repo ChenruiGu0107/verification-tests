@@ -643,7 +643,7 @@ Feature: Egress-ingress related networking scenarios
     And I have a pod-for-ping in the project
     And evaluation of `pod.node_name` is stored in the :node_name clipboard
     When I execute on the "hello-pod" pod:
-      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -A5 '^Name: *www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -EA5 '^Name(.*)www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
 
