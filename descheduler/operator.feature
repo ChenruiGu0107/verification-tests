@@ -314,3 +314,35 @@ Feature: Descheduler related scenarios
        | podfilename   | statuses              | project_name |
        | ocp30710.yaml | containerStatuses     | ocp30710     | # @case_id OCP-30710
        | ocp37032.yaml | initContainerStatuses | ocp37032     | # @case_id OCP-37032
+
+   # @author knarra@redhat.com
+   # @case_id OCP-34998
+   @admin
+   @destructive
+   Scenario:  Verify that user is not able to set both included & Excluded Namespaces
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                                                                       |
+       | resource_name | cluster                                                                                                               |
+       | p             | [{"op": "add", "path": "/spec/strategies/4/params/3", "value": {"name": "excludeNamespaces", "value": "my-project"}}] |
+       | type          | json                                                                                                                  |
+     Then the step should succeed
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     And the output should contain:
+       | only one of Include/Exclude namespaces can be set |
