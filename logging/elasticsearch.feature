@@ -1,11 +1,11 @@
 @clusterlogging
-@commonlogging
 Feature: elasticsearch related tests
 
   # @author qitang@redhat.com
   # @case_id OCP-21390
   @admin
   @destructive
+  @commonlogging
   Scenario: [Bug 1568361] Elasticsearch log files are on persistent volume
     Given a pod becomes ready with labels:
       | es-node-master=true |
@@ -22,6 +22,7 @@ Feature: elasticsearch related tests
   # @author qitang@redhat.com
   @admin
   @destructive
+  @commonlogging
   Scenario Outline: Make sure the security index that is created upon pod start
     When I wait for the "<index_name>" index to appear in the ES pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['docs.count'] > "0"
@@ -34,6 +35,7 @@ Feature: elasticsearch related tests
   # @case_id OCP-21099
   @admin
   @destructive
+  @commonlogging
   Scenario: Access Elasticsearch prometheus Endpoints via token
     Given I switch to the first user
     And the first user is cluster-admin
@@ -53,6 +55,7 @@ Feature: elasticsearch related tests
   # @case_id OCP-21313
   @admin
   @destructive
+  @commonlogging
   Scenario: The default index.mode is shared_ops
     Given the master version < "4.5"
     And evaluation of `YAML.load(config_map('elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
@@ -62,7 +65,8 @@ Feature: elasticsearch related tests
   # @case_id OCP-30205
   @admin
   @destructive
-  Scenario: [Bug 1548038] Add .all alias when index is created	
+  @commonlogging
+  Scenario: [Bug 1548038] Add .all alias when index is created
     Given the master version >= "4.5"
     Given I switch to the first user
     Given I create a project with non-leading digit name
@@ -85,3 +89,87 @@ Feature: elasticsearch related tests
     And evaluation of ` @result[:parsed].select { |k, v| v.dig('aliases', '.all').is_a? Hash and k.start_with? 'infra' }` is stored in the :res_infra clipboard
     Then the expression should be true> cb.res_app.count > 0
     Then the expression should be true> cb.res_infra.count > 0
+
+  # @author qitang@redhat.com
+  # @case_id OCP-34364
+  @admin
+  @destructive
+  Scenario: elasticsearch alerting rules test: ElasticsearchNodeDiskWatermarkReached
+    Given default storageclass is stored in the :default_sc clipboard
+    When I delete the clusterlogging instance
+    Then the step should succeed
+    Given I use the "openshift-logging" project
+    And I register clean-up steps:
+    """
+    Given I delete the clusterlogging instance
+    Then the step should succeed
+    And I run the :delete client command with:
+      | object_type | pvc               |
+      | all         | true              |
+      | n           | openshift-logging |
+    Then the step should succeed
+    """
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    When I process and create:
+      | f | clusterlogging-storage-template.yaml    |
+      | p | STORAGE_CLASS=<%= cb.default_sc.name %> |
+      | p | PVC_SIZE=5Gi                            |
+    Then the step should succeed
+    Given I wait for the "instance" clusterloggings to appear
+    And I wait for the "elasticsearch" elasticsearches to appear
+    And I wait until ES cluster is ready
+    Given a pod becomes ready with labels:
+      | es-node-master=true |
+    When I execute on the pod:
+      | dd | if=/dev/urandom | of=/elasticsearch/persistent/file.txt | bs=1048576 | count=4500 |
+    Then the step should succeed
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query?                                            |
+      | query | ALERTS{alertname="ElasticsearchNodeDiskWatermarkReached"} |
+    Then the step should succeed
+    And the output should match:
+      | "alertstate":"pending\|firing" |
+    """
+
+  # @author qitang@redhat.com
+  @admin
+  @destructive
+  @commonlogging
+  Scenario Outline: Elasticsearch alert rules validation testing
+    Given evaluation of `<alert_names>` is stored in the :alerts clipboard
+    Given I repeat the following steps for each :alert in cb.alerts:
+    """
+    Given I use the "openshift-logging" project
+    And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: '#{cb.alert}').expr.split('>')[0]` is stored in the :expr clipboard
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query? |
+      | query | #{cb.expr}     |
+    Then the step should succeed
+    And the expression should be true>  @result[:parsed]["data"]["result"].count > 0
+    """
+
+    Examples:
+      | alert_names                                                                                      |
+      | ["ElasticsearchJVMHeapUseHigh", "AggregatedLoggingSystemCPUHigh", "ElasticsearchProcessCPUHigh"] | # @case_id OCP-22314
+      | ["ElasticsearchWriteRequestsRejectionJumps"]                                                     | # @case_id OCP-35767
+      | ["ElasticsearchBulkRequestsRejectionJumps"]                                                      | # @case_id OCP-22311
+
+  # @author qitang@redhat.com
+  # @case_id OCP-33698
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: [BZ1865364]elasticsearch alerting rules test: Cluster low on disk space/High file descriptor usage.
+    Given evaluation of `["ElasticsearchHighFileDescriptorUsage", "ElasticsearchDiskSpaceRunningLow"]` is stored in the :alerts clipboard
+    And I repeat the following steps for each :alert in cb.alerts:
+    """
+    Given I use the "openshift-logging" project
+    And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: '#{cb.alert}').expr.split('<')[0]` is stored in the :expr clipboard
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query? |
+      | query | #{cb.expr}     |
+    Then the step should succeed
+    And the expression should be true>  @result[:parsed]["data"]["result"].count > 0
+    """
