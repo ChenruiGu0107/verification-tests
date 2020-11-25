@@ -20,7 +20,7 @@ Feature: Configuration of environment variables check
   # @case_id OCP-11497
   Scenario: Substitute environment variables into a container's env
     Given I have a project
-    Given I obtain test data file "templates/tc493678/envtest.json"
+    Given I obtain test data file "templates/ocp11497/envtest.json"
     When I run the :create client command with:
       | f | envtest.json |
     Then the step should succeed

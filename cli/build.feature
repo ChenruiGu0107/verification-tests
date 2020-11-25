@@ -9,7 +9,7 @@ Feature: build 'apps' with CLI
      | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
      | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
-    Given I obtain test data file "templates/tc476356/<template_file>"
+    Given I obtain test data file "templates/ocp11463/<template_file>"
     When I run the :new_app client command with:
       | file            | <template_file> |
     Given the "ruby-sample-build-1" build was created
@@ -183,7 +183,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-9595
   Scenario: Order builds according to creation timestamps
     Given I have a project
-    Given I obtain test data file "build/tc470422/application-template-stibuild.json"
+    Given I obtain test data file "build/application-template-stibuild.json"
     And I run the :new_app client command with:
       | file | application-template-stibuild.json |
     Given the "ruby-22-centos7" image stream was created
@@ -276,7 +276,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-12307
   Scenario: Do source builds with blank builder image
     Given I have a project
-    Given I obtain test data file "templates/tc470327/python-34-rhel7-stibuild.json"
+    Given I obtain test data file "templates/ocp12307/python-34-rhel7-stibuild.json"
     When I run the :new_app client command with:
       | file | python-34-rhel7-stibuild.json |
     Then the step should fail
@@ -746,7 +746,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-10834
   Scenario: Change Parallel runpolicy to SerialLatestOnly build
     Given I have a project
-    Given I obtain test data file "build/tc526202/bc.json"
+    Given I obtain test data file "build/bc.json"
     When I run the :create client command with:
       | f | bc.json |
     Then the step should succeed

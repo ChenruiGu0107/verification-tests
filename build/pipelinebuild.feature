@@ -25,7 +25,7 @@ Feature: pipelinebuild.feature
       | username    | openshift |
       | password    | redhat    |
     Then the step should succeed
-    Given I obtain test data file "templates/tc543797/samplepipeline.yaml"
+    Given I obtain test data file "templates/samplepipeline.yaml"
     When I run the :new_app client command with:
       | file | samplepipeline.yaml |
     Then the step should succeed
@@ -79,7 +79,7 @@ Feature: pipelinebuild.feature
       | -c                                                                                                                                 |
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/jenkins-pipeline-nodejsmongodb-test sample.git |
     Then the step should succeed
-    Given I obtain test data file "templates/tc543797/samplepipeline.yaml"
+    Given I obtain test data file "templates/samplepipeline.yaml"
     When I run the :new_app client command with:
       | file | samplepipeline.yaml |
     Then the step should succeed

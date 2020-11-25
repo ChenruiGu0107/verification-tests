@@ -297,7 +297,7 @@ Feature: deployment/dc related features via web
       | created_at | |
       | owner      | hooks |
     Then the step should succeed
-    Given I obtain test data file "deployment/tc536590/k8s-deployment.yaml"
+    Given I obtain test data file "deployment/ocp25793/k8s-deployment.yaml"
     When I run the :create client command with:
       | f | k8s-deployment.yaml |
     Then the step should succeed

@@ -39,7 +39,7 @@ Feature: oc_label.feature
     Then the step should succeed
     And the output should match:
       | Labels:\\s+name=hello-openshift[\s,]+status=unhealthy |
-    Given I obtain test data file "templates/tc482217/hello-pod.json"
+    Given I obtain test data file "templates/ocp12505/hello-pod.json"
     When I run the :create client command with:
       | f | hello-pod.json |
     Then the step should succeed
@@ -51,13 +51,13 @@ Feature: oc_label.feature
     Then the step should succeed
     And the output should match:
       | hello-openshift"? labeled |
-      | tc482217-pod"? labeled    |
+      | ocp12505-pod"? labeled    |
     When I run the :describe client command with:
       | resource | pod |
     Then the step should succeed
     And the output should match:
       | Labels:\\s+name=hello-openshift[\s,]+status=healthy |
-      | Labels:\\s+name=tc482217-pod[\s,]+status=healthy    |
+      | Labels:\\s+name=ocp12505-pod[\s,]+status=healthy    |
     When I run the :label client command with:
       | resource | pods            |
       | name     | hello-openshift |

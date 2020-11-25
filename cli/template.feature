@@ -44,12 +44,12 @@ Feature: template related scenarios:
   # @case_id OCP-9562
   Scenario: Create app from template containing invalid type - cli
     Given I have a project
-    And I obtain test data file "templates/tc497538/application-template-stibuild.json"
+    And I obtain test data file "templates/ocp9562/application-template-stibuild.json"
     And I run the :create client command with:
       | filename | application-template-stibuild.json |
     Then the step should succeed
     And I run the :new_app client command with:
-      | template | ruby-helloworld-sample-tc497538 |
+      | template | ruby-helloworld-sample-ocp9562 |
     Then the step should fail
 
     # Due to bug 1245528, the output is not stable, do fuzzy check about the info for now.

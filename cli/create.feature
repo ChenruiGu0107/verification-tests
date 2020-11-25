@@ -100,7 +100,7 @@ Feature: creating 'apps' with CLI
       | resource_name | <%= project.name %> |
     # create and save the invalid supplemental_group_id
     And evaluation of `project.supplemental_groups(user:user).begin - 1000` is stored in the :invalid_sgid clipboard
-    When I obtain test data file "pods/tc510543/special_fs_groupid.json"
+    When I obtain test data file "pods/ocp11537/special_fs_groupid.json"
     And I replace lines in "special_fs_groupid.json":
       | 1000 | <%= cb.invalid_sgid %> |
       | 1001 | <%= cb.invalid_sgid %> |
@@ -111,12 +111,12 @@ Feature: creating 'apps' with CLI
       | unable to validate against any security context constraint |
       | <%= cb.invalid_sgid %> is not an allowed group             |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given I obtain test data file "pods/tc510543/scc_tc510543.yaml"
-    Given the following scc policy is created: scc_tc510543.yaml
+    Given I obtain test data file "pods/ocp11537/scc.yaml"
+    Given the following scc policy is created: scc.yaml
     Then the step should succeed
-    Given SCC "scc-tc510543" is added to the "first" user
+    Given SCC "scc-ocp11537" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
-    Given I obtain test data file "pods/tc510543/special_fs_groupid.json"
+    Given I obtain test data file "pods/ocp11537/special_fs_groupid.json"
     When I run the :create client command with:
       | f | special_fs_groupid.json |
     Then the step should succeed
@@ -141,22 +141,22 @@ Feature: creating 'apps' with CLI
     Given scc policy "restricted" is restored after scenario
     Given as admin I replace resource "scc" named "restricted":
       | RunAsAny | MustRunAs |
-    Given I obtain test data file "pods/tc510546/tc510546_pod.json"
+    Given I obtain test data file "pods/ocp12053/pod.json"
     Then I run the :create client command with:
-      | f | tc510546_pod.json |
+      | f | pod.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
       | 1000 is not an allowed group                               |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given I obtain test data file "pods/tc510546/scc_tc510546.yaml"
-    Given the following scc policy is created: scc_tc510546.yaml
+    Given I obtain test data file "pods/ocp12053/scc.yaml"
+    Given the following scc policy is created: scc.yaml
     Then the step should succeed
-    Given SCC "scc-tc510546" is added to the "first" user
+    Given SCC "scc-ocp12053" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
-    Given I obtain test data file "pods/tc510546/tc510546_pod.json"
+    Given I obtain test data file "pods/ocp12053/pod.json"
     When I run the :create client command with:
-      | f | tc510546_pod.json |
+      | f | pod.json |
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
     When I run the :exec client command with:
@@ -302,7 +302,7 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     And the output should contain:
       | hostPath volumes are not allowed |
-    Given I obtain test data file "deployment/tc472859/hello-pod.json"
+    Given I obtain test data file "deployment/hello-pod.json"
     When I run the :create client command with:
       | f | hello-pod.json |
     Then the step should succeed
@@ -356,9 +356,9 @@ Feature: creating 'apps' with CLI
   Scenario: 3.7 User can expose the environment variables to pods
     Given the master version >= "3.7"
     Given I have a project
-    Given I obtain test data file "templates/tc467937/pod467937-new.yaml"
+    Given I obtain test data file "templates/ocp16295/pod.yaml"
     When I run the :create client command with:
-      | f | pod467937-new.yaml |
+      | f | pod.yaml |
     Then the step should succeed
     Given the pod named "kubernetes-metadata-volume-example" becomes ready
     When I execute on the pod:
@@ -367,4 +367,3 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | annotations -> |
       | labels -> |
-

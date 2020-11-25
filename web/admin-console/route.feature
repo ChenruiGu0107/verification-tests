@@ -330,9 +330,9 @@ Feature: route related
       | project_name | <%= project.name %> |
     Then the step should succeed
 
-    Given I obtain test data file "routing/tc/OCP-19608/example.crt"
-    Given I obtain test data file "routing/tc/OCP-19608/example.key"
-    Given I obtain test data file "routing/tc/OCP-19608/example.csr"
+    Given I obtain test data file "routing/OCP-19608/example.crt"
+    Given I obtain test data file "routing/OCP-19608/example.key"
+    Given I obtain test data file "routing/OCP-19608/example.csr"
     When I perform the :create_route web action with:
       | route_name            | mytestroute      |
       | service_name          | service-unsecure |

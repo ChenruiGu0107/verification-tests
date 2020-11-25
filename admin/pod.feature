@@ -298,7 +298,7 @@ Feature: pod related features
       | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>               |
     Then the step should succeed
-    Given I obtain test data file "replicaSet/tc533163/rs.yaml"
+    Given I obtain test data file "replicaSet/rs.yaml"
     When I run the :create client command with:
       | f | rs.yaml |
     Then the step should succeed

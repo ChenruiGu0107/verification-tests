@@ -31,7 +31,7 @@ Feature: jenkins.feature
   # @case_id OCP-10975
   Scenario Outline: Use Jenkins as S2I builder with plugins
     Given I have a project
-    Given I obtain test data file "build/tc515317_536388/jenkins-with-plugins.json"
+    Given I obtain test data file "build/jenkins-with-plugins.json"
     Given I have a jenkins v<ver> application from "jenkins-with-plugins.json"
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed

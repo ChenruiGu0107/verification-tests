@@ -4,7 +4,7 @@ Feature: replicaSet related tests
   # @case_id OCP-11327
   Scenario: Support to scale up/down with ReplicaSets in OpenShift
     Given I have a project
-    Given I obtain test data file "replicaSet/tc533163/rs.yaml"
+    Given I obtain test data file "replicaSet/rs.yaml"
     When I run the :create client command with:
       | f | rs.yaml |
     Then the step should succeed

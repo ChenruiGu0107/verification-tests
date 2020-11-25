@@ -268,14 +268,14 @@ Feature: Testing route
     When I run the :create client command with:
       | f | service_unsecure.json |
     Then the step should succeed
-    Given I obtain test data file "routing/tc/tc470732/route_withouthost1.json"
+    Given I obtain test data file "routing/ocp12556/route_withouthost1.json"
     When I run the :create client command with:
       | f | route_withouthost1.json |
     Then the step should succeed
     When I use the "service-unsecure" service
     Then I wait for a web server to become available via the "service-unsecure1" route
     Then the output should contain "Hello-OpenShift"
-    Given I obtain test data file "routing/tc/tc470732/route_withouthost2.json"
+    Given I obtain test data file "routing/ocp12556/route_withouthost2.json"
     When I run the :create client command with:
       | f | route_withouthost2.json |
     Then the step should succeed

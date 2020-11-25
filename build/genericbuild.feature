@@ -3,13 +3,13 @@ Feature: genericbuild.feature
   # @case_id OCP-15353
   Scenario: Setting ports using parameter in template and set parameter value with string
     Given I have a project
-    Given I obtain test data file "build/tc15352_15353/service.yaml"
+    Given I obtain test data file "build/service.yaml"
     And I process and create:
-      | f | service.yaml |
-      | p | PROTOCOL=UDP                                                                                        |
-      | p | CONTAINER_PORT=abc                                                                                  |
-      | p | EXT_PORT=efg                                                                                        |
-      | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
+      | f | service.yaml                 |
+      | p | PROTOCOL=UDP                 |
+      | p | CONTAINER_PORT=abc           |
+      | p | EXT_PORT=efg                 |
+      | p | NODE_TEMPLATE_NAME=bug-param |
     And the step should fail
     Then the output should match "v1.ServicePort.Port: readUint32: unexpected character"
 
@@ -17,13 +17,13 @@ Feature: genericbuild.feature
   # @case_id OCP-15352
   Scenario: Setting ports using parameter in template and set parameter value with number
     Given I have a project
-    Given I obtain test data file "build/tc15352_15353/service.yaml"
+    Given I obtain test data file "build/service.yaml"
     And I process and create:
-      | f | service.yaml |
-      | p | PROTOCOL=UDP                                                                     |
-      | p | CONTAINER_PORT=888                                                               |
-      | p | EXT_PORT=999                                                                     |
-      | p | NODE_TEMPLATE_NAME=bug-param                                                     |
+      | f | service.yaml                 |
+      | p | PROTOCOL=UDP                 |
+      | p | CONTAINER_PORT=888           |
+      | p | EXT_PORT=999                 |
+      | p | NODE_TEMPLATE_NAME=bug-param |
     And the step should succeed
     When I run the :get client command with:
       | resource  | service |

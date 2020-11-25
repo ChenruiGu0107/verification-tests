@@ -218,7 +218,7 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: The SCC will take effect only when the user request the SC in the pod
     Given I have a project
-    Given I obtain test data file "authorization/scc/tc495039/pod_not_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_not_privileged.json"
     When I run the :create client command with:
       | f | pod_not_privileged.json |
     Then the step should succeed
@@ -232,7 +232,7 @@ Feature: SCC policy related scenarios
     Given I ensure "hello-nginx-docker" pod is deleted
     When SCC "privileged" is added to the "default" user
     Then the step should succeed
-    Given I obtain test data file "authorization/scc/tc495039/pod_not_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_not_privileged.json"
     When I run the :create client command with:
       | f | pod_not_privileged.json |
     Then the step should succeed
@@ -247,7 +247,7 @@ Feature: SCC policy related scenarios
       | object_type | pod                     |
       | l           | name=hello-nginx-docker |
     Then the step should succeed
-    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_privileged.json"
     When I run the :create client command with:
       | f | pod_privileged.json |
     Then the step should succeed
@@ -329,10 +329,10 @@ Feature: SCC policy related scenarios
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :scc_name_1 clipboard
     Given a 5 characters random string of type :dns is stored into the :scc_name_2 clipboard
-    When I obtain test data file "authorization/scc/tc495030/scc_1.json"
+    When I obtain test data file "authorization/scc/ocp11734/scc_1.json"
     And I replace lines in "scc_1.json":
        | "name": "restricted", | "name": "<%= cb.scc_name_1 %>", |
-    When I obtain test data file "authorization/scc/tc495030/scc_2.json"
+    When I obtain test data file "authorization/scc/ocp11734/scc_2.json"
     And I replace lines in "scc_2.json":
       | "name": "restricted", | "name": "<%= cb.scc_name_2 %>", |
     And I switch to cluster admin pseudo user
@@ -349,7 +349,7 @@ Feature: SCC policy related scenarios
       | scc       | <%= cb.scc_name_2 %> |
       | user_name | <%= user.name %>     |
     Then the step should succeed
-    Given I obtain test data file "authorization/scc/tc495030/pod1.json"
+    Given I obtain test data file "authorization/scc/ocp11734/pod1.json"
     When I run the :create client command with:
       | f | pod1.json |
       | n | <%= project.name %>                                                                                     |
@@ -359,14 +359,14 @@ Feature: SCC policy related scenarios
   # @case_id OCP-12060
   Scenario: Create pod with request capabilities conflict with the scc
     Given I have a project
-    Given I obtain test data file "authorization/scc/tc518947/add_and_drop.json"
+    Given I obtain test data file "authorization/scc/ocp12060/add_and_drop.json"
     When I run the :create client command with:
       | f | add_and_drop.json |
     Then the step should fail
     And the output should match:
       | unable to validate against any security context constraint: \[.*capabilities.add |
 
-    Given I obtain test data file "authorization/scc/tc518947/failure_to_add.json"
+    Given I obtain test data file "authorization/scc/ocp12060/failure_to_add.json"
     When I run the :create client command with:
       | f | failure_to_add.json |
     Then the step should fail
@@ -379,7 +379,7 @@ Feature: SCC policy related scenarios
     Given I have a project
     And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
     And evaluation of `project.mcs(user: user)` is stored in the :proj_selinux_options clipboard
-    Given I obtain test data file "authorization/scc/tc511601/no_runasuser.json"
+    Given I obtain test data file "authorization/scc/ocp10735/no_runasuser.json"
     When I run oc create over "no_runasuser.json" replacing paths:
       | ["spec"]["securityContext"]["runAsUser"] | <%= cb.uid_range %> |
     Then the step should succeed
@@ -387,14 +387,14 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').sc_run_as_user(user: user)` is stored in the :sc_run_as_user clipboard
     Then the expression should be true> cb.sc_run_as_user == cb.uid_range
     Given I ensure "hello-openshift" pod is deleted
-    Given I obtain test data file "authorization/scc/tc511601/no_runasnonroot.json"
+    Given I obtain test data file "authorization/scc/ocp10735/no_runasnonroot.json"
     When I run the :create client command with:
       | f | no_runasnonroot.json |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     Then the expression should be true> pod('hello-openshift').sc_run_as_nonroot(user: user)
     Given I ensure "hello-openshift" pod is deleted
-    Given I obtain test data file "authorization/scc/tc511601/no_selinux.json"
+    Given I obtain test data file "authorization/scc/ocp10735/no_selinux.json"
     When I run oc create over "no_selinux.json" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | <%= cb.proj_selinux_options %> |
     Then the step should succeed
@@ -435,7 +435,7 @@ Feature: SCC policy related scenarios
     Given I have a project
     # scc restricted should have 'allowHostNetwork: false' as default already
     Given scc policy "restricted" is restored after scenario
-    Given I obtain test data file "authorization/scc/tc498208/pod.json"
+    Given I obtain test data file "authorization/scc/ocp10661/pod.json"
     When I run the :create client command with:
       | f | pod.json |
     Then the step should fail
@@ -445,7 +445,7 @@ Feature: SCC policy related scenarios
     Given as admin I replace resource "scc" named "restricted":
       | allowHostNetwork: false | allowHostNetwork: true |
       | allowHostPorts: false   | allowHostPorts: true   |
-    Given I obtain test data file "authorization/scc/tc498208/pod.json"
+    Given I obtain test data file "authorization/scc/ocp10661/pod.json"
     When I run the :create client command with:
       | f | pod.json |
     Then the step should succeed
@@ -457,7 +457,7 @@ Feature: SCC policy related scenarios
     Given I have a project
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid clipboard
     And evaluation of `project.uid_range(user:user).begin` is stored in the :proj_scc_uid clipboard
-    When I run oc create over ERB test file: authorization/scc/tc511602/pod1.json
+    When I run oc create over ERB test file: authorization/scc/ocp11207/pod1.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     Given I obtain test data file "networking/aosqe-pod-for-ping.json"
@@ -467,7 +467,7 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).spec.scc['runAsUser']` is stored in the :container_run_as_user clipboard
     Then the expression should be true> cb.container_run_as_user == cb.scc_uid
     Given I ensure "hello-openshift" pod is deleted
-    When I run oc create over ERB test file: authorization/scc/tc511602/pod2.json
+    When I run oc create over ERB test file: authorization/scc/ocp11207/pod2.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').spec.scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
@@ -478,13 +478,13 @@ Feature: SCC policy related scenarios
   # @case_id OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
-    Given I obtain test data file "authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
+    Given I obtain test data file "authorization/scc/PodSecurityPolicySubjectReview_privileged_false.json"
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                                                                                             |
       | payload_file | PodSecurityPolicySubjectReview_privileged_false.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
-    Given I obtain test data file "authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json"
+    Given I obtain test data file "authorization/scc/PodSecurityPolicySubjectReview_privileged_true.json"
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                                                                                            |
       | payload_file | PodSecurityPolicySubjectReview_privileged_true.json |
@@ -495,7 +495,7 @@ Feature: SCC policy related scenarios
   # @case_id OCP-11398
   Scenario: User can know whether the PodSpec his describing will actually be allowed by the current SCC rules via subjectsccreview
     Given I have a project
-    When I obtain test data file "authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
+    When I obtain test data file "authorization/scc/PodSecurityPolicySubjectReview.json"
     Then the step should succeed
     And I replace lines in "PodSecurityPolicySubjectReview.json":
       | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
@@ -609,25 +609,25 @@ Feature: SCC policy related scenarios
     Given I obtain test data file "authorization/scc/OCP-18828/allow_scc_access_via_rbac_project.yaml"
     When I run the :create admin command with:
       | f | allow_scc_access_via_rbac_project.yaml |
-      | n | <%= project.name %>                                                     |
+      | n | <%= project.name %>                    |
     Then the step should succeed
     When I run the :create_rolebinding admin command with:
-      | name  | scc-rolebinding                     |
-      | user  | <%= user(0, switch: false).name %>  |
-      | role  | role-18828                          |
-      | n     | <%= project.name %>                 |
+      | name | scc-rolebinding                    |
+      | user | <%= user(0, switch: false).name %> |
+      | role | role-18828                         |
+      | n    | <%= project.name %>                |
     Then the step should succeed
     Given I switch to the first user
-    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_privileged.json"
     When I run the :create client command with:
-      | f |  pod_privileged.json |
-      | n |  <%= project.name %>                                                                            |
+      | f | pod_privileged.json |
+      | n | <%= project.name %> |
     Then the step should succeed
     Given I create 1 new projects
-    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_privileged.json"
     When I run the :create client command with:
-      | f |  pod_privileged.json |
-      | n |  <%= project.name %>                                                                            |
+      | f | pod_privileged.json |
+      | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
 
@@ -651,13 +651,13 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     Given I switch to the first user
     Given I have a project
-    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_privileged.json"
     When I run the :create client command with:
       | f |  pod_privileged.json |
     Then the step should succeed
     Given I switch to the second user
     Given I have a project
-    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
+    Given I obtain test data file "authorization/scc/pod_privileged.json"
     When I run the :create client command with:
       | f |  pod_privileged.json |
     Then the step should fail
@@ -759,7 +759,7 @@ Feature: SCC policy related scenarios
   Scenario: 4.x User can know which serviceaccount and SA groups can create the podspec against the current sccs
     Given I have a project
     Given SCC "restricted" is added to the "default" service account
-    When I obtain test data file "authorization/scc/tc538264/PodSecurityPolicyReview.json"
+    When I obtain test data file "authorization/scc/PodSecurityPolicyReview.json"
     And I replace lines in "PodSecurityPolicyReview.json":
       | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
     Then the step should succeed
