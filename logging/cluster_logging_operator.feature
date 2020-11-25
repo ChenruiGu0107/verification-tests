@@ -389,7 +389,7 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> cron_job('curator').container_spec(cached: false, name: 'curator').memory_request_raw == "200Mi"
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'elasticsearch').memory_request_raw == "16Gi"
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'elasticsearch').cpu_request_raw == "100m"
-    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'proxy').memory_request_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'proxy').memory_request_raw == "128Mi"
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'proxy').cpu_request_raw == "100m"
     And the expression should be true> elasticsearch('elasticsearch').resource_request_cpu(cached: false) == "100m"
     And the expression should be true> elasticsearch('elasticsearch').resource_request_memory(cached: false) == "16Gi"

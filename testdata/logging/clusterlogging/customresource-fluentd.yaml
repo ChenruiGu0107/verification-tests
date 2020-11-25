@@ -18,6 +18,11 @@ spec:
         requests:
           cpu: 100m
           memory: 1Gi
+      proxy:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
       storage: {}
       redundancyPolicy: "ZeroRedundancy"
   visualization:
