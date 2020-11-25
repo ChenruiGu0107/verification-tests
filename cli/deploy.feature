@@ -248,9 +248,9 @@ Feature: deployment related features
   # @case_id OCP-9768
   Scenario: Could edit the deployer pod during deployment
     Given I have a project
-    Given I obtain test data file "templates/tc515805/tc515805.json"
+    Given I obtain test data file "templates/ocp9768/dc.json"
     When I run the :create client command with:
-      | f | tc515805.json |
+      | f | dc.json |
     Then the step should succeed
     Given the pod named "database-1-deploy" becomes ready
     When I replace resource "pod" named "database-1-deploy":
@@ -264,7 +264,7 @@ Feature: deployment related features
   # @case_id OCP-11203
   Scenario: deployment hook volume inheritance -- that volume names which are not found
     Given I have a project
-    Given I obtain test data file "deployment/tc510607/hooks-unexist-volume.json"
+    Given I obtain test data file "deployment/ocp11203/hooks-unexist-volume.json"
     When I run the :create client command with:
       | f | hooks-unexist-volume.json |
     Then the step should succeed
@@ -350,7 +350,7 @@ Feature: deployment related features
   # @case_id OCP-9831
   Scenario: Scale the deployments will failed on test deployment config
     Given I have a project
-    Given I obtain test data file "deployment/tc518650/test.json"
+    Given I obtain test data file "deployment/ocp9831/test.json"
     And I run the :create client command with:
       | f | test.json |
     Then the step should succeed
@@ -528,7 +528,7 @@ Feature: deployment related features
   Scenario: Support MinReadySeconds in DC
     Given I have a project
     And evaluation of `60` is stored in the :min_ready_seconds clipboard
-    When I run oc create over ERB test file: deployment/tc532415/min_ready.yaml
+    When I run oc create over ERB test file: deployment/ocp11973/min_ready.yaml
     Then the step should succeed
     And 20 seconds have passed
     And the expression should be true> dc('minreadytest').unavailable_replicas == 2

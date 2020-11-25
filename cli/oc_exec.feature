@@ -63,7 +63,7 @@ Feature: containers related features
   # @case_id OCP-11704
   Scenario: Executing commands in a container that isn't running
     Given I have a project
-    Given I obtain test data file "deployment/tc472859/hello-pod.json"
+    Given I obtain test data file "deployment/hello-pod.json"
     When I run the :create client command with:
       | f | hello-pod.json|
     And the pod named "hello-openshift" status becomes :pending

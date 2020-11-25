@@ -39,7 +39,7 @@ Feature: oc exports related scenarios
 
     # Export other various APIs resources, like extensions/v1beta1, autoscaling/v1, batch/v1
     # Cover bug 1546443 1553696 1552325 densely reported same issue
-    Given I obtain test data file "deployment/tc536600/hello-deployment-1.yaml"
+    Given I obtain test data file "deployment/ocp21063/hello-deployment-1.yaml"
     Given I obtain test data file "job/job.yaml"
     When I run the :create client command with:
       | _tool   | <tool>   |

@@ -16,7 +16,7 @@ Feature: events and logs related
     Then the step should succeed
 
     # create 1st build
-    Given I obtain test data file "build/tc526202/bc.json"
+    Given I obtain test data file "build/bc.json"
     When I run the :create client command with:
       | f | bc.json |
     Then the step should succeed

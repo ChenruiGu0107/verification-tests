@@ -4,7 +4,7 @@ Feature: Return description with cli
   # @case_id OCP-12021
   Scenario: Return description with cli describe with invalid parameter
     Given I have a project
-    Given I obtain test data file "build/tc470422/application-template-stibuild.json"
+    Given I obtain test data file "build/application-template-stibuild.json"
     When I run the :new_app client command with:
       | file  | application-template-stibuild.json |
     Then the step should succeed

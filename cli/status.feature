@@ -42,7 +42,7 @@ Feature: Check status via oc status, wait etc
   # @case_id OCP-10650
   Scenario: Indicate when build failed to push in 'oc status'
     Given I have a project
-    Given I obtain test data file "templates/tc544375/ruby22rhel7-template-docker.json.failtopush"
+    Given I obtain test data file "templates/ocp10650/ruby22rhel7-template-docker.json.failtopush"
     Then the step should succeed
     When I run the :new_app client command with:
       | file | ruby22rhel7-template-docker.json.failtopush |

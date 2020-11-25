@@ -4,7 +4,7 @@ Feature: pods related scenarios
   @admin
   Scenario: Limit to create pod to access hostPID
     Given I have a project
-    And I obtain test data file "pods/tc509108/hostpid_true.json"
+    And I obtain test data file "pods/ocp11189/hostpid_true.json"
     Then I run the :create client command with:
       | f | hostpid_true.json |
     Then the step should fail
@@ -13,7 +13,7 @@ Feature: pods related scenarios
     Then I run the :create client command with:
       | f | hostpid_true.json |
     Then the step should succeed
-    Given I obtain test data file "pods/tc509108/hostpid_true_admin.json"
+    Given I obtain test data file "pods/ocp11189/hostpid_true_admin.json"
     Then I run the :create admin command with:
       | f | hostpid_true_admin.json |
       | n | <%= project.name %>                                                                                      |

@@ -191,7 +191,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: Admin can restrict the ability to use services.nodeports
     Given I have a project
-    Given I obtain test data file "quota/tc532979/quota-service.yaml"
+    Given I obtain test data file "quota/quota-service.yaml"
     When I run the :create admin command with:
       | f | quota-service.yaml |
       | n | <%= project.name %>  |
@@ -202,7 +202,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
-    Given I obtain test data file "quota/tc532979/nodeport-svc1.json"
+    Given I obtain test data file "quota/nodeport-svc1.json"
     When I run the :create client command with:
       | f | nodeport-svc1.json |
     Then the step should succeed
@@ -212,7 +212,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
-    Given I obtain test data file "quota/tc532979/nodeport-svc2.json"
+    Given I obtain test data file "quota/nodeport-svc2.json"
     When I run the :create client command with:
       | f | nodeport-svc2.json |
     Then the step should succeed
@@ -222,7 +222,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+2\\s+5           |
       | services.nodeports\\s+2\\s+2 |
-    Given I obtain test data file "quota/tc532979/nodeport-svc3.json"
+    Given I obtain test data file "quota/nodeport-svc3.json"
     When I run the :create client command with:
       | f | nodeport-svc3.json |
     Then the step should fail
@@ -244,7 +244,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
-    Given I obtain test data file "quota/tc532979/nodeport-svc3.json"
+    Given I obtain test data file "quota/nodeport-svc3.json"
     When I run the :create client command with:
       | f | nodeport-svc3.json |
     Then the step should succeed
@@ -260,7 +260,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: Service with multi nodeports should be charged properly in the quota system
     Given I have a project
-    Given I obtain test data file "quota/tc532979/quota-service.yaml"
+    Given I obtain test data file "quota/quota-service.yaml"
     When I run the :create admin command with:
       | f | quota-service.yaml |
       | n | <%= project.name %>  |
@@ -271,7 +271,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
-    Given I obtain test data file "quota/tc532980/multi-nodeports-svc.json"
+    Given I obtain test data file "quota/ocp11322/multi-nodeports-svc.json"
     When I run the :create client command with:
       | f | multi-nodeports-svc.json |
     Then the step should succeed
@@ -297,7 +297,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: services.nodeports in quota system work well when change service type
     Given I have a project
-    Given I obtain test data file "quota/tc532979/quota-service.yaml"
+    Given I obtain test data file "quota/quota-service.yaml"
     When I run the :create admin command with:
       | f | quota-service.yaml |
       | n | <%= project.name %>  |
@@ -308,7 +308,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
-    Given I obtain test data file "quota/tc532979/nodeport-svc1.json"
+    Given I obtain test data file "quota/nodeport-svc1.json"
     When I run the :create client command with:
       | f | nodeport-svc1.json |
     Then the step should succeed
@@ -403,7 +403,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: Resource quota value should not be fractional value
     Given I have a project
-    Given I obtain test data file "quota/tc509088/quota-1.yaml"
+    Given I obtain test data file "quota/ocp11187/quota-1.yaml"
     When I run the :create admin command with:
       | f | quota-1.yaml |
       | n | <%= project.name %>                                                                            |
@@ -415,7 +415,7 @@ Feature: Quota related scenarios
       | name     | quota-1 |
     Then the step should fail
     And the output should contain "not found"
-    Given I obtain test data file "quota/tc509088/quota-2.yaml"
+    Given I obtain test data file "quota/ocp11187/quota-2.yaml"
     When I run the :create admin command with:
       | f | quota-2.yaml |
       | n | <%= project.name %>                                                                            |
@@ -432,7 +432,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: Resource quota value should not be negative
     Given I have a project
-    Given I obtain test data file "quota/tc509089/negquota.yaml"
+    Given I obtain test data file "quota/ocp11528/negquota.yaml"
     When I run the :create admin command with:
       | f | negquota.yaml |
       | n | <%= project.name %>                                                                             |
@@ -719,7 +719,7 @@ Feature: Quota related scenarios
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    Given I obtain test data file "quota/tc15821/quota.yaml"
+    Given I obtain test data file "quota/ocp15821/quota.yaml"
     When I run the :create client command with:
        | f | quota.yaml |
        | n | <%= project.name %>                                                                         |
