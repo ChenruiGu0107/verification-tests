@@ -528,3 +528,43 @@ Feature: Node management
     Then the output should contain:
       | No such file or directory |
 
+  # @author minmli@redhat.com
+  # @case_id OCP-32519
+  @admin
+  @destructive
+  Scenario: Add blockedRegistries to image.config.openshift.io
+    When I run the :patch admin command with:
+      | resource      | image.config.openshift.io                                             |
+      | resource_name | cluster                                                               |
+      | p             | {"spec":{"registrySources":{"blockedRegistries":["chaosmonkey.io"]}}} |
+      | type          | merge                                                                 |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_config_pool('worker').condition(type: 'Updating', cached: false)["status"] == "True"
+    Then the expression should be true> machine_config_pool('master').condition(type: 'Updating', cached: false)["status"] == "True"
+    """
+    And I wait up to 1200 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_config_pool('worker').condition(type: 'Updating', cached: false)["status"] == "False"
+    Then the expression should be true> machine_config_pool('worker').condition(type: 'Updated', cached: false)["status"] == "True"
+    Then the expression should be true> machine_config_pool('master').condition(type: 'Updating', cached: false)["status"] == "False"
+    Then the expression should be true> machine_config_pool('master').condition(type: 'Updated', cached: false)["status"] == "True"
+    """
+    Given I store the schedulable workers in the :workers clipboard
+    Given I store the schedulable masters in the :masters clipboard
+    And I use the "<%= cb.workers[0].name %>" node
+    Given I run commands on the host:
+      | grep "blocked" -B3 /etc/containers/registries.conf |
+    Then the step should succeed
+    And the output should contain:
+      | location = "chaosmonkey.io" |
+      | blocked = true              |
+    And I use the "<%= cb.masters[0].name %>" node
+    Given I run commands on the host:
+      | grep "blocked" -B3 /etc/containers/registries.conf |
+    Then the step should succeed
+    And the output should contain:
+      | location = "chaosmonkey.io" |
+      | blocked = true              |
+
