@@ -234,18 +234,18 @@ Feature: change the policy of user/service account
   @admin
   Scenario: Delete role though rolebinding existed for the role
     Given I switch to cluster admin pseudo user
-    Given admin ensures "tc467927" cluster_role is deleted after scenario
+    Given admin ensures "ocp11697" cluster_role is deleted after scenario
     Given I obtain test data file "authorization/policy/tc467927/role.json"
     When I run the :create admin command with:
       | f | role.json |
     Then the step should succeed
-    Given admin waits for the "tc467927" clusterrole to appear
-    And cluster role "tc467927" is added to the "first" user
+    Given admin waits for the "ocp11697" clusterrole to appear
+    And cluster role "ocp11697" is added to the "first" user
     And I run the :get client command with:
       |resource | clusterrolebinding |
       | o       | wide               |
     And the output should match:
-      | (ClusterRole\/)?tc467927.*(<%= user(0, switch: false).name %>)? |
+      | (ClusterRole\/)?ocp11697.*(<%= user(0, switch: false).name %>)? |
 
   # @author chuyu@redhat.com
   # @case_id OCP-22725

@@ -2,7 +2,7 @@
     "kind": "ClusterRole",
     "apiVersion": "v1",
     "metadata": {
-        "name": "tc467927"
+        "name": "ocp11697"
         },
     "rules":[ {
         "deny":false,

@@ -1,6 +1,0 @@
-[OSEv3:vars]
-# Extra_Metrics
-openshift_prometheus_state=present
-# set non-default project where prometheus pod will be installed
-openshift_prometheus_namespace=<%= project.name %>
-

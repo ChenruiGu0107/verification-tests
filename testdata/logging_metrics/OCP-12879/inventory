@@ -1,5 +1,0 @@
-[OSEv3:vars]
-# Extra_Metrics
-openshift_metrics_heapster_standalone=true
-openshift_metrics_heapster_allowed_users=system:master-proxy
-
