@@ -1,4 +1,0 @@
-[OSEv3:vars]
-# Extra_Metrics
-openshift_metrics_cassandra_storage_type=dynamic
-openshift_metrics_cassandra_pvc_size=10Gi
