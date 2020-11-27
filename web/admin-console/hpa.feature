@@ -30,14 +30,11 @@ Feature: HPA related
     When I perform the :goto_hpas_page web action with:
       | project_name  | <%= project.name %>  |
     Then the step should succeed
-    When I perform the :check_column_in_table web action with:
-      | field | Scale Target |
+    When I run the :check_scale_target_column_in_table web action
     Then the step should succeed
-    When I perform the :check_column_in_table web action with:
-      | field | Min Pods |
+    When I run the :check_min_pods_column_in_table web action
     Then the step should succeed
-    When I perform the :check_column_in_table web action with:
-      | field | Max Pods |
+    When I run the :check_max_pods_column_in_table web action
     Then the step should succeed
 
     # check hpa details

@@ -51,8 +51,7 @@ Feature: secrets related
     When I perform the :check_page_contains web action with:
       | content | <%= cb.webhook_skey %> |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | Hide Values |
+    When I run the :check_page_contains_hide_values web action
     Then the step should succeed
 
   # @author yapei@redhat.com
@@ -135,8 +134,7 @@ Feature: secrets related
     When I perform the :check_page_contains web action with:
       | content | value_1 |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | Hide Values |
+    When I run the :check_page_contains_hide_values web action
     Then the step should succeed
 
     # Edit secret

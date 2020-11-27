@@ -26,8 +26,7 @@ Feature: deployment/dc related features via web
       | max_unavailable | 25%                 |
       | max_surge       | 25%                 |
     Then the step should succeed
-    When I perform the :click_value_on_resource_detail web action with:
-      | key   | Pod Selector        |
+    When I perform the :click_pod_selector_on_resource_detail web action with:
       | value | app=hello-openshift |
     Then the step should succeed
     Given the expression should be true> browser.url.include? "/search/ns/<%= project.name %>?kind=Pod"
