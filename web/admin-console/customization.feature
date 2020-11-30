@@ -96,19 +96,10 @@ Feature: customize console related
     Given the first user is cluster-admin
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
-    Given I wait up to 30 seconds for the steps to pass:
-    """
-    When I perform the :check_page_contains web action with:
-      | content | Identity Providers |
-    Then the step should succeed
-    """
-    When I run the :get admin command with:
-      | resource      | deployment               |
-      | resource_name | oauth-openshift          |
-      | o             | yaml                     |
-      | namespace     | openshift-authentication |
-    Then the step should succeed
-    And evaluation of `@result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i` is stored in the :version_before_deploy clipboard
+    And I use the "openshift-authentication" project
+    Given a pod becomes ready with labels:
+      | app=oauth-openshift |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
 
     When I perform the :add_htpasswd_idp_upload_files web action with:
       | idp_name  | ui-auto-htpasswd               |
@@ -127,23 +118,11 @@ Feature: customize console related
       | n                 | openshift-config                                       |
     Then the step should succeed
     """
-
     # make sure authentication pods are recreated with new changes
-    Given I wait up to 300 seconds for the steps to pass:
-    """
-    When I run the :get admin command with:
-      | resource      | deployment               |
-      | resource_name | oauth-openshift          |
-      | o             | yaml                     |
-      | namespace     | openshift-authentication |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i > <%= cb.version_before_deploy %>
-    """
-    And I use the "openshift-authentication" project
-    Given number of replicas of the current replica set for the "oauth-openshift" deployment becomes:
-      | desired  | 2 |
-      | current  | 2 |
-      | ready    | 2 |
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    And current replica set name of "oauth-openshift" deployment stored into :rs clipboard
+    Given number of replicas of "<%= cb.rs %>" replica set becomes:
+      | current | 2 |
 
     # logout and re-login using specified IDP
     When I run the :click_logout web action
