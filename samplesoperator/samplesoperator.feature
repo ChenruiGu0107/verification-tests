@@ -191,3 +191,39 @@ Feature: samplesoperator
     And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Progressing')['reason'] == "CurrentlyRemoved"
     And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Degraded')['reason'] == "CurrentlyRemoved"
     """
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-35997
+  @admin
+  @destructive
+  Scenario: imagestreamtag-to-image configmap contains all images managed by samples operator
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-cluster-samples-operator" project
+    When I get project configmap named "imagestreamtag-to-image" as JSON
+    Then the output should contain:
+      | registry.redhat.io/rhscl/ruby  |
+      | registry.redhat.io/rhscl/mysql |
+    Given evaluation of `@result[:parsed]['metadata']['creationTimestamp']` is stored in the :creation1 clipboard
+    Given admin updated the operator crd "config.samples" managementstate operand to Removed
+    And I register clean-up steps:
+    """
+    admin updated the operator crd "config.samples" managementstate operand to Managed
+    """
+    When I get project configmap named "imagestreamtag-to-image" as JSON
+    Given evaluation of `@result[:parsed]['metadata']['creationTimestamp']` is stored in the :creation2 clipboard
+    And the expression should be true> cb.creation1 == cb.creation2
+    When I run the :delete admin command with:
+      | object_type       | config.samples |
+      | object_name_or_id | cluster        |
+    Then the step should succeed
+    Then I wait up to 300 seconds for the steps to pass:
+    """
+    Given I get project configmaps
+    Then the output should contain:
+      | ruby | 
+    """
+    Then admin waits for the "cluster" config_samples_operator_openshift_io to appear up to 120 seconds
+    When I get project configmap named "imagestreamtag-to-image" as JSON
+    Given evaluation of `@result[:parsed]['metadata']['creationTimestamp']` is stored in the :creation3 clipboard
+    And the expression should be true> cb.creation3 == cb.creation1
+    And I wait for the resource "configmap" named "ruby" to disappear
