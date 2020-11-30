@@ -162,9 +162,7 @@ Feature: deployment/dc related features via web
     Then the step should succeed
     When I run the :cancel_rollout_action web action
     Then the step should succeed
-    When I run the :confirm_cancel_rollout web action
-    Then the step should succeed
-    Given I wait until the status of replication controller "hooks-2" becomes :failed
+    Given I wait until the status of deployment "hooks" becomes :failed
     When I perform the :check_resource_details web action with:
       | phase | Failed |
     Then the step should succeed
