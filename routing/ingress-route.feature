@@ -8,14 +8,14 @@ Feature: Testing ingress to route object
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
 
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I obtain test data file "routing/ingress/path-ingress.json"
     When I run oc create over "path-ingress.json" replacing paths:
@@ -46,14 +46,14 @@ Feature: Testing ingress to route object
     Given the master version >= "3.10"
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
 
     # create secret and TLS ingress
@@ -86,7 +86,7 @@ Feature: Testing ingress to route object
       | --cacert |
       | /tmp/ca-test.pem |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
   # @case_id OCP-18792
@@ -96,15 +96,12 @@ Feature: Testing ingress to route object
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
 
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=abtest-websrv1 |
     Given I obtain test data file "routing/ingress/path-ingress.json"
     When I run oc create over "path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
@@ -116,15 +113,12 @@ Feature: Testing ingress to route object
     And the output should contain "<%= cb.proj_name %>.<%= cb.subdomain %>"
 
     # create another pod and service for updating service later
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker-2" becomes ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=abtest-websrv2 |
 
     # updating the path
     When I run the :patch client command with:
@@ -137,7 +131,7 @@ Feature: Testing ingress to route object
       | curl |
       | http://<%= cb.proj_name %>.<%= cb.subdomain %>/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift abtest-websrv1"
 
     # updating the service
     When I run the :patch client command with:
@@ -151,7 +145,7 @@ Feature: Testing ingress to route object
       | curl |
       | http://<%= cb.proj_name %>.<%= cb.subdomain %>/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-2"
+    And the output should contain "Hello-OpenShift abtest-websrv2"
     """
 
 
@@ -169,12 +163,12 @@ Feature: Testing ingress to route object
     Then the step should succeed
    
     # Create pods and backend service
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
 
     # create ingress resource with edge termination and check the reachability of the route
     Given I obtain test data file "routing/ingress/ingress-resource.yaml"
@@ -188,7 +182,7 @@ Feature: Testing ingress to route object
     And I wait up to 30 seconds for the steps to pass:
     """
     When I open web server via the "https://ingress-edge-<%= project.name %>.<%= cb.subdomain %>" url
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift"
     """
 
     
@@ -253,12 +247,12 @@ Feature: Testing ingress to route object
     Then the step should succeed
 
     # Create pods and backend service
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
 
     # create ingress resource with edge termination and check the routes
     Given I obtain test data file "routing/ingress/ingress-resource.yaml"

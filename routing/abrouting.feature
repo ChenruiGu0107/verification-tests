@@ -4,25 +4,16 @@ Feature: Testing abrouting
   # @case_id OCP-10889
   Scenario: Sticky session could work normally after set weight for route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
+
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
       | service | service-unsecure |
@@ -45,7 +36,7 @@ Feature: Testing abrouting
       | (20%) |
       | (80%) |
     Given I have a pod-for-ping in the project
-    #access the route without cookies
+    # access the route without cookies
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -56,8 +47,7 @@ Feature: Testing abrouting
       | -c |
       | /tmp/cookies |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    And the output should contain "Hello-OpenShift abtest-websrv1"
     """
     Given I wait up to 30 seconds for the steps to pass:
     """
@@ -67,8 +57,7 @@ Feature: Testing abrouting
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access != @result[:response]
+    And the output should contain "Hello-OpenShift abtest-websrv2"
     """
     #access the route with cookies
     Given I run the steps 6 times:
@@ -81,33 +70,23 @@ Feature: Testing abrouting
       | -b |
       | /tmp/cookies |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access == @result[:response]
+    And the output should contain "Hello-OpenShift abtest-websrv1"
     """
 
   # @author yadu@redhat.com
   # @case_id OCP-11351
   Scenario: Set backends weight to zero for ab routing
     Given I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
+
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
       | service | service-unsecure |
@@ -133,7 +112,7 @@ Feature: Testing abrouting
     """
     When I open secure web server via the "route-edge" route
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift abtest-websrv1"
     """
     When I run the :set_backends client command with:
       | routename | route-edge |
@@ -144,6 +123,15 @@ Feature: Testing abrouting
     Then the step should succeed
     Then the output should contain 2 times:
       | 0 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl                                                                     |
+      | -I                                                                       |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k                                                                       |
+    Then the output should contain "503 Service Unavailable"
+    """
     Given I run the steps 10 times:
     """
     When I execute on the pod:
@@ -165,28 +153,21 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv1 |
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker-2" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv2 |
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
+
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
       | service | service-unsecure |
@@ -231,29 +212,21 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv1 |
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker-2" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv2 |
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
-    And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/passthough/service_secure.json"
-    When I run the :create client command with:
-      | f | service_secure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/passthough/service_secure-2.json"
-    When I run the :create client command with:
-      | f | service_secure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-secure" service to become ready
-    Given I wait for the "service-secure-2" service to become ready
+
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
       | service | service-secure |
@@ -291,13 +264,13 @@ Feature: Testing abrouting
   # @case_id OCP-11306
   Scenario: Set negative backends weight for ab routing
     Given I have a project
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | service_unsecure-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
@@ -349,39 +322,28 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv1 |
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker-2" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv2 |
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
-    Given I obtain test data file "routing/abrouting/caddy-docker-3.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv3.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-3.json |
+      | f | abtest-websrv3.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker-3" becomes ready
+    And a pod becomes ready with labels:
+      | name=abtest-websrv3 |
     And evaluation of `pod.ip` is stored in the :pod_ip3 clipboard
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-3.json"
-    When I run the :create client command with:
-      | f | service_unsecure-3.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
-    Given I wait for the "service-unsecure-3" service to become ready
+
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :annotate client command with:
@@ -423,13 +385,13 @@ Feature: Testing abrouting
   Scenario: The unsecure route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | service_unsecure-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -513,26 +475,26 @@ Feature: Testing abrouting
   Scenario: The reencrypt route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/reencrypt/service_secure.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/reencrypt/service_secure-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | service_secure-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     Given I obtain test data file "routing/example_wildcard.pem"
     Given I obtain test data file "routing/example_wildcard.key"
     Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen1                                                                                     |
-      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                 |
-      | service    | service-secure                                                                            |
-      | cert       | example_wildcard.pem              |
-      | key        | example_wildcard.key              |
-      | cacert     | route_reencrypt.ca      |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | reen1                                     |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service    | service-secure                            |
+      | cert       | example_wildcard.pem                      |
+      | key        | example_wildcard.key                      |
+      | cacert     | route_reencrypt.ca                        |
+      | destcacert | route_reencrypt_dest.ca                   |
     Then the step should succeed
     #Check the default load blance policy
     Given I switch to cluster admin pseudo user
@@ -542,11 +504,11 @@ Feature: Testing abrouting
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | reen1            |
-      | -A               |
-      | 10               |
-      | haproxy.config   |
+      | grep           |
+      | reen1          |
+      | -A             |
+      | 10             |
+      | haproxy.config |
     Then the output should contain "leastconn"
     """
     #Add multiple services to route
@@ -561,11 +523,11 @@ Feature: Testing abrouting
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | reen1            |
-      | -A               |
-      | 10               |
-      | haproxy.config   |
+      | grep           |
+      | reen1          |
+      | -A             |
+      | 10             |
+      | haproxy.config |
     Then the output should contain "roundrobin"
     """
     #Set one of the service weight to 0
@@ -579,11 +541,11 @@ Feature: Testing abrouting
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | reen1            |
-      | -A               |
-      | 10               |
-      | haproxy.config   |
+      | grep           |
+      | reen1          |
+      | -A             |
+      | 10             |
+      | haproxy.config |
     Then the output should contain "leastconn"
     """
     #Set all the service weight to 0
@@ -598,11 +560,11 @@ Feature: Testing abrouting
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | reen1            |
-      | -A               |
-      | 10               |
-      | haproxy.config   |
+      | grep           |
+      | reen1          |
+      | -A             |
+      | 10             |
+      | haproxy.config |
     Then the output should contain "leastconn"
     """
 
@@ -612,13 +574,13 @@ Feature: Testing abrouting
   Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/passthough/service_secure.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/passthough/service_secure-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | service_secure-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | pass1          |
@@ -681,9 +643,9 @@ Feature: Testing abrouting
   # @case_id OCP-15259
   Scenario: Could not set more than 3 additional backends for route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -702,25 +664,16 @@ Feature: Testing abrouting
   # @case_id OCP-15382
   Scenario: Set max backends weight for ab routing
     Given I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
+
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :set_backends client command with:
@@ -732,8 +685,8 @@ Feature: Testing abrouting
     Given I run the steps 10 times:
     """
     When I open web server via the "service-unsecure" route
-    And the output should contain "Hello-OpenShift-1"
-    And the output should not contain "Hello-OpenShift-2"
+    And the output should contain "Hello-OpenShift abtest-websrv1"
+    And the output should not contain "Hello-OpenShift abtest-websrv2"
     """
     When I run the :set_backends client command with:
       | routename | service-unsecure      |
@@ -754,18 +707,18 @@ Feature: Testing abrouting
     Given I switch to the first user
     And I have a project
     # Create pods and services
-    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod3.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod4.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv3.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv4.yaml"
     When I run the :create client command with:
-      | f | abwithrc_pod1.json |
-      | f | abwithrc_pod2.json |
-      | f | abwithrc_pod3.json |
-      | f | abwithrc_pod4.json |
+      | f | abtest-websrv1.yaml |
+      | f | abtest-websrv2.yaml |
+      | f | abtest-websrv3.yaml |
+      | f | abtest-websrv4.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | type=test1 |
+      | name=abtest-websrv1 |
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     # Create route and set route backends
     When I run the :create_route_edge client command with:
@@ -790,17 +743,17 @@ Feature: Testing abrouting
     # Scale pods
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-1              |
+      | name     | abtest-websrv1         |
       | replicas | 2                      |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-2              |
+      | name     | abtest-websrv2         |
       | replicas | 4                      |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-3              |
+      | name     | abtest-websrv3         |
       | replicas | 3                      |
     Then the step should succeed
     And all pods in the project are ready
@@ -833,24 +786,24 @@ Feature: Testing abrouting
     Given I switch to the first user
     And I have a project
     # Create pods and services
-    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod3.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod4.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv3.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv4.yaml"
     When I run the :create client command with:
-      | f | abwithrc_pod1.json |
-      | f | abwithrc_pod2.json |
-      | f | abwithrc_pod3.json |
-      | f | abwithrc_pod4.json |
+      | f | abtest-websrv1.yaml |
+      | f | abtest-websrv2.yaml |
+      | f | abtest-websrv3.yaml |
+      | f | abtest-websrv4.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | type=test1 |
+      | name=abtest-websrv1 |
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     # Create route and set route backends
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | route-reen                                                                                |
-      | service    | service-secure                                                                            |
+      | name       | route-reen              |
+      | service    | service-secure          |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :set_backends client command with:
@@ -861,7 +814,7 @@ Feature: Testing abrouting
       | service   | service-secure-4=40 |
     Then the step should succeed
     When I run the :set_backends client command with:
-      | routename | route-reen            |
+      | routename | route-reen |
     Then the step should succeed
     Then the output should contain:
       | 20% |
@@ -871,17 +824,17 @@ Feature: Testing abrouting
     # Scale pods
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-1              |
+      | name     | abtest-websrv1         |
       | replicas | 2                      |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-2              |
+      | name     | abtest-websrv2         |
       | replicas | 4                      |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-3              |
+      | name     | abtest-websrv3         |
       | replicas | 3                      |
     Then the step should succeed
     And all pods in the project are ready
@@ -909,11 +862,11 @@ Feature: Testing abrouting
     # Create pods and services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
-    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | abwithrc_pod1.json |
-      | f | abwithrc_pod2.json |
+      | f | abtest-websrv1.yaml |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
     Given I wait for the "service-secure-2" service to become ready
@@ -928,7 +881,7 @@ Feature: Testing abrouting
     # Scale pods
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | test-rc-1              |
+      | name     | abtest-websrv1         |
       | replicas | 3                      |
     Then the step should succeed
     And all pods in the project are ready
@@ -959,5 +912,5 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift abtest-websrv2").size` is stored in the :accesslength2 clipboard
     Then the expression should be true> (19..20).include? cb.accesslength2

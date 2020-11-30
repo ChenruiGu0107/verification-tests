@@ -120,14 +120,14 @@ Feature: Testing Ingress Operator related scenarios
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
     # create route in the project with label
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/edge/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -169,14 +169,14 @@ Feature: Testing Ingress Operator related scenarios
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
     # create route with label
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/edge/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -382,14 +382,14 @@ Feature: Testing Ingress Operator related scenarios
     # create route in the first namespace
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    Given the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name    | route-reen     |
@@ -401,14 +401,14 @@ Feature: Testing Ingress Operator related scenarios
     # switch to another user/namespace and create one same hostname with different path
     Given I switch to the second user
     And I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    Given the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name     | route-reen       |

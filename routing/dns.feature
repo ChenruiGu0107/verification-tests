@@ -5,14 +5,14 @@ Feature: Testing DNS features
   Scenario: DNS can resolve the ClusterIP services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
@@ -35,14 +35,14 @@ Feature: Testing DNS features
 
     When I execute on the pod:
       | nslookup |
-      | service-unsecure.<%= cb.proj_name %>.svc |
+      | service-unsecure.<%= cb.proj_name %>.svc.cluster.local |
     Then the step should succeed
     And the output should contain "<%= cb.service_ip %>"
 
     When I execute on the pod:
       | getent |
       | ahosts |
-      | service-unsecure.<%= cb.proj_name %>.svc.cluster.local |
+      | service-unsecure.<%= cb.proj_name %>.svc |
     Then the step should succeed
     And the output should contain "<%= cb.service_ip %>"
 
@@ -70,14 +70,14 @@ Feature: Testing DNS features
   Scenario: DNS can resolve the ExternalName services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
@@ -106,12 +106,12 @@ Feature: Testing DNS features
   # @case_id OCP-21139
   Scenario: DNS can resolve headless service to the IP of selected pods
     Given I have a project
-    Given I obtain test data file "routing/dns/headless-services.json"
+    Given I obtain test data file "routing/dns/headless-services.yaml"
     When I run the :create client command with:
-      | f | headless-services.json |
+      | f | headless-services.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
     And evaluation of `pod(1).ip` is stored in the :pod1_ip clipboard
 

@@ -67,9 +67,9 @@ Feature: Testing wildcard routes
       | f | caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I obtain test data file "routing/wildcard_route/route_edge.json"
     When I run the :create client command with:

@@ -8,28 +8,27 @@ Feature: Testing haproxy router
     And evaluation of `project.name` is stored in the :project clipboard
 
     # create two routes which will contain cert files
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
     Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | route-reen                                                                                             |
-      | hostname   | <%= rand_str(5, :dns) %>.reen.com                                                                      |
-      | service    | service-secure                                                                                         |
+      | name       | route-reen                           |
+      | hostname   | <%= rand_str(5, :dns) %>.reen.com    |
+      | service    | service-secure                       |
       | cert       | route_reencrypt-reen.example.com.crt |
       | key        | route_reencrypt-reen.example.com.key |
       | cacert     | route_reencrypt.ca                   |
@@ -39,12 +38,12 @@ Feature: Testing haproxy router
     Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
     Given I obtain test data file "routing/ca.pem"
     When I run the :create_route_edge client command with:
-      | name     | route-edge                                                                               |
-      | hostname | <%= rand_str(5, :dns) %>.edge.com                                                        |
-      | service  | service-unsecure                                                                         |
-      | cert     | route_edge-www.edge.com.crt |
-      | key      | route_edge-www.edge.com.key |
-      | cacert   | ca.pem                           |
+      | name     | route-edge                        |
+      | hostname | <%= rand_str(5, :dns) %>.edge.com |
+      | service  | service-unsecure                  |
+      | cert     | route_edge-www.edge.com.crt       |
+      | key      | route_edge-www.edge.com.key       |
+      | cacert   | ca.pem                            |
     Then the step should succeed
 
     # get the cert files creation time on router pod
@@ -130,17 +129,17 @@ Feature: Testing haproxy router
   # @case_id OCP-10207
   Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/caddy-docker-2.json"
+    Given I obtain test data file "routing/web-server-2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | web-server-2.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/edge/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name            | route-edge              |
@@ -149,6 +148,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
+    Given I wait for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | -sS |
@@ -157,8 +158,8 @@ Feature: Testing haproxy router
       | -c |
       | /tmp/cookie |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    And the output should contain "Hello-OpenShift web-server-2"
+    """
 
     Given I wait for the steps to pass:
     """
@@ -168,8 +169,7 @@ Feature: Testing haproxy router
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access != @result[:response]
+    And the output should contain "Hello-OpenShift web-server-1"
     """
 
     #access the insecure edge route with cookies
@@ -182,8 +182,7 @@ Feature: Testing haproxy router
       | -b |
       | /tmp/cookie |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access == @result[:response]
+    And the output should contain "Hello-OpenShift web-server-2"
     """
 
     # set to Redirect policy
@@ -203,8 +202,7 @@ Feature: Testing haproxy router
       | -b |
       | /tmp/cookie |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access == @result[:response]
+    And the output should contain "Hello-OpenShift web-server-2"
     """
 
   # @author bmeng@redhat.com
@@ -228,12 +226,12 @@ Feature: Testing haproxy router
 
     Given I switch to the first user
     And I have a project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run the :create client command with:
-      | f | list_for_caddy.json |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 2 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     When I run the :create_route_passthrough client command with:
@@ -268,12 +266,12 @@ Feature: Testing haproxy router
 
     Given I switch to the first user
     And I have a project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run the :create client command with:
-      | f | list_for_caddy.json |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 2 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
@@ -304,18 +302,18 @@ Feature: Testing haproxy router
   # @case_id OCP-11728
   Scenario: haproxy hash based sticky session for tcp mode passthrough routes
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/caddy-docker-2.json"
+    Given I obtain test data file "routing/web-server-2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | web-server-2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/passthrough/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
@@ -329,7 +327,7 @@ Feature: Testing haproxy router
       | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    And evaluation of `@result[:response].lines.first.chomp` is stored in the :first_access clipboard
     Given I run the steps 6 times:
     """
     When I execute on the pod:
@@ -338,25 +336,25 @@ Feature: Testing haproxy router
       | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access == @result[:response]
+    And the expression should be true> cb.first_access == @result[:response].lines.first.chomp
     """
 
   # @author yadu@redhat.com
   # @case_id OCP-11042
   Scenario: Disable haproxy hash based sticky session for edge termination routes
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/caddy-docker-2.json"
+    Given I obtain test data file "routing/web-server-2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | web-server-2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
@@ -382,21 +380,21 @@ Feature: Testing haproxy router
       | bash | -c | for i in {1..10} ; do curl -ksS  https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ -b /tmp/cookies ; done |
     Then the step should succeed
     And the output should contain:
-      | Hello-OpenShift-1 |
-      | Hello-OpenShift-2 |
+      | Hello-OpenShift web-server-1 |
+      | Hello-OpenShift web-server-2 |
 
   # @author yadu@redhat.com
   # @case_id OCP-10914
   Scenario: Protect from ddos by limiting TCP concurrent connection for route
     Given I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -468,14 +466,14 @@ Feature: Testing haproxy router
   Scenario: No health check when there is only one endpoint for a route
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    Given evaluation of `"caddy-rc"` is stored in the :rc_name clipboard
+    Given evaluation of `"web-server-rc"` is stored in the :rc_name clipboard
     # create route
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -500,7 +498,7 @@ Feature: Testing haproxy router
       | replicas | 2                      |
     And I wait until number of replicas match "2" for replicationController "<%= cb.rc_name %>"
     And all existing pods are ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Given I switch to cluster admin pseudo user
     And I use the router project
     And I wait up to 30 seconds for the steps to pass:
@@ -517,28 +515,19 @@ Feature: Testing haproxy router
   @admin
   Scenario: Health check when there are multi service and each service has one backend
     Given I have a project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=caddy-docker |
+      | name=abtest-websrv1 |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
+
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :set_backends client command with:
