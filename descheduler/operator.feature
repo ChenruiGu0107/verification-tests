@@ -340,3 +340,44 @@ Feature: Descheduler related scenarios
        | n             | openshift-kube-descheduler-operator |
      And the output should contain:
        | only one of Include/Exclude namespaces can be set |
+
+   # @author knarra@redhat.com
+   # @case_id OCP-34956
+   @admin
+   @destructive
+   Scenario: Basic descheduler - validate excludeOwnerKinds param of RemoveDuplicates strategy
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     Then the step should succeed
+     Given I obtain test data file "replicaSet/tc533163/rs.yaml"
+     Given I switch to the first user
+     And I have a project
+     And evaluation of `project.name` is stored in the :proj_name clipboard
+     When I run the :create client command with:
+       | f | rs.yaml |
+     Then the step should succeed
+     And I run the :scale client command with:
+       | resource | replicaset |
+       | name     | frontend   |
+       | replicas | 12         |
+     Then the step should succeed
+     And I wait until number of replicas match "12" for replicaSet "frontend"
+     Given 80 seconds have passed
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     And the output should not contain:
+       | in namespace "<%= cb.proj_name %>" (RemoveDuplicates) |
