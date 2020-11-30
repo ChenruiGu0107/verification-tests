@@ -25,7 +25,6 @@ Feature: configmap related
       | property.2=value-2 |
       | property.3=value-3 |
     When I perform the :add_label_for_resource web action with:
-      | item        | Edit Labels |
       | new_label   | test1=one   |
       | press_enter | :enter      |
     Then the step should succeed

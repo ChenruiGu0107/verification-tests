@@ -118,8 +118,8 @@ Feature: projects related features via web
     When I run the :goto_projects_list_page web action
 
     # check columns: display name and creation date
-    When I perform the :check_column_in_table web action with:
-      | field | Display Name |
+    When I run the :check_display_name_column_in_table web action
+    Then the step should succeed
     And I perform the :check_column_in_table web action with:
       | field | Created |
     Then the step should succeed

@@ -173,11 +173,9 @@ Feature: operatorhub feature related
     When I perform the :goto_ImageManifestVuln_list_page web action with:
       | project_name |  <%= cb.userproject_name %> |
     Then the step should succeed
-    When I perform the :check_column_in_table web action with:
-      | field | Highest Severity  |
+    When I run the :check_highest_severity_column_in_table web action
     Then the step should succeed
-    When I perform the :check_column_in_table web action with:
-      | field | Affected Pods |
+    When I run the :check_affected_pods_column_in_table web action
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
       | field | Fixable |
