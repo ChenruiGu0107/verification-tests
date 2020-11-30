@@ -61,7 +61,7 @@ Feature: projects related features via web
     When I run the :create_resource_by_default_yaml web action
     Then the step should succeed
 
-    When I perform the :delete_serviceaccount_action web action
+    When I run the :delete_serviceaccount_action web action
     Then the step should succeed
     When I run the :delete_resource_panel web action
     Then the step should succeed

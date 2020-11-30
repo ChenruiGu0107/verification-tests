@@ -198,7 +198,6 @@
     When I perform the :check_alert_style_for_dc_pause_rollouts web action with:
       | project_name  | <%= project.name %> |
       | dc_name       | ruby                |
-      | item          | Pause Rollouts      |
     Then the step should succeed
 
   # @author xiaocwan@redhat.com

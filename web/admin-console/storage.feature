@@ -308,15 +308,13 @@ Feature: storage (storageclass, pv, pvc) related
       | container_name | dctest-2 |
     Then the step should succeed
 
-    When I perform the :remove_volume_from_container web action with:
-      | volume_name    | pvc1          |
-      | container_name | dctest-1      |
-      | button_text    | Cancel        |
+    When I perform the :remove_volume_from_container_but_cancel web action with:
+      | volume_name    | pvc1     |
+      | container_name | dctest-1 |
     Then the step should succeed
     When I perform the :remove_volume_from_container web action with:
-      | volume_name    | pvc2          |
-      | container_name | dctest-2      |
-      | button_text    | Remove Volume |
+      | volume_name    | pvc2     |
+      | container_name | dctest-2 |
     Then the step should succeed
     When I perform the :check_volume_missing_on_workload_page web action with:
       | volume_name    | pvc2     |

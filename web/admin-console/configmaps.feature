@@ -68,18 +68,13 @@ Feature: configmap related
       | from_file | keystore.jks |
     Then the step should succeed
     Given I open admin console in a browser
-    When I perform the :goto_configmaps_page web action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
     When I perform the :goto_one_configmap_page web action with:
       | project_name   | <%= project.name %> |
       | configmap_name | twobigconfigmap     |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | No Data Found |
+    When I run the :check_no_data_found_text web action
     Then the step should succeed
-    When I perform the :check_page_not_match web action with:
-      | content | No Binary Data Found |
+    When I run the :check_no_binary_data_text_missing web action
     Then the step should succeed
     When I perform the :check_binary_data_contains web action with:
       | binary_key | hello |
