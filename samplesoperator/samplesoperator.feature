@@ -227,3 +227,30 @@ Feature: samplesoperator
     Given evaluation of `@result[:parsed]['metadata']['creationTimestamp']` is stored in the :creation3 clipboard
     And the expression should be true> cb.creation3 == cb.creation1
     And I wait for the resource "configmap" named "ruby" to disappear
+
+  # @case_id OCP-35999
+  @admin
+  Scenario: Configmap operation for skip imagestreams and fail import imagestream
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-cluster-samples-operator" project
+    Given I get project configmaps
+    Then the output should contain:
+      | ruby  | 
+      | httpd | 
+    Then the output should not contain:
+      | php  | 
+      | perl | 
+    When I run the :describe admin command with:
+      | resource | config.samples.operator.openshift.io |
+      | name     | cluster                              |
+    Then the step should succeed
+    And the output should not contain:
+      | ruby  | 
+      | httpd | 
+    Given I switch to the first user
+    And I have a project
+    When I run the :new_app client command with:
+      | template | mysql-ephemeral |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deploymentconfig=mysql |
