@@ -69,7 +69,7 @@ Feature: Descheduler related scenarios
     And the output should contain:
       | Cannot evict pod as it would violate the pod's disruption budget. |
     """
-    Given I ensure "pdbocp17202" poddisruptionbudget is deleted
+    Given I ensure "pdbocp17202" pod_disruption_budget is deleted
     When I run the :create_poddisruptionbudget client command with:
       | name            | pdbocp17202 |
       | max_unavailable | 1           |
@@ -302,7 +302,7 @@ Feature: Descheduler related scenarios
        | resource_name | pod/<%= cb.pod_name %>              |
        | n             | openshift-kube-descheduler-operator |
      And the output should contain:
-       | Evicted pod: "<%= cb.testpodname %>" in namespace "<project_name>" (TooManyRestarts) |
+       | Evicted pod: "<%= cb.testpodname %>" in namespace "<project_name>" |
      """
      Examples:
        | podfilename   | statuses              | project_name |
@@ -317,6 +317,12 @@ Feature: Descheduler related scenarios
      Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
      Given I switch to cluster admin pseudo user
      And I use the "openshift-kube-descheduler-operator" project
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                                                                       |
+       | resource_name | cluster                                                                                                               |
+       | p             | [{"op": "add", "path": "/spec/strategies/4/params/3", "value": {"name": "excludeNamespaces", "value": "my-project"}}] |
+       | type          | json                                                                                                                  |
+     Then the step should succeed
      Given a pod becomes ready with labels:
        | app=descheduler |
      When I run the :patch admin command with:
@@ -329,12 +335,8 @@ Feature: Descheduler related scenarios
      Given a pod becomes ready with labels:
        | app=descheduler |
      And evaluation of `pod.name` is stored in the :pod_name clipboard
-     When I run the :patch admin command with:
-       | resource      | kubedescheduler                                                                                                       |
-       | resource_name | cluster                                                                                                               |
-       | p             | [{"op": "add", "path": "/spec/strategies/4/params/3", "value": {"name": "excludeNamespaces", "value": "my-project"}}] |
-       | type          | json                                                                                                                  |
-     Then the step should succeed
+     And I wait up to 80 seconds for the steps to pass:
+     """
      When I run the :logs admin command with:
        | resource_name | pod/<%= cb.pod_name %>              |
        | n             | openshift-kube-descheduler-operator |
