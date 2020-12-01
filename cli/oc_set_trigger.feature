@@ -47,13 +47,13 @@ Feature: oc set triggers tests
   Scenario: `oc set triggers` for bc
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo |  centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | app_repo |  openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     And I run the :get client command with:
       | resource      | bc               |
       | resource_name | ruby-hello-world |
       | o             | yaml             |
-    Then the output should contain "ruby-22-centos7:latest"
+    Then the output should contain "ruby-hello-world:latest"
     And I run the :set_triggers client command with:
       | resource | bc               |
       | resource | ruby-hello-world |
