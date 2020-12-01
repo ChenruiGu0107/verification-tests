@@ -342,6 +342,7 @@ Feature: Descheduler related scenarios
        | n             | openshift-kube-descheduler-operator |
      And the output should contain:
        | only one of Include/Exclude namespaces can be set |
+     """
 
    # @author knarra@redhat.com
    # @case_id OCP-34956
