@@ -98,8 +98,7 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :click_instances_tab web action
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | Restricted Access |
+    When I run the :check_restricted_access_text web action
     Then the step should succeed
     When I perform the :create_project_from_dropdown web action with:
       | project_name | project-ocp-24306 |
@@ -115,8 +114,7 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :click_instances_tab web action
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | No Config Maps Found |
+    When I run the :check_no_configmaps_found_text web action
     Then the step should succeed
 
     #cluster admin checks api explore page
