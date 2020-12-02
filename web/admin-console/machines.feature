@@ -160,8 +160,7 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :set_filter_strings web action with:
       | filter_text | filterout |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | No Machine Health Checks Found |
+    When I run the :check_no_machinehealthcheck_text web action
     Then the step should succeed
     When I perform the :goto_machinehealthcheck_page web action with:
       | project_name  | <%= project.name %>  |

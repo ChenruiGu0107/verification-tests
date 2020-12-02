@@ -319,8 +319,6 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %>  |
       | rs_name      | <%= cb.rs_name %>    |
     Then the step should succeed
-    When I run the :wait_until_no_loading web action
-    Then the step should succeed
     When I perform the :check_resource_details web action with:
       | created_at | |
       | owner      | hello-openshift |

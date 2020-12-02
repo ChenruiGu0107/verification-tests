@@ -46,8 +46,7 @@ Feature: pods related feature
     Then the step should succeed
     # need manually switch to all project from project-dropdown at very 1st time
     # Won't fix a minor issue: https://bugzilla.redhat.com/show_bug.cgi?id=1853187
-    When I perform the :switch_to_project web action with:
-      | project_name | all projects |
+    When I run the :switch_to_all_projects web action
     Then the step should succeed
     When I run the :goto_all_projects_pods_list web action
     Then the step should succeed
