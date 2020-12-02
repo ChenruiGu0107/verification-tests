@@ -35,13 +35,13 @@ Feature: Test Ingress API logging options
     # Create  project resource and route followed by curl to generate access traffic
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed     
     And a pod becomes ready with labels:
-      | name=caddy-pods |
-    And evaluation of `pod.ip` is stored in the :caddy_pod_ip clipboard
+      | name=web-server-rc |
+    And evaluation of `pod.ip` is stored in the :websrv_pod_ip clipboard
     Then the expression should be true> service('service-unsecure').exists?
 
     Given I obtain test data file "routing/unsecure/route_unsecure.json"
@@ -55,7 +55,7 @@ Feature: Test Ingress API logging options
     When I execute on the pod:
       | curl | -sS | --resolve | <%= cb.proj_name %>.30059.example.com:80:<%= cb.router_ip %> | --max-time | 10 |  http://<%= cb.proj_name %>.30059.example.com |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift"
     """
 
     # checking the access log on the sidecar container
@@ -67,7 +67,7 @@ Feature: Test Ingress API logging options
       | tail          | 15                       |
     Then the step should succeed
     And the output should match:
-      | <%= cb.caddy_pod_ip %>:8080 |
+      | <%= cb.websrv_pod_ip %>:8080 |
  
 
    # @author aiyengar@redhat.com
@@ -140,13 +140,13 @@ Feature: Test Ingress API logging options
      # Create project resources
      Given I switch to the first user
      And I use the "<%= cb.proj_name %>" project
-     Given I obtain test data file "routing/list_for_caddy.json"
-     When I run oc create over "list_for_caddy.json" replacing paths:
-       | ["items"][0]["spec"]["replicas"] | 1 |
+     Given I obtain test data file "routing/web-server-rc.yaml"
+     When I run the :create client command with:
+       | f | web-server-rc.yaml |
      Then the step should succeed
      And a pod becomes ready with labels:
-       | name=caddy-pods |
-     And evaluation of `pod.ip` is stored in the :caddy_pod_ip clipboard
+       | name=web-server-rc |
+     And evaluation of `pod.ip` is stored in the :websrv_pod_ip clipboard
      Then the expression should be true> service('service-unsecure').exists?
 
      # Deploy route to test
@@ -162,7 +162,7 @@ Feature: Test Ingress API logging options
      When I execute on the pod:
        | curl | -sS | --resolve | <%= cb.proj_name %>.30060.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.30060.example.com |
      Then the step should succeed
-     And the output should contain "Hello-OpenShift-1"
+     And the output should contain "Hello-OpenShift"
      """
 
      # Check rsyslogd container for the logs
@@ -172,6 +172,6 @@ Feature: Test Ingress API logging options
        | resource_name | pod/<%= cb.rsyslog_pod %> |
        | tail          | 10                        |
      Then the output should contain:
-       | <%= cb.caddy_pod_ip %>:8080 |
+       | <%= cb.websrv_pod_ip %>:8080 |
      """
 

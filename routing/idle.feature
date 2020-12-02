@@ -4,28 +4,27 @@ Feature: idle service related scenarios
   # @case_id OCP-20989
   Scenario: haproxy should load other routes even if headless service is idled
     Given I have a project
-    Given I obtain test data file "routing/dns/headless-services.json"
-    When I run oc create over "headless-services.json" replacing paths:
+    Given I obtain test data file "routing/dns/headless-services.yaml"
+    When I run oc create over "headless-services.yaml" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
+    Given I wait until number of replicas match "1" for replicationController "web-server-rc"
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     When I run the :idle client command with:
       | svc_name | service-unsecure |
     Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
+    Given I wait until number of replicas match "0" for replicationController "web-server-rc"
 
     Given I create a new project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed

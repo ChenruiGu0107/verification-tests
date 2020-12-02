@@ -27,12 +27,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # deploy route
@@ -48,7 +48,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -sS | --resolve | <%= cb.proj_name %>.34157.example.com:80:<%= cb.router_ip %> | --max-time | 10 |  http://<%= cb.proj_name %>.34157.example.com/path/second/ |
     Then the step should succeed
-    And the output should contain "second-test http-8080" 
+    And the output should contain "second-test"
     """
 
     # checking the access log for HTTP header containing the full URL parent URL
@@ -93,13 +93,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1        |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
       | ["items"][0]["metadata"]["name"] | web-pods |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route     
@@ -115,7 +114,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -sS | --resolve | <%= cb.proj_name %>.34163.example.com:80:<%= cb.router_ip %> | --max-time | 10 |  http://<%= cb.proj_name %>.34163.example.com/path/second/ |
     Then the step should succeed
-    And the output should contain "second-test http-8080"
+    And the output should contain "second-test"
     """
 
     # checking the access log for HTTP header containing the RESPONSE header
@@ -129,7 +128,7 @@ Feature: Testing HTTP Headers related scenarios
       | tail          | 10                       |
     Then the step should succeed
     And the output should match:
-      | Caddy |
+      | nginx |
     """
 
 
@@ -162,13 +161,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1        |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
       | ["items"][0]["metadata"]["name"] | web-pods |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route     
@@ -184,7 +182,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -sS | --resolve | <%= cb.proj_name %>.34191.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34191.example.com/path/second/ |
     Then the step should succeed
-    And the output should contain "second-test http-8080"
+    And the output should contain "second-test"
     """
 
     # checking the access log for HTTP header containing the RESPONSE header
@@ -199,7 +197,7 @@ Feature: Testing HTTP Headers related scenarios
     Then the step should succeed
     And the output should match:
       | <%= cb.proj_name %>.34191 |
-      | Cad |
+      | ngi |
     """
 
 
@@ -230,12 +228,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route
@@ -251,7 +249,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -b | foobar-<%= cb.proj_name %>= | -sS | --resolve | <%= cb.proj_name %>.34166.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34166.example.com/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
     # checking the access log to verify the cookie with specfic set prefix is logged
@@ -298,12 +296,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route
@@ -319,7 +317,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -b | foobar-<%= cb.proj_name %>= | -sS | --resolve | <%= cb.proj_name %>.34178.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34178.example.com/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
     # checking the access log to verify the exact set pattern is logged
@@ -367,12 +365,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route
@@ -388,7 +386,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -b | foobar-<%= cb.proj_name %>= | -sS | --resolve | <%= cb.proj_name %>.34189.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34189.example.com/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
     # checking the access log to check the length of the cookie name matches the set value of 3
@@ -435,12 +433,12 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy backend pods/services
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml|
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route
@@ -457,7 +455,7 @@ Feature: Testing HTTP Headers related scenarios
     When I execute on the pod:
       | curl | -sS | --resolve | <%= cb.proj_name %>.34188.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34188.example.com/ |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
     # checking the access log verify if the UniqueID pattern is logged and matches
@@ -766,25 +764,15 @@ Feature: Testing HTTP Headers related scenarios
     # Deploy 2 pods/services in a project
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
-    When I run the :create client command with:
-      | f | service_unsecure-2.json |
-    Then the step should succeed
-    Given I wait for the "service-unsecure" service to become ready
-    Given I wait for the "service-unsecure-2" service to become ready
 
     # Deploy two routes with independent/different annotations
     Given I obtain test data file "routing/unsecure/route_unsecure.json"

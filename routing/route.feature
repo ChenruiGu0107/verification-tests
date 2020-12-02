@@ -135,15 +135,14 @@ Feature: Testing route
   # @case_id OCP-9717
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | myroute          |
@@ -160,14 +159,14 @@ Feature: Testing route
   # @case_id OCP-12575
   Scenario: The path specified in route can work well for unsecure
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | service          |
@@ -224,15 +223,14 @@ Feature: Testing route
   Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -258,15 +256,14 @@ Feature: Testing route
   # @case_id OCP-12556
   Scenario: Create a route without host named
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     Given I obtain test data file "routing/ocp12556/route_withouthost1.json"
     When I run the :create client command with:
@@ -287,15 +284,14 @@ Feature: Testing route
   # @case_id OCP-12566
   Scenario: Cookie name should not use openshift prefix
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -321,22 +317,22 @@ Feature: Testing route
   Scenario: Limit the number of http request per ip
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
-    Given I obtain test data file "networking/list_for_pods.json"
+    Given I obtain test data file "routing/web-server-rc.yaml"
     When I run the :create client command with:
-      | f | list_for_pods.json |
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=test-pods |
-    When I expose the "test-service" service
+      | name=web-server-rc |
+    When I expose the "service-unsecure" service
     Then the step should succeed
     Given I have a pod-for-ping in the project
     When I execute on the pod:
       | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
-    Then the output should contain "Hello OpenShift"
+    Then the output should contain "Hello-OpenShift"
     And the output should not contain "Empty reply from server"
     When I run the :annotate client command with:
       | resource     | route                                                           |
-      | resourcename | test-service                                                    |
+      | resourcename | service-unsecure                                                |
       | keyval       | haproxy.router.openshift.io/rate-limit-connections=true         |
       | keyval       | haproxy.router.openshift.io/rate-limit-connections.rate-http=2  |
     Then the step should succeed
@@ -345,7 +341,7 @@ Feature: Testing route
     When I execute on the pod:
       | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
     Then the output should contain:
-      | Hello OpenShift |
+      | Hello-OpenShift |
       | Empty reply from server |
     """
 
@@ -355,15 +351,14 @@ Feature: Testing route
   Scenario: Default haproxy router should be able to skip invalid cert route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -372,12 +367,12 @@ Feature: Testing route
     Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
     Given I obtain test data file "routing/ca.pem"
     When I run the :create_route_edge client command with:
-      | name     | edge-route                                                                                     |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com                                                      |
-      | service  | service-unsecure                                                                               |
-      | cert     | route_edge-www.edge.com.crt |
-      | key      | route_edge-www.edge.com.key |
-      | cacert   | ca.pem                           |
+      | name     | edge-route                                |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service  | service-unsecure                          |
+      | cert     | route_edge-www.edge.com.crt               |
+      | key      | route_edge-www.edge.com.key               |
+      | cacert   | ca.pem                                    |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -419,9 +414,9 @@ Feature: Testing route
       | ExtendedValidationFailed |
 
     #create one normal reencyption route to check if it can work after those invalid route
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
 
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
@@ -429,13 +424,13 @@ Feature: Testing route
     Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | route-recrypt                                                                                                |
-      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
-      | service    | service-secure                                                                                               |
-      | cert       | route_reencrypt-reen.example.com.crt |
-      | key        | route_reencrypt-reen.example.com.key |
-      | cacert     | route_reencrypt.ca                   |
-      | destcacert | route_reencrypt_dest.ca              |
+      | name       | route-recrypt                             |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service    | service-secure                            |
+      | cert       | route_reencrypt-reen.example.com.crt      |
+      | key        | route_reencrypt-reen.example.com.key      |
+      | cacert     | route_reencrypt.ca                        |
+      | destcacert | route_reencrypt_dest.ca                   |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -458,9 +453,9 @@ Feature: Testing route
     Then the step should succeed
     When I use the "<%= cb.proj_name1 %>" project
     Then the step should succeed
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -480,15 +475,14 @@ Feature: Testing route
     Then the step should succeed
     When I use the "<%= cb.proj_name2 %>" project
     Then the step should succeed
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -543,14 +537,14 @@ Feature: Testing route
   # @case_id OCP-14089
   Scenario: route cannot be accessed if the backend cannot be matched the the default destination CA of router
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -573,16 +567,16 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for unsecure route
     Given the master version >= "3.6"
     Given I have a project
-    Given I obtain test data file "routing/wildcard_route/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And the pod named "web-server-1" becomes ready
 
     #Create the unsecure service
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
 
     #Create the unsecure route
@@ -594,7 +588,7 @@ Feature: Testing route
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user).upcase %>" url
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
   # @author zzhao@redhat.com
@@ -602,16 +596,16 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for edge route
     Given the master version >= "3.6"
     Given I have a project
-    Given I obtain test data file "routing/wildcard_route/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And the pod named "web-server-1" becomes ready
 
     #Create the unsecure service
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     #Create the edge route
     When I run the :create_route_edge client command with:
@@ -621,7 +615,7 @@ Feature: Testing route
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("route-edge", service("service-unsecure")).dns(by: user).upcase %>" url
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     """
 
   # @author zzhao@redhat.com
@@ -630,16 +624,16 @@ Feature: Testing route
     Given the master version >= "3.6"
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
-    Given I obtain test data file "routing/wildcard_route/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And the pod named "web-server-1" becomes ready
 
     #Create the secure service
-    Given I obtain test data file "routing/passthrough/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     #Create passthrough route
     When I run the :create_route_passthrough client command with:
@@ -649,7 +643,7 @@ Feature: Testing route
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("route-pass", service("service-secure")).dns(by: user).upcase %>" url
-    And the output should contain "Hello-OpenShift-1 https-8443"
+    And the output should contain "Hello-OpenShift"
     """
 
   # @author zzhao@redhat.com
@@ -711,17 +705,17 @@ Feature: Testing route
     Given I have a project
     And I have a header test service in the project
     And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    Given I obtain test data file "routing/passthrough/service_secure.json"
+    Given the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
-      | name    | pass-route       |
+      | name    | pass-route     |
       | service | service-secure |
     Then the step should succeed
 
@@ -939,14 +933,14 @@ Feature: Testing route
   Scenario: The unsecure/passthrough route should NOT support HSTS
     Given the master version >= "3.7"
     And I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -966,14 +960,14 @@ Feature: Testing route
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
     """
 
-    Given I obtain test data file "routing/passthrough/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     # Create passthrough termination route
     When I run the :create_route_passthrough client command with:
-      | name     | myroute |
-      | service  | service-secure     |
+      | name    | myroute        |
+      | service | service-secure |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                    |
@@ -992,14 +986,14 @@ Feature: Testing route
   Scenario: Negative testing for route HSTS policy
     Given the master version >= "3.7"
     And I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name     | myroute          |
@@ -1058,18 +1052,18 @@ Feature: Testing route
   Scenario: Check haproxy.config when overwriting 'timeout server' which was already specified
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    Given I obtain test data file "networking/list_for_pods.json"
+    Given I obtain test data file "routing/web-server-rc.yaml"
     When I run the :create client command with:
-      | f | list_for_pods.json |
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=test-pods |
-    When I expose the "test-service" service
+      | name=web-server-rc |
+    When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :annotate client command with:
-      | resource     | route                                     |
-      | resourcename | test-service                              |
-      | keyval       | haproxy.router.openshift.io/timeout=5s    |
+      | resource     | route                                  |
+      | resourcename | service-unsecure                       |
+      | keyval       | haproxy.router.openshift.io/timeout=5s |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I use the router project
@@ -1078,7 +1072,7 @@ Feature: Testing route
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
-      | grep | -A | 12 | <%= cb.proj_name %>:test-service | /var/lib/haproxy/conf/haproxy.config |
+      | grep | -A | 12 | <%= cb.proj_name %>:service-unsecure | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 1 times:
       | timeout server  5s |
     """
@@ -1088,42 +1082,38 @@ Feature: Testing route
   Scenario: Unsecure route with path and another tls route with same hostname can work at the same time
     Given the master version >= "3.10"
     And I have a project
-    Given I obtain test data file "networking/list_for_pods.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
     When I run the :create client command with:
-      | f | list_for_pods.json |
+      | f | abtest-websrv1.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=abtest-websrv1 |
     When I run the :create_route_edge client command with:
-      | name           | route-edge                                |
-      | service        | test-service                              |
-      | insecure_policy | Allow                                    |
+      | name            | route-edge       |
+      | service         | service-unsecure |
+      | insecure_policy | Allow            |
     Then the step should succeed
 
     #Create another same route with path and same hostname
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
-    When I run the :create client command with:
-      | f | service_unsecure.json |
-    Then the step should succeed
+      | name=abtest-websrv2 |
     When I run the :expose client command with:
       | resource      | service                        |
-      | resource_name | service-unsecure               |
+      | resource_name | service-unsecure-2             |
       | name          | route1                         |
       | hostname      | <%= route("route-edge").dns %> |
       | path          | /test                          |
     Then the step should succeed
     When I wait for a web server to become available via the "route-edge" route
-    Then the output should contain "Hello OpenShift!"
+    Then the output should contain "Hello-OpenShift abtest-websrv1"
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route("route-edge").dns %>/test/" url
-    Then the output should contain "Hello-OpenShift-Path-Test"
+    Then the output should contain "Hello-OpenShift-Path-Test abtest-websrv2"
     """
 
   # @author zzhao@redhat.com
@@ -1171,24 +1161,24 @@ Feature: Testing route
     And the output should not contain "error reloading router: exit status"
     Given I switch to the first user
     Given I have a project
-    Given I obtain test data file "networking/list_for_pods.json"
-    When I run oc create over "list_for_pods.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=web-server-rc |
     #Create route with hostname 'localhost'
     When I run the :expose client command with:
-      | resource      | service      |
-      | resource_name | test-service |
-      | name          | routelocal   |
-      | hostname      | localhost    |
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | name          | routelocal       |
+      | hostname      | localhost        |
     Then the step should succeed
     #Create another normal route and access it to make sure the router has been reloaded
-    When I expose the "test-service" service
+    When I expose the "service-unsecure" service
     Then the step should succeed
-    When I wait for a web server to become available via the "test-service" route
-    Then the output should contain "Hello OpenShift!"
+    When I wait for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
 
     # check the same router pod's log
     Given I switch to cluster admin pseudo user
@@ -1247,12 +1237,12 @@ Feature: Testing route
     And I have a project
 
     # Create  project resource and route followed by curl to generate access traffic
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route with specific path annotation to test the rewrite
@@ -1266,7 +1256,7 @@ Feature: Testing route
     And I wait up to 30 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
-    And the output should contain "second-test http-8080"
+    And the output should contain "second-test"
     """
 
 
@@ -1277,12 +1267,12 @@ Feature: Testing route
     And I have a project
 
     # Create  project resource and route followed by curl to generate access traffic
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
     # Deploy route with default rewrite annotation to check all paths are reachable
@@ -1296,9 +1286,9 @@ Feature: Testing route
     And I wait up to 30 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
-    And the output should contain "Hello-OpenShift-1 http-8080"
+    And the output should contain "Hello-OpenShift"
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/test/" url
-    And the output should contain "Hello-OpenShift-Path-Test http-8080"
+    And the output should contain "Hello-OpenShift-Path-Test"
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/path/second/" url
-    And the output should contain "second-test http-8080"
+    And the output should contain "second-test"
     """
