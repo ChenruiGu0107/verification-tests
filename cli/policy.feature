@@ -235,7 +235,7 @@ Feature: change the policy of user/service account
   Scenario: Delete role though rolebinding existed for the role
     Given I switch to cluster admin pseudo user
     Given admin ensures "ocp11697" cluster_role is deleted after scenario
-    Given I obtain test data file "authorization/policy/tc467927/role.json"
+    Given I obtain test data file "authorization/policy/ocp11697/role.json"
     When I run the :create admin command with:
       | f | role.json |
     Then the step should succeed
