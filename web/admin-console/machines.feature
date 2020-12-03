@@ -180,15 +180,13 @@ Feature: machineconfig/machineconfig pool related
     Given the master version >= "4.1"
     Given the first user is cluster-admin
     Given I use the "openshift-machine-api" project
-    And I open admin console in a browser
-    When I run the :goto_machine_sets_page web action
+    Given admin ensures "example-ui" machineset is deleted from the "openshift-machine-api" project after scenario
+    # create "example-ui" machineset
+    Given I obtain test data file "templates/ui/machineset-example.yaml"
+    When I run the :create admin command with:
+      | f | machineset-example.yaml |
     Then the step should succeed
-    When I run the :wait_table_loaded web action
-    Then the step should succeed
-    Given admin ensures "example" machineset is deleted from the "openshift-machine-api" project after scenario
-    # create "example" machineset
-    When I run the :create_resource_by_default_yaml web action
-    Then the step should succeed
+
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -197,10 +195,16 @@ Feature: machineconfig/machineconfig pool related
       | l        | foo=bar               |
     Then the step should succeed
     And the output should contain 3 times:
-      | example |
+      | example-ui |
     """
+    And I open admin console in a browser
+    When I run the :goto_machine_sets_page web action
+    Then the step should succeed
+    When I perform the :click_on_resource_name web action with:
+      | item | example-ui |
+    Then the step should succeed
     When I perform the :check_desired_count_on_machineset_page web action with:
-      | machine_count | 3 machines |
+      | machine_count | 3 |
     Then the step should succeed
     When I run the :click_machine_tab web action
     Then the step should succeed
@@ -212,7 +216,7 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :edit_machine_count web action with:
       | resource_count | 2 |
     Then the step should succeed
-    Given I wait up to 30 seconds for the steps to pass:
+    Given I wait up to 50 seconds for the steps to pass:
     """
     When I perform the :check_table_line_count web action with:
       | line_count | 2 |
@@ -221,16 +225,16 @@ Feature: machineconfig/machineconfig pool related
 
     When I run the :delete_machineset_from_action web action
     Then the step should succeed
-    Given I wait up to 30 seconds for the steps to pass:
+    Given I wait up to 60 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | machine               |
       | n        | openshift-machine-api |
     Then the output should not contain:
-      | example |
+      | example-ui |
     """
     When I perform the :check_page_not_match web action with:
-      | content | example |
+      | content | example-ui |
     Then the step should succeed
 
   # @author yapei@redhat.com

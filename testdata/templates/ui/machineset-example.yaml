@@ -1,0 +1,23 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: example-ui
+  namespace: openshift-machine-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      foo: bar
+  template:
+    metadata:
+      labels:
+        foo: bar
+    spec:
+      providerSpec: 
+        value:
+          ami:
+            id: ami-0763a9bebd98ae80f
+          placement:
+            availabilityZone: us-east-2a
+      versions:
+        kubelet: ''
