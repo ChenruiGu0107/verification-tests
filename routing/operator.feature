@@ -295,6 +295,11 @@ Feature: Testing Ingress Operator related scenarios
   Scenario Outline: ingresscontroller can set proper endpointPublishingStrategy for all platforms
     Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
+    When I run the :get admin command with:
+      | resource      | infrastructure |
+      | resource_name | cluster        |
+      | o             | yaml           |
+    Then the step should succeed
     And I use the "openshift-ingress-operator" project
     Then the expression should be true> ingress_controller('default').endpoint_publishing_strategy == "<type>"
     Examples:
@@ -311,10 +316,10 @@ Feature: Testing Ingress Operator related scenarios
     And I use the "openshift-ingress" project
     And all default router pods become ready
     When I execute on the pod:
-      | grep | accept-proxy | haproxy.config |
+      | bash | -c | grep -E 'bind :{1,3}(80\|443)' haproxy.config |
     Then the step should succeed
-    And the output should match 4 times:
-      | bind .* accept-proxy |
+    And the output should contain 2 times:
+      | accept-proxy |
 
   # @author hongli@redhat.com
   # @case_id OCP-29207
@@ -325,8 +330,10 @@ Feature: Testing Ingress Operator related scenarios
     And I use the "openshift-ingress" project
     And all default router pods become ready
     When I execute on the pod:
-      | grep | accept-proxy | haproxy.config |
-    Then the step should fail
+      | bash | -c | grep -E 'bind :{1,3}(80\|443)' haproxy.config |
+    Then the step should succeed
+    And the output should not contain:
+      | accept-proxy |
 
   # @author hongli@redhat.com
   # @case_id OCP-27560
