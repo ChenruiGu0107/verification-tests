@@ -13,13 +13,13 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :get client command with:
       | resource | deployment |
       | o        | yaml       |
     Then the output should match:
-      | .*[Ii]mage.*docker.io/aosqe/hello-openshift.* |
+      | .*[Ii]mage.*quay.io/openshifttest/hello-openshift.* |
     Given 10 pods become ready with labels:
       | app=hello-openshift |
     Then the step should succeed
@@ -74,7 +74,7 @@ Feature: deployment related steps
       | revision      | 2               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*docker.io/aosqe/hello-openshift.* |
+      | .*[iI]mage.*quay.io/openshifttest/hello-openshift.* |
     When I run the :rollout_history client command with:
       | resource      | deployment      |
       | resource_name | hello-openshift |
@@ -106,7 +106,7 @@ Feature: deployment related steps
       | revision      | 2               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*docker.io/aosqe/hello-openshift.* |
+      | .*[iI]mage.*quay.io/openshifttest/hello-openshift.* |
     When I run the :rollout_history client command with:
       | resource      | deployment      |
       | resource_name | hello-openshift |
@@ -209,7 +209,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | deployment      |
@@ -274,7 +274,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073","name":"hello-openshift"}]}}}} |
     Then the step should succeed
 
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
