@@ -163,7 +163,7 @@ Feature: StatefulSet related tests
     When I run the :patch client command with:
       | resource      | statefulset       |
       | resource_name | hello-statefulset |
-      | p             | [{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"docker.io/ocpqe/hello-pod:v2"}] |
+      | p             | [{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"quay.io/openshifttest/hello-pod:v2"}] |
       | type          | json              |
     And the step should succeed
     Given I ensure "hello-statefulset-0" pod is deleted
@@ -173,7 +173,7 @@ Feature: StatefulSet related tests
       | resource_name | hello-statefulset-0 |
       | template      | {{range $i, $c := .spec.containers}}{{$c.image}}{{end}} |
     Then the output should contain:
-      | docker.io/ocpqe/hello-pod:v2 |
+      | quay.io/openshifttest/hello-pod:v2 |
     Given I ensure "hello-statefulset-1" pod is deleted
     Given the pod named "hello-statefulset-1" becomes ready
     When I run the :get client command with:
@@ -181,7 +181,7 @@ Feature: StatefulSet related tests
       | resource_name | hello-statefulset-1 |
       | template      | {{range $i, $c := .spec.containers}}{{$c.image}}{{end}} |
     Then the output should contain:
-      | docker.io/ocpqe/hello-pod:v2 |
+      | quay.io/openshifttest/hello-pod:v2 |
 
   # @author dma@redhat.com
   # @case_id OCP-12975

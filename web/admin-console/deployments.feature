@@ -363,7 +363,7 @@ Feature: deployment/dc related features via web
     Given I obtain test data file "pods/two_container_sleep.yaml"
     When I run oc create with "two_container_sleep.yaml" replacing paths:
       | ["metadata"]["name"]               | podtest               |
-      | ["spec"]["containers"][0]["image"] | docker.io/busybox_non |
+      | ["spec"]["containers"][0]["image"] | quay.io/openshifttest/busybox_non |
     Then the step should succeed
     Given the pod named "podtest" status becomes :pending
     Given I wait up to 120 seconds for the steps to pass:

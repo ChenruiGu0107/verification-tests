@@ -1027,7 +1027,7 @@ Then the step should succeed
       | app=ups-broker |
     When I run the :patch client command with:
       | resource | deployment/ups-broker |
-      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--provision", "205"], "name": "ups-broker", "image": "docker.io/aosqe/user-broker:latest"}]}}}} |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--provision", "205"], "name": "ups-broker", "image": "quay.io/openshifttest/user-broker:latest"}]}}}} |
     Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
@@ -1174,7 +1174,7 @@ Then the step should succeed
       | app=ups-broker |
     When I run the :patch client command with:
       | resource | deployment/ups-broker |
-      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--bind", "205"], "name": "ups-broker", "image": "docker.io/aosqe/user-broker:latest"}]}}}} |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--bind", "205"], "name": "ups-broker", "image": "quay.io/openshifttest/user-broker:latest"}]}}}} |
     Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:

@@ -14,7 +14,7 @@ spec:
         run: hello-hpa
     spec:
       containers:
-      - image: docker.io/ocpqe/hello-hpa:latest
+      - image: quay.io/openshifttest/hello-hpa:latest
         imagePullPolicy: IfNotPresent
         name: hello-hpa
         resources:

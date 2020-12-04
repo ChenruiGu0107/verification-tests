@@ -65,7 +65,7 @@ Feature: REST related features
   Scenario: Read and write image signatures with registry endpoint
     Given I have a project
     When I run the :tag client command with:
-      | source      | docker.io/openshift/hello-openshift   |
+      | source      | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
       | dest        | <%= project.name %>/ho:latest         |
     Then the step should succeed
     Then I wait up to 60 seconds for the steps to pass:

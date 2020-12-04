@@ -8,7 +8,7 @@ spec:
   restartPolicy: OnFailure
   containers:
   - name: cli
-    image: docker.io/aosqe/oc-cli:tagname
+    image: quay.io/openshifttest/oc-cli:tagname
     command: [ "oc" ]
     args: 
       - "adm"

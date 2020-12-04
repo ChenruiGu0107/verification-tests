@@ -89,13 +89,13 @@ Feature: limit range related scenarios:
     """
     When I run the :import_image client command with:
       | image_name | centos           |
-      | from       | docker.io/centos |
+      | from       | quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5 |
       | confirm    | true             |
       | all        | true             |
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                           |
-      | source       | docker.io/library/busybox:latest |
+      | source       | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | dest         | mystream:latest                  |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -124,7 +124,7 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                           |
-      | source       | docker.io/library/busybox:latest |
+      | source       | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | dest         | mystream:v1                      |
     Then the step should succeed
     When I run the :tag client command with:
@@ -151,7 +151,7 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                           |
-      | source       | docker.io/library/busybox:latest |
+      | source       | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | dest         | mystream:v1                      |
     Then the step should succeed
     When I run the :tag client command with:
@@ -177,7 +177,7 @@ Feature: limit range related scenarios:
       | --dest-tls-verify=false                   |
       | --dcreds                                  |
       | any:<%= user.cached_tokens.first %>       |
-      | docker://docker.io/centos:centos7         |
+      | docker://quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5         |
       | docker://<%= cb.mystream %>:v3            |
     Then the step should fail
     And the output should match:

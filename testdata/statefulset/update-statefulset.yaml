@@ -30,7 +30,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-        - image: "docker.io/ocpqe/hello-pod:v1"
+        - image: "quay.io/openshifttest/hello-pod:v1"
           imagePullPolicy: IfNotPresent
           name: hello-pod
           ports:

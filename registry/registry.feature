@@ -45,7 +45,7 @@ Feature: Testing registry
       | --dest-tls-verify=false    |
       | --dcreds                   |
       | <%= cb.reg_user %>:<%= cb.reg_pass %>  |
-      | docker://docker.io/busybox             |
+      | docker://quay.io/openshifttest/busybox             |
       | docker://<%= cb.reg_svc_url %>/busybox:latest  |
     Then the step should succeed
     When I run the :create_secret client command with:
@@ -257,7 +257,7 @@ Feature: Testing registry
     And I wait for the steps to pass:
     """
     And I run the :tag client command with:
-      | source | docker.io/centos/ruby-25-centos7:latest |
+      | source | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
       | dest   | myimage:v1                              |
       | n      | <%= cb.saved_name %>                    |
     Then the step should fail

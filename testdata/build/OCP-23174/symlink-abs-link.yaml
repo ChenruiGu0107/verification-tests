@@ -12,7 +12,7 @@ spec:
     images:
     - from:
         kind: DockerImage
-        name: docker.io/aosqe/symlink-test:absolute
+        name: quay.io/openshifttest/symlink-test:absolute
       paths:
       - destinationDir: link
         sourcePath: /symlink-image/link/hello.txt

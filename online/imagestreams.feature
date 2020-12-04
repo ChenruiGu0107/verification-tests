@@ -65,8 +65,8 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                    |
       | copy                                                                 |
       | --dcreds                                                             |
-      | <%= user.name %>:<%= user.cached_tokens.first %>                  |
-      | docker://docker.io/busybox                                           |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
+      | docker://quay.io/openshifttest/busybox                               |
       | docker://<%= cb.registry_route %>/<%= project.name %>/busybox:latest |
     Then the step should succeed
     When I run the :get client command with:
@@ -93,8 +93,8 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
-      | docker://docker.io/busybox                                              |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                        |
+      | docker://quay.io/openshifttest/busybox                                  |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail
     And the output should contain:
@@ -111,8 +111,8 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
-      | docker://docker.io/busybox                                              |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                        |
+      | docker://quay.io/openshifttest/busybox                                  |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should succeed
     When I run the :get client command with:
@@ -140,8 +140,8 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
-      | docker://docker.io/busybox                                              |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                        |
+      | docker://quay.io/openshifttest/busybox                                  |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail
     And the output should contain:

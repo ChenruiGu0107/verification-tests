@@ -22,7 +22,7 @@ Feature: remote registry related scenarios
       | --dest-tls-verify=false              |
       | --dcreds                             |
       | any:<%= user.cached_tokens.first %>  |
-      | docker://docker.io/centos:centos7    |
+      | docker://quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5    |
       | docker://<%= cb.my_tag %>            |
     Then the step should fail
     And the output should match:
@@ -41,7 +41,7 @@ Feature: remote registry related scenarios
       | --dest-tls-verify=false              |
       | --dcreds                             |
       | any:<%= user.cached_tokens.first %>  |
-      | docker://docker.io/centos:centos7    |
+      | docker://quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5    |
       | docker://<%= cb.my_tag %>            |
     Then the step should succeed
 
@@ -106,7 +106,7 @@ Feature: remote registry related scenarios
       | --insecure-policy                                                        |
       | copy                                                                     |
       | --dest-tls-verify=false                                                  |
-      | docker://docker.io/busybox                                               |
+      | docker://quay.io/openshifttest/busybox                                   |
       | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should fail
     And the output should contain:
@@ -128,7 +128,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                           |
-      | source       | docker.io/library/busybox:latest |
+      | source       | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | dest         | mystream:latest                  |
     Then the step should succeed
     When I run the :tag client command with:
@@ -150,7 +150,7 @@ Feature: remote registry related scenarios
       | --dest-tls-verify=false              |
       | --dcreds                             |
       | any:<%= user.cached_tokens.first %>  |
-      | docker://docker.io/busybox           |
+      | docker://quay.io/openshifttest/busybox           |
       | docker://<%= cb.mystream3 %>:latest  |
     Then the step should fail
     And the output should match:

@@ -34,7 +34,7 @@ Feature: oc tag related scenarios
     Given I have a project
     When I run the :tag client command with:
       | source_type  | docker                     |
-      | source       | docker.io/library/busybox:latest |
+      | source       | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | dest         | mystream:v1     |
       | dest         | mystream:latest |
     Then the step should succeed

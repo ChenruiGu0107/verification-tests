@@ -9,7 +9,7 @@
         "containers": [
             {
                 "name": "pv-recycler",
-                "image": "docker.io/aosqe/recycler",
+                "image": "quay.io/openshifttest/recycler",
                 "command": [
                     "/bin/sh"
                 ],

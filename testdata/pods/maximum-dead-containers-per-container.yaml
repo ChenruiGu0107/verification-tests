@@ -6,7 +6,7 @@ metadata:
   name: dead-containers
 spec:
   containers:
-    - image: "docker.io/centos:centos7"
+    - image: "quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5"
       name: max-dead-containers-per-container
       imagePullPolicy: IfNotPresent
       command: ["sh", "-c", "echo hello max-dead-containers-per-container"]
