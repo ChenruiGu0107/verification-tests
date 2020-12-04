@@ -340,3 +340,19 @@ Feature: dockerbuild.feature
     Then the output should not contain:
       | Image operating system mismatch |
       | Image architecture mismatch     |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-37309
+  Scenario: Dockerfile builds should have permission to change ca dir 
+    Given I have a project
+    Given I obtain test data file "build/OCP-37309/ca-dir-perm.yaml"
+    When I run the :create client command with:
+      | f | ca-dir-perm.yaml |
+    And the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ca-dir-perm |
+    And the "ca-dir-perm-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ca-dir-perm-1 |
+    Then the output should contain:
+      | drwxrwxrwx |

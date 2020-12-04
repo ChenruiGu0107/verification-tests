@@ -1,0 +1,13 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ca-dir-perm
+spec:
+  source:
+    dockerfile: |-
+      FROM registry.svc.ci.openshift.org/ocp/4.7:base
+      RUN chmod a+w -R /etc/pki/ca-trust/extracted
+      RUN ls -ld /etc/pki/ca-trust/extracted
+    type: Dockerfile
+  strategy:
+    dockerStrategy: {}
