@@ -65,15 +65,15 @@ Feature: Service related networking scenarios
   @admin
   Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
+    And the pod named "web-server-1" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_ip clipboard
 
