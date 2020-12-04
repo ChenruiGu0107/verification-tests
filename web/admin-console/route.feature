@@ -5,13 +5,13 @@ Feature: route related
   Scenario: Create Passthrough route from form
     Given the master version >= "4.1"
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker-2.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker-2.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/passthrough/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
     Given I open admin console in a browser
 
@@ -40,20 +40,20 @@ Feature: route related
 
     Given I store default router subdomain in the :subdomain clipboard
     When I open web server via the "http://passthroughroute-<%= project.name %>.<%= cb.subdomain %>" url
-    Then the output should contain "Hello-OpenShift-2 https-8443"
+    Then the output should match "Hello-OpenShift web-server-1 https-8443"
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-21007
   Scenario: Create edge route from form
     Given the master version >= "4.1"
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/edge/service_unsecure.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -103,13 +103,13 @@ Feature: route related
   Scenario: Create re-encrypt route from form
     Given the master version >= "4.1"
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    Given I obtain test data file "routing/service_secure.yaml"
     When I run the :create client command with:
-      | f | service_secure.json |
+      | f | service_secure.yaml |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -220,11 +220,11 @@ Feature: route related
   Scenario: Support create route with multiple services
     Given the master version >= "4.3"
     Given I have a project
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
-    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json   |
-      | f | service_unsecure-2.json |
+      | f | abtest-websrv1.yaml |
+      | f | abtest-websrv2.yaml |
     Then the step should succeed
 
     # create route with multiple services
@@ -311,11 +311,11 @@ Feature: route related
   Scenario: Check route list and detail page
     Given the master version >= "4.1"
     Given I have a project
-    Given I obtain test data file "routing/edge/service_unsecure.json"
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/service_unsecure.yaml"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
-      | f | caddy-docker.json          |
+      | f | service_unsecure.yaml |
+      | f | web-server-1.yaml     |
     Then the step should succeed
 
     # create two routes, one is created from default YAML, the other is created by form
