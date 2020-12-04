@@ -2125,3 +2125,147 @@ Feature: Network policy plugin scenarios
     And the output should contain 10 times:
       | allow-from-red  |
       | allow-from-blue |
+
+  # @author anusaxen@redhat.com
+  # @case_id OCP-21866
+  @admin
+  Scenario: Networkpolicy should support namespaces and pod selector at same time
+    # create project and pods
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(-1).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(-1).name` is stored in the :p1pod1 clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(-1).ip_url` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(-1).name` is stored in the :p2pod1 clipboard
+    # create another pod in same project with different label
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip_url` is stored in the :p2pod3ip clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj3 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(-1).ip_url` is stored in the :p3pod1ip clipboard
+    And evaluation of `pod(-1).name` is stored in the :p3pod1 clipboard
+    # create another pod in same project with different label
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip_url` is stored in the :p3pod3ip clipboard
+    #Add annotation to both project 2 and 3 and apply namespaceselector and podselector network policy to the project1
+    When I run the :label admin command with:
+      | resource | namespace |
+      | name     | <%= cb.proj2 %> |
+      | key_val  | team=operations |
+    Then the step should succeed
+    When I run the :label admin command with:
+      | resource | namespace |
+      | name     | <%= cb.proj3 %> |
+      | key_val  | team=openshift |
+    Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/nw_with_ns_and_ps_selector.yaml"
+    When I run the :create admin command with:
+      | f | nw_with_ns_and_ps_selector.yaml |
+      | n | <%= cb.proj1 %>                 |
+    Then the step should succeed
+    
+    #Accessing pod in project1 from pod in project2 
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    #Accessing pod in project1 from pod with different label in project2
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    #Accessing pod in project1 from pod in project3
+    Given I use the "<%= cb.proj3 %>" project
+    When I execute on the "<%= cb.p3pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    #Label proj3 to match network policy created earlier hence changing keyval to team=operations
+    When I run the :label admin command with:
+      | resource  | namespace       |
+      | name      | <%= cb.proj3 %> |
+      | key_val   | team=operations |
+      | overwrite | true            |
+    Then the step should succeed
+    #Accessing pod in project1 from pod with different label in project2
+    Given I use the "<%= cb.proj3 %>" project
+    When I execute on the "<%= cb.p3pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed 
+    
+    #Scale up the pod in project1 and project3
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc                |
+      | replicas | 3                      |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(-3).name` is stored in the :p1pod3 clipboard
+    And evaluation of `pod(-3).ip_url` is stored in the :p1pod3ip clipboard
+    Given I use the "<%= cb.proj3 %>" project
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc                |
+      | replicas | 3                      |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(-3).name` is stored in the :p3pod3 clipboard
+    #Accessing pod in project1 from scaled pod in project3
+    Given I use the "<%= cb.proj3 %>" project
+    When I execute on the "<%= cb.p3pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should succeed
+      
+    #Label Project3 to original key val which is team=openshift
+    When I run the :label admin command with:
+      | resource  | namespace       |
+      | name      | <%= cb.proj3 %> |
+      | key_val   | team=openshift  |
+      | overwrite | true            |
+    Then the step should succeed
+    #Accessing pod in project1 from pod in project3
+    Given I use the "<%= cb.proj3 %>" project
+    When I execute on the "<%= cb.p3pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    #Accessing pod in project3 from pod in project1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p3pod1ip %>:8080 |
+    Then the step should fail
+    #Checking egress functionality
+    #Accessing hello-pod in project3 from pod in project1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p3pod3ip %>:8080 |
+    Then the step should succeed
+    #Accessing hello-pod in project2 from pod in project1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p2pod3ip %>:8080 |
+    Then the step should fail
