@@ -5,15 +5,14 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
     Given I have a project
-    Given I obtain test data file "routing/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=caddy-docker |
-    Given I obtain test data file "routing/unsecure/service_unsecure.json"
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
-      | f | service_unsecure.json |
+      | f | service_unsecure.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | svc |
@@ -132,12 +131,12 @@ Feature: SDN related networking scenarios
     Given the master version >= "3.6"
     Given I have a project
     # create target pod and services for ping or curl
-    Given I obtain test data file "routing/list_for_caddy.json"
-    When I run oc create over "list_for_caddy.json" replacing paths:
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
     And evaluation of `pod.ip` is stored in the :target_pod_ip clipboard
     And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_unsecure_ip clipboard
     And evaluation of `service("service-secure").ip(user: user)` is stored in the :service_secure_ip clipboard
