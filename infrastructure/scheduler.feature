@@ -432,3 +432,50 @@ Feature: Scheduler predicates and priority test suites
     Given a pod becomes ready with labels:
       | env=testh |
     Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author knarra@redhat.com
+  # @case_id OCP-36111
+  @admin
+  @destructive
+  Scenario: Priority/Preempting - Validate pods with higher priority having preemption policy set to never are placed ahead of lower-priority pods in the scheduling queue
+    Given admin ensures "priorityl" priority_class is deleted after scenario
+    Given admin ensures "priorityh" priority_class is deleted after scenario
+    # Creation of priority classes
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"
+    When I run the :create admin command with:
+      | f | priorityl.yaml |
+    Then the step should succeed
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/non_preempting_priority.yaml"
+    When I run the :create admin command with:
+      | f | non_preempting_priority.yaml |
+    Then the step should succeed
+    Given I store the schedulable workers in the :nodes clipboard
+    And node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+    Then the step should succeed
+    # Test runs
+    Given I have a project
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
+    When I run oc create over "podl.yaml" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+    Then the step should succeed
+    And status becomes :pending of 1 pods labeled:
+      | env=test |
+    And evaluation of `pod.name` is stored in the :podl clipboard
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
+    When I run oc create over "podl.yaml" replacing paths:
+      | ["metadata"]["generateName"]                                 | priorityh                      |
+      | ["metadata"]["labels"]                                       | env: testh                     |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+      | ["spec"]["priorityClassName"]                                | priorityh                      |
+    Then the step should succeed
+    Given status becomes :pending of 1 pods labeled:
+      | env=testh |
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | env=testh |
+    And the pod named "<%= cb.podl %>" status becomes :pending
