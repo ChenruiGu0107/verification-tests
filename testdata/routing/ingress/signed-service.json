@@ -20,7 +20,7 @@
                 }
         ],
         "selector": {
-                "name": "caddy-pods"
+                "name": "web-server-rc"
         }
     }
 }
