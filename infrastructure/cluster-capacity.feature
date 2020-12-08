@@ -249,3 +249,41 @@ Feature: cluster-capacity related features
     And the output should match:
       | The\s+cluster\s+can\s+schedule\s+[1-9]*     |
       | instance\(s\)\s+of\s+the\s+pod\s+small-pod. |
+
+
+  # @author weinliu@redhat.com
+  # @case_id OCP-37342
+  @admin
+  Scenario: Cluster capacity image check - product
+    Given I have a project
+    Given I store master major version in the :master_version clipboard
+    Given I create the serviceaccount "cluster-capacity-sa"
+    Given I obtain test data file "infrastructure/cluster-capacity-cluster-role.yaml"
+    When I run the :create admin command with:
+      | f | cluster-capacity-cluster-role.yaml |
+    Then the step should succeed
+    When admin ensures "cluster-capacity-role" clusterrole is deleted after scenario
+    And cluster role "cluster-capacity-role" is added to the "system:serviceaccount:<%= project.name %>:cluster-capacity-sa" service account
+    Then the step should succeed
+    Given I obtain test data file "infrastructure/cluster-capacity/cluster-capacity-configmap.yaml"
+    Given I run the :create client command with:
+      | f | cluster-capacity-configmap.yaml |
+    Then the step should succeed
+    Given I obtain test data file "infrastructure/cluster-capacity-rc.yaml"
+    When I process and create:
+      | f | cluster-capacity-rc.yaml                                                                 |
+      | p | IMAGE=registry.redhat.io/openshift4/ose-cluster-capacity:v<%= cb.master_version %>       |
+      | p | NAMESPACE=<%= project.name %>                                                            |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=cluster-capacity |
+    Then evaluation of `pod.name` is stored in the :capacity_pod clipboard
+    Given I wait until replicationController "cluster-capacity" is ready
+    And I wait until number of replicas match "2" for replicationController "cluster-capacity"
+    When I run the :logs client command with:
+      | resource_name | pod/<%= cb.capacity_pod %> |
+      | since         | 60s                        |
+    Then the step should succeed
+    And the output should match:
+      | The\s+cluster\s+can\s+schedule\s+[1-9]*     |
+      | instance\(s\)\s+of\s+the\s+pod\s+small-pod. |
