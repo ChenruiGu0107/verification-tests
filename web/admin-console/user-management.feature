@@ -20,10 +20,6 @@ Feature: User management related
       | text     | <%= user(0, switch: false).name %> |
       | link_url | k8s/cluster/user.openshift.io~v1~User/<%= user(0, switch: false).name %> |
     Then the step should succeed
-    When I perform the :check_rolebinding_of_user web action with:
-      | username |  <%= user(0, switch: false).name %> |
-      | content  | No Role Bindings Found              |
-    Then the step should succeed
     # impersonate the first user
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |

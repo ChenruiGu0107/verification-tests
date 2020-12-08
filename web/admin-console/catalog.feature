@@ -68,7 +68,6 @@ Feature: tests on catalog page
     Then the step should succeed
     When I run the :filter_by_template_type web action
     Then the step should succeed
-    And the expression should be true>  browser.url =~ /kind=.*Template/
     When I perform the :create_app_from_template web action with:
       | project_name       | <%= project.name %> |
       | template_namespace | <%= project.name %> |

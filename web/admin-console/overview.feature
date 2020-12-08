@@ -208,7 +208,7 @@ Feature: overview cases
 
     # check pods links to correct page
     When I perform the :check_pod_number_and_link web action with:
-      | text | 1 of 1 pods |
+      | text | 1 of 1 |
       | link | /k8s/ns/<%= project.name %>/statefulsets/hello/pods |
     Then the step should succeed
 
@@ -531,8 +531,8 @@ Feature: overview cases
       | resource_name | hello-daemonset  |
     Then the step should succeed
     When I perform the :check_pod_number_and_link web action with:
-      | text | <%= cb.ds_current_replicas %> of <%= cb.ds_disired_replicas %> pods |
-      | link | /k8s/ns/<%= project.name %>/daemonsets/hello-daemonset/pods         |
+      | text | <%= cb.ds_current_replicas %> of <%= cb.ds_disired_replicas %> |
+      | link | /k8s/ns/<%= project.name %>/daemonsets/hello-daemonset/pods    |
     Then the step should succeed
 
     # check basic info on overview view
@@ -586,7 +586,7 @@ Feature: overview cases
       | link_url | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %> |
     Then the step should succeed
     When I perform the :check_pod_number_and_link web action with:
-      | text | 1 of 1 pods |
+      | text | 1 of 1 |
       | link | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %>/pods |
     Then the step should succeed
     # check actions on expanded sidebar
