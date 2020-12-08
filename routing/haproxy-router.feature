@@ -133,9 +133,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/web-server-2.yaml"
-    When I run the :create client command with:
-      | f | web-server-2.yaml |
+    When I run oc create over "web-server-1.yaml" replacing paths:
+      | ["metadata"]["name"] | web-server-2 |
     Then the step should succeed
     Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
@@ -306,9 +305,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/web-server-2.yaml"
-    When I run the :create client command with:
-      | f | web-server-2.yaml |
+    When I run oc create over "web-server-1.yaml" replacing paths:
+      | ["metadata"]["name"] | web-server-2 |
     Then the step should succeed
     And all pods in the project are ready
     Given I obtain test data file "routing/service_secure.yaml"
@@ -347,9 +345,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | web-server-1.yaml |
     Then the step should succeed
-    Given I obtain test data file "routing/web-server-2.yaml"
-    When I run the :create client command with:
-      | f | web-server-2.yaml |
+    When I run oc create over "web-server-1.yaml" replacing paths:
+      | ["metadata"]["name"] | web-server-2 |
     Then the step should succeed
     And all pods in the project are ready
     Given I obtain test data file "routing/service_unsecure.yaml"
