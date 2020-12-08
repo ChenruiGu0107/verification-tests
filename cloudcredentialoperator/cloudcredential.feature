@@ -302,3 +302,44 @@ Feature: cloud credential operator
     Given I use the "openshift-cloud-credential-operator" project
     And the expression should be true> deployment("cloud-credential-operator").container_spec(name: 'cloud-credential-operator').image_pull_policy == "IfNotPresent"
  
+  # @author lwan@redhat.com
+  # @case_id OCP-35636
+  @admin
+  Scenario: Improve CCO Leader Election
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-cloud-credential-operator" project
+    And a pod becomes ready with labels:
+      | app=cloud-credential-operator |
+    Then evaluation of `pod.name` is stored in the :cco_pod_name_1 clipboard
+    Given admin ensures "<%= cb.cco_pod_name_1 %>" pod is deleted from the "openshift-cloud-credential-operator" project
+    Then a pod becomes ready with labels:
+      | app=cloud-credential-operator |
+    And evaluation of `pod.name` is stored in the :cco_pod_name_2 clipboard
+    And the expression should be true> cb.cco_pod_name_1 != cb.cco_pod_name_2
+    Then I wait up to 15 seconds for the steps to pass:
+    """
+    Given I run the :logs admin command with:
+      | resource_name | <%= cb.cco_pod_name_2 %>  |
+      | c             | cloud-credential-operator |
+    Then the output should contain:
+      | attempting to acquire leader lease  openshift-cloud-credential-operator/cloud-credential-operator-leader |
+      | successfully acquired lease openshift-cloud-credential-operator/cloud-credential-operator-leader         |
+      | became leader |
+    """
+    Given I run the :get client command with:
+      | resource     | configmap                                  |
+      | resource_name| cloud-credential-operator-leader           | 
+      | o            | jsonpath={.metadata.managedFields[0].time} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :before_time clipboard
+    And I wait up to 92 seconds for the steps to pass:
+    """
+    Given I run the :get client command with:
+      | resource     | configmap                                  |
+      | resource_name| cloud-credential-operator-leader           | 
+      | o            | jsonpath={.metadata.managedFields[0].time} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :after_time clipboard
+    Then the expression should be true> Time.parse(cb.before_time) < Time.parse(cb.after_time)
+    """
+    Then the expression should be true> (Time.parse(cb.after_time) -  Time.parse(cb.before_time)) == 90
