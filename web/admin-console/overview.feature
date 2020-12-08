@@ -160,24 +160,21 @@ Feature: overview cases
       | project_name  | <%= project.name %>  |
       | bc_name       | python-sample        |
     Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Run Policy |
+    When I run the :check_run_policy_popover_info web action
     Then the step should succeed
     # check build page
     When I perform the :goto_one_build_page web action with:
       | project_name  | <%= project.name %>  |
       | build_name    | python-sample-1      |
     Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Triggered By |
+    When I run the :check_triggered_by_popover_info web action
     Then the step should succeed
     # check DC page
     When I perform the :goto_one_dc_page web action with:
       | project_name  | <%= project.name %>  |
       | dc_name       | python-sample        |
     Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Update Strategy |
+    When I run the :check_update_strategy_popover_info web action
     Then the step should succeed
     # check deployment page
     Given the first user is cluster-admin
@@ -185,8 +182,7 @@ Feature: overview cases
       | project_name | openshift-console |
       | deploy_name  | console           |
     Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Namespace |
+    When I run the :check_namespace_popover_info web action
     Then the step should succeed
 
   # @author yapei@redhat.com
