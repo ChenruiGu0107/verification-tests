@@ -69,7 +69,7 @@ Feature: only about cluster access cases
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-orgadmin-ui-default |
+      | cluster_name | sdqe-ui-admin |
     Then the step should succeed
     When I run the :check_idp_hint_missing web action
     Then the step should succeed
@@ -106,4 +106,30 @@ Feature: only about cluster access cases
     Then the step should succeed
     When I perform the :check_openid_idp_validations web action with:
       | ldap_bind_dn | dn |
+    Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-27994
+  Scenario: Check the UI layout of the 'AWS infrastructure access' in the 'Access Control' tab
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :click_access_control_tab web action
+    Then the step should succeed
+    When I run the :check_basic_elements_on_AWS_infrastructure_access_tab web action
+    Then the step should succeed
+    When I perform the :grant_AWS_infrastructure_role web action with:
+      | aws_iam_arn | arn:aws:iam::301721915996:user/yuwan |
+      | role        | Network management                   |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I perform the :delete_AWS_infrastructure_role web action with:
+      | aws_iam_arn | arn:aws:iam::301721915996:user/yuwan |
+      | role        | Network management                   |
+    Then the step should succeed
+    """
+    When I run the :check_AWS_infrastructure_role_list_structure web action
     Then the step should succeed

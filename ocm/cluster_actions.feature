@@ -397,3 +397,54 @@ Feature: only about page related to cluster actions
       | persistent_storage_value | 600 |
     Then the step should succeed
     
+  # @author yuwan@redhat.com
+  # @case_id OCP-22800
+  Scenario: The normal user cannot edit/delete the cluster in the same organization but not owned by himself on the UHC portal
+    Given I open ocm portal as an secondRegularUser user
+    Then the step should succeed
+    When I perform the :expand_cluster_actions_on_cluster_list_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :check_actions_items_by_org_member_on_list web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :check_actions_button_disabled web action
+    Then the step should succeed
+    When I run the :click_clusters_url web action
+    Then the step should succeed
+    When I perform the :expand_cluster_actions_on_cluster_list_page web action with:
+      | cluster_name | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :check_actions_items_by_org_member_on_list web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-ocp |
+    Then the step should succeed
+    When I run the :check_actions_button_disabled web action
+    Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-36802
+  Scenario: Check the elements on 'Edit node count' dialog
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :go_to_edit_node_count_dialog_on_cluster_list_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :check_elements_on_edit_node_count_dialog web action
+    Then the step should succeed
+    When I run the :click_cancel_button web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :go_to_edit_node_count_dialog_on_cluster_detail_page web action
+    Then the step should succeed
+    When I run the :check_elements_on_edit_node_count_dialog web action
+    Then the step should succeed
+    When I run the :click_cancel_button web action
+    Then the step should succeed
+
+    
