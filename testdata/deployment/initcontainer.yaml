@@ -14,10 +14,10 @@ spec:
     spec:
       initContainers:
         - name: wait
-          image: centos:centos7
+          image: quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5
           command: ["/bin/sh", "-c", "env"]
       containers:
         - name: hello-openshift
-          image: openshift/hello-openshift
+          image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
           ports:
             - containerPort: 8080

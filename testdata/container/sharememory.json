@@ -19,7 +19,7 @@
         ],
         "containers": [
             {
-                "image": "kubernetes/pause",
+                "image": "quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105",
                 "name": "hello-container1",
                 "ports": [
                     {
@@ -34,7 +34,7 @@
                 ]
             },
             {
-                "image": "kubernetes/pause",
+                "image": "quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105",
                 "name": "hello-container2",
                 "ports": [
                     {

@@ -10,7 +10,7 @@ spec:
   - name: rhel-ubi
     stdin: true
     tty: true
-    image: registry.access.redhat.com/ubi7/ubi@sha256:25904f0dbbbe259dffa87838304aa6634af7a6cec9f69574e545939603b73c36
+    image: quay.io/openshifttest/ubi@sha256:cd014e94a9a2af4946fc1697be604feb97313a3ceb5b4d821253fcdb6b6159ee
     imagePullPolicy: IfNotPresent
     resources:
       limits:

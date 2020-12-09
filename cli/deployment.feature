@@ -26,7 +26,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                        |
       | resource_name | hello-openshift                                                                                                   |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/deployment-example","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :get client command with:
       | resource | deployment |
