@@ -1200,18 +1200,18 @@ Feature: Testing route
     When I run the :create client command with:
       | f | signed-service.json |
     And the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    And I check that the "service-secret" secret exists
-    """
+    And I wait for the "service-secret" secret to appear up to 30 seconds
 
-    # Deploy a pod with secret volume and mountpaths
-    Given I obtain test data file "routing/ingress/caddy-secure.yaml"
+    # Deploy a pod with secret volume and mountpaths along with configmap for new nginx config
+    Given I obtain test data file "routing/ingress/web-server-secret-rc.yaml"
     When I run the :create client command with:
-      | f | caddy-secure.yaml |
+      | f | web-server-secret-rc.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=caddy-pods |
+      | name=web-server-rc |
+    And evaluation of `pod.name` is stored in the :websrv_pod clipboard
+    When I get project configmaps
+    Then the output should match "nginx-config"
  
     # Create a a REEN terminated route
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
@@ -1225,8 +1225,8 @@ Feature: Testing route
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
-    When I open web server via the "https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>" url
-    And the output should contain "Hello-OpenShift-1 https-8443"
+    When I open web server via the "https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>/" url
+    And the output should contain "Hello-OpenShift <%= cb.websrv_pod %> https-8443 default"
     """
 
 
