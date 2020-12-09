@@ -62,11 +62,11 @@ Feature: Testing wildcard routes
     # create route in the first namespace
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
-    Given I obtain test data file "routing/wildcard_route/caddy-docker.json"
+    Given I obtain test data file "routing/web-server-1.yaml"
     When I run the :create client command with:
-      | f | caddy-docker.json |
+      | f | web-server-1.yaml |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
+    Given the pod named "web-server-1" becomes ready
     Given I obtain test data file "routing/service_unsecure.yaml"
     When I run the :create client command with:
       | f | service_unsecure.yaml |
@@ -83,11 +83,11 @@ Feature: Testing wildcard routes
     When I execute on the pod:
       | curl | -ksS | --resolve | wildcard.edge.example.com:443:<%= cb.router_ip %> | https://wildcard.edge.example.com |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift"
     When I execute on the pod:
       | curl | -ksS | --resolve | any.edge.example.com:443:<%= cb.router_ip %> | https://any.edge.example.com |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1"
+    And the output should contain "Hello-OpenShift"
     """
 
   # @author hongli@redhat.com
