@@ -318,3 +318,36 @@ Feature: Machine features testing
     """
     Then the expression should be true> machine(cb.win_machine).phase(cached: false) == "Provisioned"
     """
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-36153
+  @admin
+  @destructive
+  Scenario: Creating VMs using KMS keys from GCP
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+    And I pick a random machineset to scale
+
+    # Create a machineset
+    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    And I save the output to file> machineset-clone-36153.yaml
+    And I replace content in "machineset-clone-36153.yaml":
+      | <%= machine_set.name %> | machineset-clone-36153 |
+      | /replicas.*/            | replicas: 0            |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-36153.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-clone-36153" machineset is deleted after scenario
+
+    Given as admin I successfully merge patch resource "machineset/machineset-clone-36153" with:
+      | {"spec":{"replicas":1,"template":{"spec":{"providerSpec":{"value":{"disks":[{"autoDelete":true,"boot":true,"encryptionKey":{"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"},"sizeGb":128,"type":"pd-ssd"}]}}}}}} |
+
+    # Verify machine could be created successful
+    And I wait up to 300 seconds for the steps to pass:
+    """ 
+    Then the expression should be true> machine_set("machineset-clone-36153").desired_replicas(cached: false) == 1
+    """ 
+    Then the machineset should have expected number of running machines
