@@ -7,7 +7,7 @@ spec:
     supplementalGroups:
     - 0
   containers:
-  - image: aosqe/hugepage-test:latest
+  - image: quay.io/openshifttest/hugepage-test:latest
     name: hp
     volumeMounts:
     - mountPath: /hugepages

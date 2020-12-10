@@ -133,7 +133,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
     And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
@@ -151,7 +151,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                               |
       | resource_name | hello-openshift                                                                                          |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist1","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given replica set "<%= cb.rs2 %>" becomes non-current for the "hello-openshift" deployment
     And current replica set name of "hello-openshift" deployment stored into :rs3 clipboard
@@ -175,7 +175,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                               |
       | resource_name | hello-openshift                                                                                          |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist2","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist2","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | deployment      |
@@ -308,7 +308,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
 
     Given replica set "<%= cb.rs2 %>" becomes non-current for the "hello-openshift" deployment
@@ -319,7 +319,7 @@ Feature: deployment related steps
       | resource | deployment |
       | o        | yaml       |
     Then the output should match:
-      | .*image.*openshift/nonexist.* |
+      | .*image.*quay.io/openshifttest/nonexist.* |
 
     Given number of replicas of "hello-openshift" deployment becomes:
       | current | 43 |
@@ -416,7 +416,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     And I wait up to 360 seconds for the steps to pass:
     """
@@ -437,7 +437,7 @@ Feature: deployment related steps
       | resource | deployment |
       | o        | yaml       |
     Then the output should match:
-      | .*image.*openshift/nonexist.* |
+      | .*image.*quay.io/openshifttest/nonexist.* |
     When I run the :rollout_pause client command with:
       | resource | deployment      |
       | name     | hello-openshift |
@@ -450,7 +450,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                                                                         |
       | resource_name | hello-openshift                                                                                                                                                    |
-      | p             | {"spec":{"replicas":50,"strategy":{"rollingUpdate":{"maxSurge":6}},"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"replicas":50,"strategy":{"rollingUpdate":{"maxSurge":6}},"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist1","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     And I wait up to 360 seconds for the steps to pass:
     """
@@ -498,14 +498,14 @@ Feature: deployment related steps
       | revision      | 2               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*openshift/nonexist.* |
+      | .*[iI]mage.*quay.io/openshifttest/nonexist.* |
     When I run the :rollout_history client command with:
       | resource      | deployment      |
       | resource_name | hello-openshift |
       | revision      | 3               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*openshift/nonexist1.* |
+      | .*[iI]mage.*quay.io/openshifttest/nonexist1.* |
 
   # @author geliu@redhat.com
   # @case_id OCP-11966
@@ -525,7 +525,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
     And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
@@ -598,7 +598,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
     And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
@@ -612,7 +612,7 @@ Feature: deployment related steps
       | resource | deployment |
       | o        | yaml       |
     Then the output should match:
-      | .*image.*openshift/nonexist.* |
+      | .*image.*quay.io/openshifttest/nonexist.* |
     When I run the :rollout_pause client command with:
       | resource | deployment      |
       | name     | hello-openshift |
@@ -678,7 +678,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                               |
       | resource_name | hello-openshift                                                                                          |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/nonexist1","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given number of replicas of "hello-openshift" deployment becomes:
       | current | 1 |
@@ -702,7 +702,7 @@ Feature: deployment related steps
       | revision      | 2               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*openshift/nonexist1.* |
+      | .*[iI]mage.*quay.io/openshifttest/nonexist1.* |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-19922

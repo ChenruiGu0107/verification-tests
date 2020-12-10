@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: hpa-example
-        image: gcr.io/google-samples/hello-app:2.0
+        image: quay.io/openshifttest/hello-app:2.0
         ports:
         - containerPort: 8080
           protocol: TCP

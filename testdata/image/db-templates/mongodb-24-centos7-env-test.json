@@ -90,7 +90,7 @@
                                 "value": "false"
                             }
                         ],
-                        "image": "openshift/mongodb-24-centos7",
+                        "image": "quay.io/openshifttest/mongodb-24-centos7",
                         "imagePullPolicy": "IfNotPresent",
                         "name": "mongodb-helloworld-database",
                         "ports": [

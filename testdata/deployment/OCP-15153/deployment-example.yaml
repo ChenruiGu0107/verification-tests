@@ -13,6 +13,6 @@ spec:
     spec:
       containers:
       - name: web
-        image: openshift/deployment-example:v1
+        image: quay.io/openshifttest/deployment-example:v1
         ports:
         - containerPort: 8080

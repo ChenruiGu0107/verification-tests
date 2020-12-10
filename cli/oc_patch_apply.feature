@@ -179,7 +179,7 @@ Feature: oc patch/apply related scenarios
     When I run the :patch client command with:
       | resource      | pod             |
       | resource_name | hello-openshift |
-      | p             | {"spec":{"containers":[{"name":"hello-openshift","image":"aosqe/hello-openshift"}]}} |
+      | p             | {"spec":{"containers":[{"name":"hello-openshift","image":"quay.io/openshifttest/hello-openshift"}]}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource   | pod                |

@@ -83,8 +83,8 @@ Feature: Webhook REST Related Tests
       | error  |
       | 123456 |
     Examples:
-      | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
+      | type   | row | path             | file           | header1        | header2 | url_before | url_after |
+      | github | 0   | github/testdata/ | pushevent.json | X-Github-Event | push    |            |           |
 
   # @author dyan@redhat.com
   Scenario Outline: Trigger build manually with webhook contained specified branch and commit
@@ -144,8 +144,8 @@ Feature: Webhook REST Related Tests
     And the output should not contain:
       | "commit"      |
     Examples:
-      | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         | # @case_id OCP-12760
+      | type   | row | path             | file           | header1        | header2 | url_before | url_after |
+      | github | 0   | github/testdata/ | pushevent.json | X-Github-Event | push    |            |           | # @case_id OCP-12760
 
   # @author shiywang@redhat.com
   # @case_id OCP-12513
@@ -153,7 +153,7 @@ Feature: Webhook REST Related Tests
     Given I have a project
     When I run the :new_app client command with:
       | app_repo     | https://github.com/openshift/ruby-hello-world |
-      | docker image | docker.io/ruby:2.1-onbuild |
+      | docker image | quay.io/openshifttest/ruby:2.1-onbuild        |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed

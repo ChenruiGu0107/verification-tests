@@ -30,7 +30,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-        - image: "openshift/hello-openshift:latest"
+        - image: "quay.io/openshifttest/hello-openshift:latest"
           imagePullPolicy: IfNotPresent
           name: hello-pod
           ports:

@@ -14,7 +14,7 @@ spec:
         run: hello-hpa-memory
     spec:
       containers:
-      - image: k8s.gcr.io/resource_consumer:beta 
+      - image: quay.io/openshifttest/resource_consumer:beta
         imagePullPolicy: IfNotPresent
         name: hello-hpa
         resources:

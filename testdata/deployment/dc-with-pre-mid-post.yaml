@@ -71,7 +71,7 @@ spec:
           value: Plqe5Wev
         - name: MYSQL_DATABASE
           value: root
-        image: openshift/origin
+        image: quay.io/openshift/origin
         imagePullPolicy: Always
         name: hello-openshift
         ports:

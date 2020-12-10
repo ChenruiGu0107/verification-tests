@@ -82,7 +82,7 @@
                                 "value": "42"
                             }
                         ],
-                        "image": "openshift/postgresql-92-centos7",
+                        "image": "quay.io/openshifttest/postgresql-92-centos7",
                         "imagePullPolicy": "Always",
                         "name": "postgresql-helloworld-database",
                         "ports": [

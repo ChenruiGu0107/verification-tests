@@ -15,11 +15,11 @@
       "sourceStrategy": {
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/uptoknow/extendedbuild_builder:latest"
+          "name": "quay.io/openshifttest/extendedbuild_builder:latest"
         },
         "runtimeImage": {
           "kind": "DockerImage",
-          "name": "docker.io/uptoknow/extendedbuild_runtime:latest"
+          "name": "quay.io/openshifttest/extendedbuild_runtime:latest"
         },
         "runtimeArtifacts": [
           {

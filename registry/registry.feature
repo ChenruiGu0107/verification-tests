@@ -258,14 +258,14 @@ Feature: Testing registry
     """
     And I run the :tag client command with:
       | source | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
-      | dest   | myimage:v1                              |
-      | n      | <%= cb.saved_name %>                    |
+      | dest   | myimage:v1                                                                                                    |
+      | n      | <%= cb.saved_name %>                                                                                          |
     Then the step should fail
     """
     And the output should contain:
-      | Forbidden: registry "docker.io" not allowed by whitelist |
-      | registry.redhat.io:443                                   |
-      | registry.access.redhat.com:443                           |
+      | Forbidden: registry "quay.io" not allowed by whitelist |
+      | registry.redhat.io:443                                 |
+      | registry.access.redhat.com:443                         |
     And I run the :tag client command with:
       | source | registry.redhat.io/rhscl/ruby-25-rhel7:latest |
       | dest   | myimage1:v1                                   |

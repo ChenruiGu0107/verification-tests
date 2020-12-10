@@ -74,7 +74,7 @@
         "output": {
           "to": {
             "kind": "DockerImage",
-            "name": "docker.io/qeopenshift/pushimage-tc476356:latest"
+            "name": "quay.io/openshifttest/ruby-25-centos7:latest"
           },
           "pushSecret":{
              "name":"sec-push"

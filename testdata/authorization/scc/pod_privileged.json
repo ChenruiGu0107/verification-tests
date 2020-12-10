@@ -10,7 +10,7 @@
     "spec": {
         "containers": [
             {
-                "image": "pweil/hello-nginx-docker",
+                "image": "quay.io/openshifttest/hello-nginx-docker",
                 "name": "hello-nginx-docker-pod",
                 "ports": [
                     {

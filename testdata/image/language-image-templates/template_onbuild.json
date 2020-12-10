@@ -77,7 +77,7 @@
         "creationTimestamp": null
       },
       "spec": {
-        "dockerImageRepository": "docker.io/chunyunchen/docker-node"
+        "dockerImageRepository": "quay.io/openshifttest/hello-openshift"
       },
       "status": {
         "dockerImageRepository": ""

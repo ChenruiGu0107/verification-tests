@@ -47,7 +47,7 @@
                 "containers": [
                     {
                         "name": "nettest",
-                        "image": "gcr.io/google_containers/nettest@sha256:2b3856c196b27a3def9b8dd65ce8e0d6e640727a48ec9b85147521e918f8ac27",
+                        "image": "quay.io/openshifttest/nettest@sha256:2b3856c196b27a3def9b8dd65ce8e0d6e640727a48ec9b85147521e918f8ac27",
                         "args": [
                              "-delay-shutdown=120"
                          ],

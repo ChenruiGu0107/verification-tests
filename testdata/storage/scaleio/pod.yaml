@@ -4,7 +4,7 @@ metadata:
   name: pod
 spec:
   containers:
-  - image: gcr.io/google_containers/test-webserver
+  - image: quay.io/openshifttest/test-webserver
     name: pod
     volumeMounts:
     - mountPath: /test-pd

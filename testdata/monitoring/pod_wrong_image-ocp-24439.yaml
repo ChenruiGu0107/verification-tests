@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: hello-openshift
-          image: openshift/hello-openshift33
+          image: quay.io/openshifttest/nonexist
           ports:
             - containerPort: 8080

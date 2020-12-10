@@ -138,7 +138,7 @@
         "output": {
           "to": {
             "kind": "DockerImage",
-            "name": "docker.io/yapei/origin-ruby22-sample:latest"
+            "name": "quay.io/openshifttest/ruby-25-centos7:latest"
           }
         },
         "postCommit": {

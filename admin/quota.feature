@@ -694,22 +694,22 @@ Feature: Quota related scenarios
     Then the step should succeed
     And default registry service ip is stored in the :integrated_reg_ip clipboard
     When I execute on the pod:
-      | skopeo                                                                    |
-      | --debug                                                                   |
-      | --insecure-policy                                                         |
-      | copy                                                                      |
-      | --dest-tls-verify=false                                                   |
-      | --dcreds                                                                  |
-      | dnm:<%= user.cached_tokens.first %>                                       |
-      | docker://docker.io/<image>                                                |
-      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest  |
+      | skopeo                                                                   |
+      | --debug                                                                  |
+      | --insecure-policy                                                        |
+      | copy                                                                     |
+      | --dest-tls-verify=false                                                  |
+      | --dcreds                                                                 |
+      | dnm:<%= user.cached_tokens.first %>                                      |
+      | docker://quay.io/<image>                                                 |
+      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should fail
     And the output should contain "denied"
 
     Examples:
-      | image                       |
-      | aosqe/fedora_base:latest    | # @case_id OCP-11797
-      | aosqe/singlelayer:latest    | # @case_id OCP-11963
+      | image                            |
+      | openshifttest/fedora_base:latest | # @case_id OCP-11797
+      | openshifttest/singlelayer:latest | # @case_id OCP-11963
 
   # @author weinliu@redhat.com
   # @case_id OCP-15821
@@ -721,8 +721,8 @@ Feature: Quota related scenarios
     And I use the "<%= project.name %>" project
     Given I obtain test data file "quota/ocp15821/quota.yaml"
     When I run the :create client command with:
-       | f | quota.yaml |
-       | n | <%= project.name %>                                                                         |
+       | f | quota.yaml          |
+       | n | <%= project.name %> |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
