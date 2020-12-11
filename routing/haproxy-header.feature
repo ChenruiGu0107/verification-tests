@@ -671,6 +671,70 @@ Feature: Testing HTTP Headers related scenarios
 
 
   # @author aiyengar@redhat.com
+  # @case_id OCP-34235
+  @admin
+  Scenario: Configure Ingresscontroller to never set the headers and preserve existing with "forwardedHeaderPolicy" set to Never
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-34235" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctrl-x_forwarded.yaml"
+    And I run oc create over "ingressctrl-x_forwarded.yaml" replacing paths:
+      | ["spec"]["domain"]                               | <%= cb.subdomain.gsub("apps","test-34235") %> |
+      | ["metadata"]["name"]                             | test-34235                                    |
+      | ["spec"]["httpHeaders"]["forwardedHeaderPolicy"] | Never                                         |
+    Then the step should succeed
+
+    # Ensure the router gets spawned and the vital info is saved in the cb and check if the env has the "Never" value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-34235 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-34235').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep  ROUTER_SET_FORWARDED_HEADERS=never | -q |
+    Then the step should succeed
+    """
+
+    # Deploy backend pods/services
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/header-test/dc.json"
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/header-test/insecure-service.json"
+    When I run the :create client command with:
+      | f | insecure-service.json |
+    Then the step should succeed
+
+    # Deploy route
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.34235.example.com |
+      | ["metadata"]["name"]   | route-unsecure                        |
+      | ["spec"]["to"]["name"] | header-test-insecure                  |
+    Then the step should succeed
+
+    # Generate app traffic and verify if the headers match the set value of "Never"
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip` is stored in the :hello_pod_ip clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+     | curl | -sS | --resolve | <%= cb.proj_name %>.34235.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34235.example.com |
+    Then the step should succeed
+    And the output should match "<%= cb.proj_name %>.34235.example.com"
+    And the output should not contain "x-forwarded"
+    """
+
+
+  # @author aiyengar@redhat.com
   # @case_id OCP-34236
   @admin
   Scenario: "forwardedHeaderPolicy" option defaults to "Append" if none is defined in the ingresscontroller configuration
