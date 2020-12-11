@@ -479,3 +479,57 @@ Feature: Scheduler predicates and priority test suites
     Given status becomes :running of 1 pods labeled:
       | env=testh |
     And the pod named "<%= cb.podl %>" status becomes :pending
+
+  # @author knarra@redhat.com
+  # @case_id OCP-36110
+  @admin
+  @destructive
+  Scenario: Priority/Preempting - validate higher priority pods will preempt pods with lowerprirority when preemtionPolicy is set to Never on them
+    Given admin ensures "prioritym" priority_class is deleted after scenario
+    Given admin ensures "priorityh" priority_class is deleted after scenario
+    # Creation of priority classes
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/non_preempting_priority.yaml"
+    When I run oc create as admin over "non_preempting_priority.yaml" replacing paths:
+      | ["metadata"]["name"] | prioritym |
+      | ["value"]            | 99        |
+    Then the step should succeed
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"
+    When I run oc create as admin over "priorityl.yaml" replacing paths:
+      | ["metadata"]["name"] | priorityh |
+      | ["value"]            | 100       |
+    Then the step should succeed
+    Given I store the schedulable workers in the :nodes clipboard
+    And node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    # Test runs
+    Given I have a project
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
+    When I run oc create over "podl.yaml" replacing paths:
+      | ["metadata"]["generateName"]                                 | prioritym                      |
+      | ["metadata"]["labels"]                                       | env: testm                     |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+      | ["spec"]["priorityClassName"]                                | prioritym                      |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | env=testm |
+    And evaluation of `pod.name` is stored in the :podm clipboard
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+    Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
+    When I run oc create over "podl.yaml" replacing paths:
+      | ["metadata"]["generateName"]                                 | priorityh                      |
+      | ["metadata"]["labels"]                                       | env: testh                     |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+      | ["spec"]["priorityClassName"]                                | priorityh                      |
+    Then the step should succeed
+    Given status becomes :pending of 1 pods labeled:
+      | env=testh |
+    And evaluation of `pod.name` is stored in the :podh clipboard
+    And the pod named "<%= cb.podm %>" becomes terminating
+    And a pod becomes ready with labels:
+      | env=testh |
