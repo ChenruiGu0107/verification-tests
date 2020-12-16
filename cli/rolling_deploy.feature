@@ -7,7 +7,7 @@ Feature: rolling deployment related scenarios
     When I run the :create client command with:
       | f | rolling.json |
     #And I wait until replicationController "hooks-1" is ready
-    And I wait for the pod named "hooks-1-deploy" to die
+    #And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |
@@ -76,7 +76,7 @@ Feature: rolling deployment related scenarios
     Given I obtain test data file "deployment/rolling.json"
     When I run the :create client command with:
       | f | rolling.json |
-    And I wait for the pod named "hooks-1-deploy" to die
+    #And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |

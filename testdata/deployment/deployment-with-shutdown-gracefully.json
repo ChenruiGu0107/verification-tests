@@ -47,7 +47,7 @@
                 "containers": [
                     {
                         "name": "nettest",
-                        "image": "quay.io/openshifttest/nettest@sha256:2b3856c196b27a3def9b8dd65ce8e0d6e640727a48ec9b85147521e918f8ac27",
+                        "image": "quay.io/openshifttest/nettest@sha256:98b0f87c566e8506a0de4234fa0a20f95672d916218cec14c707b1bbdf004b6c",
                         "args": [
                              "-delay-shutdown=120"
                          ],

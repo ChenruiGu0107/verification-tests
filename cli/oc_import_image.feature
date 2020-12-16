@@ -47,8 +47,8 @@ Feature: oc import-image related feature
       | [Tt]ag deployment-example:latest           |
     And I wait for the "deployment-example:latest" istag to appear
     When I run the :create_deploymentconfig client command with:
-      | image | deployment-example:latest |
-      | name  | deployment-example        |
+      | image | quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652 |
+      | name  | deployment-example                                                                                               |
     Then the step should succeed
     When I run the :get client command with:
       | resource        | imagestreams |
@@ -83,8 +83,8 @@ Feature: oc import-image related feature
     And I wait for the "deployment-example:latest" istag to appear
 
     When I run the :create_deploymentconfig client command with:
-      | image | deployment-example:latest |
-      | name  | deployment-example        |
+      | image | quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652 |
+      | name  | deployment-example                                                                                               | 
     Then the step should succeed
     Then the "deployment-example" image stream was created
 

@@ -179,14 +179,14 @@ Feature: oc patch/apply related scenarios
     When I run the :patch client command with:
       | resource      | pod             |
       | resource_name | hello-openshift |
-      | p             | {"spec":{"containers":[{"name":"hello-openshift","image":"quay.io/openshifttest/hello-openshift"}]}} |
+      | p             | {"spec":{"containers":[{"name":"hello-openshift","image":"quay.io/openshifttest/hello-openshift:openshift"}]}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource   | pod                |
       | name       | hello-openshift    |
     Then the step should succeed
     And the output should match:
-      | [Ii]mage.*aosqe/hello-openshift |
+      | [Ii]mage.*openshift/hello-openshift |
     And I wait for the steps to pass:
     """
     When I get project pods
