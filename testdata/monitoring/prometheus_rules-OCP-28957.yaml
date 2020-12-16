@@ -2,7 +2,6 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: ocp-28957.rules
-  namespace: ocp-28957-proj1
 spec:
   groups:
   - name: Test rules

@@ -437,20 +437,6 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-    #check default page is graph and displays correctly
-    When I perform the HTTP request:
-    """
-    :url: https://<%= cb.prom_route %>/
-    :method: get
-    :headers:
-      :Authorization: Bearer <%= cb.sa_token %>
-    """
-    Then the step should succeed
-    And the output should contain:
-      | Prometheus |
-      | Alerts     |
-      | Graph      |
-      | Help       |
 
     #query an metric
     When I perform the HTTP request:
@@ -467,7 +453,7 @@ Feature: Install and configuration related scenarios
     #check alerts page
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.prom_route %>/alerts
+    :url: https://<%= cb.prom_route %>/api/v1/rules?type=alert
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.sa_token %>
@@ -479,15 +465,15 @@ Feature: Install and configuration related scenarios
     #check targets page
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.prom_route %>/targets
+    :url: https://<%= cb.prom_route %>/api/v1/targets?state=active
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.sa_token %>
     """
     Then the step should succeed
     And the output should contain:
-      | Endpoint |
-      | up)      |
+      | metrics |
+      | up      |
 
   # @author hongyli@redhat.com
   # @case_id OCP-28957
@@ -495,10 +481,13 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: Alerting rules with the same name and different namespaces should not offend each other
     Given the master version >= "4.5"
-    And I switch to cluster admin pseudo user
+    And the first user is cluster-admin
+
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-    And admin ensures "ocp-28957-proj1" project is deleted after scenario
-    And admin ensures "ocp-28957-proj2" project is deleted after scenario
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :project_name1 clipboard
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :project_name2 clipboard
 
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
@@ -506,22 +495,19 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                           |
     Then the step should succeed
-    When I run the :new_project client command with:
-      | project_name | ocp-28957-proj1 |
-    Then the step should succeed
-    When I run the :new_project client command with:
-      | project_name | ocp-28957-proj2 |
-    Then the step should succeed
+
     #Deploy prometheus rules under proj1
-    Given I obtain test data file "monitoring/prometheus_rules-OCP-28957-proj1.yaml"
+    When I use the "<%= cb.project_name1 %>" project
+    Given I obtain test data file "monitoring/prometheus_rules-OCP-28957.yaml"
     When I run the :apply client command with:
-      | f         | prometheus_rules-OCP-28957-proj1.yaml |
+      | f         | prometheus_rules-OCP-28957.yaml |
       | overwrite | true                                  |
     Then the step should succeed
     #Deploy prometheus rules under proj2
-    Given I obtain test data file "monitoring/prometheus_rules-OCP-28957-proj2.yaml"
+    When I use the "<%= cb.project_name2 %>" project
+    Given I obtain test data file "monitoring/prometheus_rules-OCP-28957.yaml"
     When I run the :apply client command with:
-      | f         | prometheus_rules-OCP-28957-proj2.yaml |
+      | f         | prometheus_rules-OCP-28957.yaml |
       | overwrite | true                                  |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
@@ -556,8 +542,8 @@ Feature: Install and configuration related scenarios
       | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=ALERTS%7Balertname%3D%22Watchdog%22%7D |
     Then the step should succeed
     And the output should contain:
-      | ocp-28957-proj1 |
-      | ocp-28957-proj2 |
+      | <%= cb.project_name1 %> |
+      | <%= cb.project_name2 %> |
     """ 
     #check alertmanager
     When I perform the HTTP request:
@@ -569,8 +555,8 @@ Feature: Install and configuration related scenarios
     """
     Then the step should succeed
     And the output should contain:
-      | ocp-28957-proj1 |
-      | ocp-28957-proj2 |
+      | <%= cb.project_name1 %> |
+      | <%= cb.project_name2 %> |
   
     #check thanos rule
     When I perform the HTTP request:
@@ -582,9 +568,9 @@ Feature: Install and configuration related scenarios
     """
     Then the step should succeed
     And the output should contain:
-      | alertname="Watchdog" |
-      | ocp-28957-proj1      |
-      | ocp-28957-proj2      |
+      | alertname="Watchdog"    |
+      | <%= cb.project_name1 %> |
+      | <%= cb.project_name2 %> |
     ##check thanos alerts
     When I perform the HTTP request:
     """
@@ -595,9 +581,9 @@ Feature: Install and configuration related scenarios
     """
     Then the step should succeed
     And the output should contain:
-      | Watchdog        |
-      | ocp-28957-proj1 |
-      | ocp-28957-proj2 |
+      | Watchdog                |
+      | <%= cb.project_name1 %> |
+      | <%= cb.project_name2 %> |
       
   # @author hongyli@redhat.com
   # @case_id OCP-28961
@@ -921,7 +907,7 @@ Feature: Install and configuration related scenarios
     And admin ensures "grpc-tls" secret is deleted from the "openshift-monitoring" project
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | all                                |
@@ -968,7 +954,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #check thanos querier can access prometheus in stack
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                                                                                                 |
@@ -1092,9 +1078,7 @@ Feature: Install and configuration related scenarios
       | o              | wide |
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/)` is stored in the :output_pods clipboard
-    And evaluation of `cb.output_pods.map{|n| n.match(/.*Completed.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :completed_pods clipboard
-    And evaluation of `cb.output_pods.length-1` is stored in the :all_pods clipboard
-    And evaluation of `cb.all_pods - cb.completed_pods` is stored in the :running_pods clipboard
+    And evaluation of `cb.output_pods.map{|n| n.match(/.*Running.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :running_pods clipboard
     #query an metric
     When I perform the HTTP request:
     """
@@ -1143,8 +1127,10 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: expose thanos-querier rules endpoint
     Given the master version >= "4.6"
-    And I switch to cluster admin pseudo user
-    Given admin ensures "ocp-32623-proj" project is deleted after scenario
+    And the first user is cluster-admin
+
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
     And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     
     Given I use the "openshift-monitoring" project
@@ -1169,9 +1155,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Create one project and prometheus rules under it
-    When I run the :new_project client command with:
-      | project_name | ocp-32623-proj |
-    Then the step should succeed
+    Given I use the "<%= cb.proj_name %>" project
     Given I obtain test data file "monitoring/prometheus_rules.yaml"
     When I run the :apply client command with:
       | f         | prometheus_rules.yaml |
@@ -1181,20 +1165,20 @@ Feature: Install and configuration related scenarios
     When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | monitoring-rules-view              |
       | user_name | <%= user(1, switch: false).name %> |
-      | n         | ocp-32623-proj                     |
+      | n         | <%= cb.proj_name %>                |
     Then the step should succeed
 
     Given I switch to the second user
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
-      | n                | openshift-monitoring                                                                                                                                          |
-      | pod              | prometheus-k8s-0                                                                                                                                              |
-      | c                | prometheus                                                                                                                                                    |
-      | oc_opts_end      |                                                                                                                                                               |
-      | exec_command     | sh                                                                                                                                                            |
-      | exec_command_arg | -c                                                                                                                                                            |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" https://thanos-querier.openshift-monitoring.svc:9093/api/v1/rules?namespace=ocp-32623-proj |
+      | n                | openshift-monitoring                                                                                                                                               |
+      | pod              | prometheus-k8s-0                                                                                                                                                   |
+      | c                | prometheus                                                                                                                                                         |
+      | oc_opts_end      |                                                                                                                                                                    |
+      | exec_command     | sh                                                                                                                                                                 |
+      | exec_command_arg | -c                                                                                                                                                                 |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" https://thanos-querier.openshift-monitoring.svc:9093/api/v1/rules?namespace=<%= cb.proj_name %> |
     Then the step should succeed
     And the output should contain:
       | requests_total |
@@ -1539,6 +1523,10 @@ Feature: Install and configuration related scenarios
   Scenario: custom metrics API is usable
     Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
+    Given I ensure "prometheus-adapter" deployment is deleted from the "default" project after scenario
+    And I ensure "adapter-config" configmap is deleted from the "default" project after scenario
+    And I ensure "prometheus-adapter" service is deleted from the "default" project after scenario
+    And I ensure "v1beta1.custom.metrics.k8s.io" apiservice is deleted after scenario
 
     Given I obtain test data file "monitoring/custome_metric-deploy.yaml"
     When I run the :apply client command with:
@@ -1870,7 +1858,7 @@ Feature: Install and configuration related scenarios
       | overwrite | true               |
     Then the step should succeed
 
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | n          | openshift-monitoring |
@@ -1880,14 +1868,10 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | alertmanager   |
       | prometheus-k8s |
+    """  
+
+    And I wait up to 240 seconds for the steps to pass:
     """
-    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}` is stored in the :monitoring_pvcs clipboard
-    When I repeat the following steps for each :pvc in cb.monitoring_pvcs:
-    """
-    Given admin ensures "#{cb.pvc}" pvc is deleted from the "openshift-monitoring" project after scenario
-    """
-    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
- 
     When I run the :get client command with:
       | n             | openshift-monitoring |
       | resource      | statefulset          |
@@ -1906,7 +1890,8 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | monitorpvc |
       | 2Gi        |
-
+    """
+    
     # get sa/prometheus-k8s token
     When I run the :serviceaccounts_get_token admin command with:
       | serviceaccount_name | prometheus-k8s       |
@@ -1933,7 +1918,7 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: Allow making tolerations configurable for monitoring components
-    Given the master version >= "4.4"
+    Given the master version >= "4.5"
     And the first user is cluster-admin
     And I use the "openshift-monitoring" project
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
@@ -2050,7 +2035,7 @@ Feature: Install and configuration related scenarios
     Given I wait for the "prometheus" subscriptions to become ready up to 240 seconds
     And evaluation of `subscription("prometheus").current_csv` is stored in the :current_csv clipboard
     Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted after scenario
-    And admin wait for the "<%= cb.current_csv %>" clusterserviceversions to become ready up to 240 seconds
+    And admin wait for the "<%= cb.current_csv %>" clusterserviceversions to become ready up to 300 seconds
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
@@ -2098,50 +2083,67 @@ Feature: Install and configuration related scenarios
     And I switch to cluster admin pseudo user
     And I register clean-up steps:
     """
-    When I run the :delete client command with:
-      | object_type | pvc                  |
-      | all         |                      |
-      | n           | openshift-monitoring |
+    When I run the :scale admin command with:
+      | resource | deployment                |
+      | name     | cluster-version-operator  |
+      | replicas | 1                         |
+      | n        | openshift-cluster-version |
     Then the step should succeed
     """
-    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-    Given I ensure "k8s" prometheus is deleted
-
     When I run the :get client command with:
       | resource | sc |
     Then the step should succeed
     And the output should contain:
       | default |
+
+    Given I use the "openshift-cluster-version" project
+    When I run the :scale client command with:
+      | n        | openshift-cluster-version |
+      | resource | deploy                    |
+      | name     | cluster-version-operator  |
+      | replicas | 0                         |
+    Then the step should succeed
+    And I wait until number of replicas match "0" for deployment "cluster-version-operator"
+    
+    Given I use the "openshift-monitoring" project
+    When I run the :scale client command with:
+      | resource | deploy                      |
+      | name     | cluster-monitoring-operator |
+      | replicas | 0                           |
+    Then the step should succeed
+    And I wait until number of replicas match "0" for deployment "cluster-monitoring-operator"
+
+    Given I ensure "k8s" prometheus is deleted
     Given I obtain test data file "monitoring/config_map_pv.yaml"
     When I run the :apply client command with:
       | f         | config_map_pv.yaml |
       | overwrite | true               |
     Then the step should succeed
- 
-    Given I use the "openshift-monitoring" project
-    And I wait for the "k8s" prometheus to appear up to 180 seconds
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | n          | openshift-monitoring |
-      | resource   | pvc                  |
-      | no_headers | true                 |
+
+    When I run the :scale client command with:
+      | n        | openshift-cluster-version |
+      | resource | deploy                    |
+      | name     | cluster-version-operator  |
+      | replicas | 1                         |
     Then the step should succeed
-    And the output should contain:
-      | alertmanager   |
-      | prometheus-k8s |
-    """
-    Given I wait for the "prometheus-k8s-0" pod to appear up to 120 seconds
+    Given I use the "openshift-cluster-version" project
+    And I wait until number of replicas match "1" for deployment "cluster-version-operator"
+
+    Given I use the "openshift-monitoring" project
+    Given I wait for the "prometheus-k8s-0" pod to appear up to 180 seconds
+    # get cmo pod
+    Given a pod becomes ready with labels:
+      | app=cluster-monitoring-operator |
     Then I run the :logs client command with:
-      | resource_name | cluster-monitoring-operator |
+      | resource_name | <%= pod.name %>             |
       | c             | cluster-monitoring-operator |
+      | n             | openshift-monitoring        |
     And the output should not contain:
       | sync "openshift-monitoring/cluster-monitoring-config" failed: |
       | running task Updating Prometheus-k8s failed:                  |
       | reconciling Prometheus object failed:                         |
       | creating Prometheus object failed:                            |
       | Prometheus.monitoring.coreos.com "k8s" is invalid:            |
-
 
   # @author hongyli@redhat.com
   # @case_id OCP-20428
@@ -2218,11 +2220,139 @@ Feature: Install and configuration related scenarios
     #check default dashboard
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.grafana_route %>/api/search?dashboardIds=1
+    :url: https://<%= cb.grafana_route %>/api/health
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.sa_token %>
     """
     Then the step should succeed
     And the output should contain:
-      | title":"Default","uri":"db/default" |
+      | "database": "ok" |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-35969
+  @admin
+  @destructive
+  Scenario: node-exporter should not have error logs with NFS PV
+    Given the master version >= "4.5"
+    And the first user is cluster-admin
+
+    Given I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type       | securitycontextconstraints |
+      | object_name_or_id | nfs-provisioner            |
+    Then the step should succeed
+    """
+    And admin ensures "nfs-provisioner-runner" cluster_role is deleted after scenario
+    And admin ensures "system:openshift:scc:nfs-provisioner" cluster_role is deleted after scenario
+    And admin ensures "run-nfs-provisioner" clusterrolebinding is deleted after scenario
+
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    
+    And admin ensures "nfs-sc" storageclass is deleted after scenario
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type | pvc                  |
+      | all         |                      |
+      | n           | openshift-monitoring |
+    Then the step should succeed
+    """
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    Given I store the ready and schedulable workers in the :nodes clipboard
+    When I repeat the following steps for each :node in cb.nodes:
+    """
+    Given I use the "<%= cb.node.name %>" node
+    Given I run commands on the host:
+      | mkdir -p /srv/                       |
+      | chcon -Rt svirt_sandbox_file_t /srv/ |
+    Then the step should succeed
+    """
+    Given I use the "<%= cb.proj_name %>" project
+    When I run the :apply client command with:
+      | f         | https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/deployment.yaml |
+      | overwrite | true                                                                                                      |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f         | https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/scc.yaml |
+      | overwrite | true                                                                                               |
+    Then the step should succeed
+
+    When I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc       | nfs-provisioner                                           |
+      | user_name | system:serviceaccount:<%= cb.proj_name %>:nfs-provisioner |
+    Then the step should succeed
+  
+    #Copy from https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/rbac.yaml
+    And I obtain test data file "monitoring/nfs_rbac.yaml"
+    And I replace lines in "nfs_rbac.yaml":
+      | default | <%= cb.proj_name %> |
+    When I run the :apply client command with:
+      | f         | nfs_rbac.yaml |
+      | overwrite | true          |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | deployment      |
+      | resource_name | nfs-provisioner |
+      | o             | yaml            |
+    Then the step should succeed
+    And I save the output to file> nfs-prov-deploy.yaml
+    And I replace lines in "nfs-prov-deploy.yaml":
+      | image: quay.io/kubernetes_incubator/nfs-provisioner:latest | image: quay.io/kubernetes_incubator/nfs-provisioner:v2.2.2 |
+    When I run the :apply client command with:
+      | f         | nfs-prov-deploy.yaml |
+      | overwrite | true                 |
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/nfs_sc.yaml"
+    When I run the :apply client command with:
+      | f         | nfs_sc.yaml |
+      | overwrite | true        |
+    Then the step should succeed
+    
+    When I run the :get client command with:
+      | resource | sc |
+    Then the step should succeed
+    And the output should contain:
+      | nfs-sc |
+
+    Given I obtain test data file "monitoring/nfs_config_map_pv.yaml"
+    When I run the :apply client command with:
+      | f         | nfs_config_map_pv.yaml |
+      | overwrite | true                   |
+    Then the step should succeed
+
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | n          | openshift-monitoring |
+      | resource   | pvc                  |
+      | no_headers | true                 |
+    Then the step should succeed
+    And the output should contain:
+      | alertmanager   |
+      | prometheus-k8s |
+    """    
+    Given I use the "openshift-monitoring" project
+    Given I wait for the "prometheus-k8s-0" pod to appear up to 120 seconds
+    And the pod named "prometheus-k8s-0" status becomes :running
+    # get node exporter pods
+    When I run the :get client command with:
+      | resource | pod                  |
+      | n        | openshift-monitoring |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)node-exporter(.*)/]}.compact!` is stored in the :ne_pods clipboard
+
+    When I repeat the following steps for each :pod in cb.ne_pods:
+    """
+    When I run the :logs client command with:
+      | resource_name | #{cb.pod}     |
+      | c             | node-exporter |
+    And the output should not contain:
+      | invalid NFS per-operations stats |
+    """
+      
