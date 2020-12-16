@@ -816,9 +816,9 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | error         |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+      | image_stream | openshift/ruby:latest                     |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
-    And the "ruby-sample-build-1" build becomes :running
     When I run the :logs client command with:
       | resource_name | build\/|
     Then the step should fail
@@ -892,14 +892,16 @@ Feature: build 'apps' with CLI
     When I remove the remote repository "origin" from the "ruby-hello-world" repo
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo | ruby-hello-world |
-      | name     | newtest          |
+      | app_repo     | ruby-hello-world   |
+      | image_stream | openshift/ruby:2.6 |
+      | name         | newtest            |
     Then the step should succeed
     When I get project bc
     Then the output should contain "Binary"
     When I run the :new_build client command with:
-      | app_repo | ruby-hello-world |
-      | to       | test             |
+      | app_repo     | ruby-hello-world   |
+      | image_stream | openshift/ruby:2.6 |
+      | to           | test               |
     When I get project bc
     Then the output should contain 2 times:
       | Binary |

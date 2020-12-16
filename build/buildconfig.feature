@@ -151,12 +151,12 @@ Feature: buildconfig.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs~https://github.com/sclorg/nodejs-ex                    |
-      | e        | http_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
-      | e        | https_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
-      | e        | HTTP_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
-      | e        | HTTPS_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
-      | e        | NO_PROXY=.cluster.local,.svc,127.0.0.1,localhost                        |
+      | app_repo     | openshift/nodejs~https://github.com/sclorg/nodejs-ex                    |
+      | e            | http_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e            | https_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | e            | HTTP_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e            | HTTPS_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | e            | NO_PROXY=.cluster.local,.svc,127.0.0.1,localhost                        |
     Then the step should succeed
     Given the "nodejs-ex-1" build completes
     When I run the :logs client command with:
@@ -222,14 +222,14 @@ Feature: buildconfig.feature
   Scenario: Docker build with imageStreamImage in buildConfig
     Given I have a project
     When I run the :import_image client command with:
-      | image_name | ruby                   |
-      | from       | centos/ruby-25-centos7 |
-      | confirm    | true                   |
+      | image_name | <%= project.name %>/ruby                                                                                      |
+      | from       | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
+      | confirm    | true                                                                                                          |
     Then the step should succeed
     And the expression should be true> image_stream("ruby").exists?(user: user)
     And evaluation of `image_stream_tag("ruby:latest").digest` is stored in the :imagesha clipboard
     When I run the :new_app client command with:
-      | image_stream | ruby                                          |
+      | image_stream | <%= project.name %>/ruby                      |
       | app_repo     | https://github.com/openshift/ruby-hello-world |
       | strategy     | docker                                        |
     Then the step should succeed
@@ -247,7 +247,7 @@ Feature: buildconfig.feature
       | resource | build              |
       | name     | ruby-hello-world-2 |
     Then the step should succeed
-    And the output should match "DockerImage\s+centos/ruby-25-centos7@<%= cb.imagesha %>"
+    And the output should match "DockerImage\s+quay.io/openshifttest/ruby-25-centos7@<%= cb.imagesha %>"
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                            |
       | resource_name | ruby-hello-world                                                                                                       |
