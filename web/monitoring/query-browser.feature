@@ -11,19 +11,14 @@ Feature: query browser
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
     #perform example query
-    When I click the following "button" element:
-      | text | Insert Example Query |
+    When I run the :click_button_example_query web action
     Then I run the :check_sample_query_area web action
-    Then the step should succeed
-    #clear query
-    When I click the following "button" element:
-      | aria-label | Clear Query |
-    And I click the following "button" element:
-      | text  | Run Queries |
-      | class | pf-c-button |
-    Then I perform the :check_button_text web action with:
-      | button_text | Insert Example Query |
     And the step should succeed
+    #clear query
+    When I run the :click_clear_query_button web action
+    And I run the :click_run_queries_button web action
+    When I run the :check_button_example_query web action
+    Then the step should succeed
     #check Prometheus UI link
     When I click the following "a" element:
       | text  | Prometheus UI    |
@@ -67,12 +62,12 @@ Feature: query browser
     #check selected query from dropdown list
     When I run the :click_metrics_query_dropdown web action
     And I perform the :choose_metrics_query web action with:
-      | metrics_name | Memory Usage |
+      | metrics_name | Memory |
     Then the step should succeed
     #same code execute twice to workaround automation no data issue
     When I run the :click_metrics_query_dropdown web action
     And I perform the :choose_metrics_query web action with:
-      | metrics_name | Memory Usage |
+      | metrics_name | Memory |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | deployment-example |
@@ -140,7 +135,7 @@ Feature: query browser
     #check selected query from dropdown list
     When I run the :click_metrics_query_dropdown web action
     And I perform the :choose_metrics_query web action with:
-      | metrics_name | Filesystem Usage |
+      | metrics_name | Filesystem |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-apiserver |
@@ -258,8 +253,7 @@ Feature: query browser
     Then the step should succeed
     When I run the :check_query_input_text_area_no_value web action
     Then the step should succeed
-    When I perform the :check_button_text web action with:
-      | button_text | Insert Example Query |
+    When I run the :check_button_example_query web action
     Then the step should succeed
     #verify function
     When I perform the :perform_metric_query_textarea web action with:
@@ -285,8 +279,7 @@ Feature: query browser
     When I perform the :check_metric_query_result_not_exit web action with:
       | table_text | openshift-monitoring/k8s |
     Then the step should fail
-    When I perform the :check_button_text web action with:
-      | button_text | Insert Example Query |
+    When I run the :check_button_example_query web action
     Then the step should succeed
     When I run the :perform_enable_query web action
     Then the step should succeed
@@ -339,7 +332,7 @@ Feature: query browser
     When I run the :wait_box_loaded web action
     Then the step should succeed
     When I perform the :click_pod_chart_link web action with:
-      | chart_name | Memory Usage |
+      | chart_name | Memory |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | alertmanager-main-0 |
@@ -351,7 +344,7 @@ Feature: query browser
     When I run the :wait_box_loaded web action
     Then the step should succeed
     When I perform the :click_pod_chart_link web action with:
-      | chart_name | CPU Usage |
+      | chart_name | CPU |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | alertmanager-main-0 |
@@ -376,11 +369,11 @@ Feature: query browser
       | dropdown_item  | openshift-monitoring |
     Then the step should succeed
     When I perform the :check_data_diplayed_db web action with:
-      | data_name   | CPU Usage       |
+      | data_name   | CPU             |
       | legend_name | config-reloader |
     Then the step should succeed
     When I perform the :check_data_diplayed_db web action with:
-      | data_name   | Memory Usage    |
+      | data_name   | Memory          |
       | legend_name | config-reloader |
     Then the step should succeed
 

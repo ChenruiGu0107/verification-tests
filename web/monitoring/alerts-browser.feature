@@ -750,7 +750,7 @@ Feature: alerts browser
       """
     Then the step should succeed
     And the output should contain:
-      | Watchdog |
+      | Prometheus Time Series Collection and Processing Server |
 
   # @author hongyli@redhat.com
   # @case_id OCP-24601
