@@ -110,7 +110,7 @@ Feature: stibuild.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo      | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+      | app_repo     | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
       | source_secret | mysecret |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -121,6 +121,7 @@ Feature: stibuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo      | https://github.com/openshift/ruby-hello-world |
+      | image_stream  | openshift/ruby:2.6                            |
       | source_secret | nonsecret                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -351,12 +352,12 @@ Feature: stibuild.feature
       | serviceaccount | default |
     Then the step should succeed
     When I run the :run client command with:
-      | name    | nogit                                      |
-      | image   | <%= project_docker_repo %>openshift/origin |
-      | env     | POD_NAMESPACE=<%= project.name %>          |
-      | command | true                                       |
-      | cmd     | sleep                                      |
-      | cmd     | 3600                                       |
+      | name    | nogit                             |
+      | image   | quay.io/openshifttest/origin      |
+      | env     | POD_NAMESPACE=<%= project.name %> |
+      | command | true                              |
+      | cmd     | sleep                             |
+      | cmd     | 3600                              |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | run=nogit |

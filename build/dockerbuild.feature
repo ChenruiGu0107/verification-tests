@@ -215,7 +215,7 @@ Feature: dockerbuild.feature
   Scenario:  Should clean up temporary containers on node due to failed docker builds
     Given I have a project
     When I run the :new_build client command with:
-      | D    | FROM openshift/origin:latest\nRUN exit 1 |
+      | D    | FROM quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d\nRUN exit 1 |
       | name | failing-build                            |
     Then the step should succeed
     And the "failing-build-1" build was created
@@ -233,15 +233,15 @@ Feature: dockerbuild.feature
   Scenario: Reuse existing imagestreams with new-build
     Given I have a project
     When I run the :new_build client command with:
-      | D    | FROM node:8\nRUN echo "Test" |
-      | name | node8                        |
+      | D    | FROM quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5\nRUN echo "Test" |
+      | name | node8 |
     Then the step should succeed
     And the "node8-1" build was created
     And the "node8-1" build completed
     And I check that the "node8:latest" istag exists in the project
     When I run the :new_build client command with:
-      | D    | FROM node:10\nRUN echo "Test" |
-      | name | node10                        |
+      | D    | FROM quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5\nRUN echo "Test" |
+      | name | node10 |
     Then the step should succeed
     And the "node10-1" build was created
     And the "node10-1" build completed
@@ -252,14 +252,15 @@ Feature: dockerbuild.feature
     Then the step should fail
     And the output should contain "error: multiple images or templates matched "node:noexist""
     When I run the :new_build client command with:
-      | D    | FROM node\nRUN echo "Test" |
+      | D    | FROM quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5\nRUN echo "Test" |
       | name | nodewithouttag             |
     Then the step should succeed
     And the "nodewithouttag-1" build was created
     And the "nodewithouttag-1" build completed
     And I check that the "nodewithouttag:latest" istag exists in the project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/sclorg/nodejs-ex |
+      | app_repo     | https://github.com/sclorg/nodejs-ex |
+      | image_stream | openshift/nodejs                    |
     Then the step should succeed
     And the istag named "nodejs:latest" does not exist in the project
 

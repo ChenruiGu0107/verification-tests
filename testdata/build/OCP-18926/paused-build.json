@@ -18,7 +18,7 @@
         "name": "ruby-25-centos7"
       },
       "spec": {
-        "dockerImageRepository": "centos/ruby-25-centos7"
+        "dockerImageRepository": ""
       },
       "status": {
         "dockerImageRepository": ""
@@ -57,7 +57,8 @@
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-              "name": "ruby-25-centos7:latest"
+              "name": "ruby:2.6",
+              "namespace": "openshift"
             }
           }
         },
