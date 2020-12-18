@@ -365,7 +365,7 @@ Feature: Descheduler related scenarios
        | app=descheduler |
      And evaluation of `pod.name` is stored in the :pod_name clipboard
      Then the step should succeed
-     Given I obtain test data file "replicaSet/tc533163/rs.yaml"
+     Given I obtain test data file "replicaSet/rs.yaml"
      Given I switch to the first user
      And I have a project
      And evaluation of `project.name` is stored in the :proj_name clipboard
