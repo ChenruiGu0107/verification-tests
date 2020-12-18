@@ -545,3 +545,48 @@ Feature: Testing haproxy router
     And the output should contain 2 times:
       | check inter |
     """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-12091
+  # @bug_id 1374772
+  Scenario: haproxy config information should be clean when changing the service to another route
+    Given I have a project
+    #Create PodA & serviceA
+    Given I obtain test data file "routing/abrouting/abtest-websrv1.yaml"
+    When I run the :create client command with:
+      | f | abtest-websrv1.yaml |
+    Then the step should succeed
+
+    #Create PodB & serviceB
+    Given I obtain test data file "routing/abrouting/abtest-websrv2.yaml"
+    When I run the :create client command with:
+      | f | abtest-websrv2.yaml|
+    Then the step should succeed
+    And all pods in the project are ready
+
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    #Enable roundrobin mode for haproxy to more reliably trigger the bug
+    When I run the :patch client command with:
+      | resource      | routes                                                                            |
+      | resource_name | service-unsecure                                                                  |
+      | p             | {"metadata":{"annotations":{"haproxy.router.openshift.io/balance":"roundrobin"}}} |
+    Then the step should succeed
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift abtest-websrv1"
+    When I run the :patch client command with:
+      | resource      | routes                                         |
+      | resource_name | service-unsecure                               |
+      | p             | {"spec":{"to":{"name": "service-unsecure-2"}}} |
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift abtest-websrv2"
+    """
+    And I run the steps 10 times:
+    """
+    When I open web server via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift abtest-websrv2"
+    """
+
