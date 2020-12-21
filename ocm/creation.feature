@@ -11,6 +11,68 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I run the :check_osd_creation_page web action
     Then the step should succeed
+    When I run the :select_advanced_radio_button web action
+    Then the step should succeed
+    When I run the :click_install_into_vpc_checkbox web action
+    Then the step should fail
+    Given I saved following keys to list in :drains clipboard:
+      | 15 minutes ||
+      | 30 minutes ||
+      | 1 hour     ||
+      | 2 hours    ||
+      | 4 hours    ||
+      | 8 hours    ||
+    When I repeat the following steps for each :drainvalue in cb.drains:
+    """
+    When I perform the :select_node_drain web action with:
+      | drain_value | #{cb.drainvalue} |
+    Then the step should succeed
+    """
+
+  # @author xueli@redhat.com
+  # @case_id OCP-28926
+  Scenario: Check the GCP creation page for OSD cluster
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | gcp |
+    Then the step should succeed
+    When I run the :check_osd_creation_page web action
+    Then the step should succeed
+    When I run the :select_advanced_radio_button web action
+    Then the step should succeed
+    When I run the :click_install_into_vpc_checkbox web action
+    Then the step should fail
+    Given I saved following keys to list in :drains clipboard:
+      | 15 minutes ||
+      | 30 minutes ||
+      | 1 hour     ||
+      | 2 hours    ||
+      | 4 hours    ||
+      | 8 hours    ||
+    When I repeat the following steps for each :drainvalue in cb.drains:
+    """
+    When I perform the :select_node_drain web action with:
+      | drain_value | #{cb.drainvalue} |
+    Then the step should succeed
+    """
+    When I perform the :select_privacy web action with:
+      | listening | internal |
+    Then the step should fail
+    When I perform the :input_cluster_name_on_osd_creation_page web action with:
+      | cluster_name | testcluster |
+    Then the step should succeed
+    When I perform the :cluster_name_filled web action with:
+      | cluster_name | testcluster |
+    Then the step should succeed
+    When I run the :click_cancel_button web action
+    Then the step should succeed
+    When I run the :cluster_list_page_loaded web action
+    Then the step should succeed
+    When I perform the :cluster_name_filled web action with:
+      | cluster_name | testcluster |
+    Then the step should fail
 
   # @author xueli@redhat.com
   # @case_id OCP-22042
@@ -341,7 +403,8 @@ Feature: only about page related to cluster login page
       | product_id     | osd |
       | cloud_provider | aws |
     Then the step should succeed
-    When I run the :select_byoc_model web action
+    When I perform the :select_byoc_model web action with:
+      | AWS ||
     Then the step should succeed
     When I run the :byoc_page_loaded web action
     Then the step should succeed
@@ -422,7 +485,119 @@ Feature: only about page related to cluster login page
       | region_name | #{cb.region} |
     Then the step should succeed
     """
-
+    Given I saved following keys to list in :regions clipboard:
+      | me-south-1, Middle East, Bahrain ||
+    When I repeat the following steps for each :region in cb.regions:
+    """
+    When I perform the :select_region_by_text web action with:
+      | region_name | #{cb.region} |
+    Then the step should fail
+    """
+    When I perform the :select_byoc_model web action with:
+      | AWS ||
+    Then the step should succeed
+    Given I saved following keys to list in :regions clipboard:
+      | ap-northeast-1, Asia Pacific, Tokyo     ||
+      | ap-northeast-2, Asia Pacific, Seoul     ||
+      | ap-south-1, Asia Pacific, Mumbai        ||
+      | ap-southeast-1, Asia Pacific, Singapore ||
+      | ap-southeast-2, Asia Pacific, Sydney    ||
+      | ca-central-1, Canada, Central           ||
+      | eu-central-1, EU, Frankfurt             ||
+      | eu-north-1, EU, Stockholm               ||
+      | eu-west-1, EU, Ireland                  ||
+      | eu-west-2, EU, London                   ||
+      | eu-west-3, EU, Paris                    ||
+      | sa-east-1, South America, São Paulo     ||
+      | us-east-1, US East, N. Virginia         ||
+      | us-east-2, US East, Ohio                ||
+      | us-west-1, US West, N. California       ||
+      | us-west-2, US West, Oregon              ||
+      | me-south-1, Middle East, Bahrain        ||
+    When I repeat the following steps for each :region in cb.regions:
+    """
+    When I perform the :select_region_by_text web action with:
+      | region_name | #{cb.region} |
+    Then the step should succeed
+    """
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | gcp |
+    Then the step should succeed
+    Given I saved following keys to list in :regions clipboard:
+      | asia-east1, Changhua County, Taiwan          ||
+      | asia-east2, Hong Kong                        ||
+      | asia-northeast1, Tokyo, Japan                ||
+      | asia-southeast1, Jurong West, Singapore      ||
+      | europe-west1, St. Ghislain, Belgium          ||
+      | europe-west2, London, England, UK            ||
+      | europe-west4, Eemshaven, Netherlands         ||
+      | us-central1, Council Bluffs, Iowa, USA       ||
+      | us-east1, Moncks Corner, South Carolina, USA ||
+      | us-east4, Ashburn, Northern Virginia, USA    ||
+      | us-west1, The Dalles, Oregon, USA            ||
+      | us-west2, Los Angeles, California, USA       ||
+    When I repeat the following steps for each :region in cb.regions:
+    """
+    When I perform the :select_region_by_text web action with:
+      | region_name | #{cb.region} |
+    Then the step should succeed
+    """
+    Given I saved following keys to list in :regions clipboard:
+      | asia-northeast2, Osaka, Japan                     ||
+      | asia-northeast3, Seoul, Korea                     ||
+      | asia-south1, Mumbai, India                        ||
+      | asia-southeast2, Jakarta, Indonesia               ||
+      | australia-southeast1, Sydney, Australia           ||
+      | europe-north1, Hamina, Finland                    ||
+      | europe-west3, Frankfurt, Germany                  ||
+      | europe-west6, Zürich, Switzerland                 ||
+      | northamerica-northeast1, Montréal, Québec, Canada ||
+      | southamerica-east1, Osasco (São Paulo), Brazil    ||
+      | us-west3, Salt Lake City, Utah, USA               ||
+      | us-west4, Las Vegas, Nevada, USA                  ||
+    When I repeat the following steps for each :region in cb.regions:
+    """
+    When I perform the :select_region_by_text web action with:
+      | region_name | #{cb.region} |
+    Then the step should fail
+    """
+    When I run the :select_byoc_model web action
+    Then the step should succeed
+    Given I saved following keys to list in :regions clipboard:
+      | asia-east1, Changhua County, Taiwan               ||
+      | asia-east2, Hong Kong                             ||
+      | asia-northeast1, Tokyo, Japan                     ||
+      | asia-southeast1, Jurong West, Singapore           ||
+      | europe-west1, St. Ghislain, Belgium               ||
+      | europe-west2, London, England, UK                 ||
+      | europe-west4, Eemshaven, Netherlands              ||
+      | us-central1, Council Bluffs, Iowa, USA            ||
+      | us-east1, Moncks Corner, South Carolina, USA      ||
+      | us-east4, Ashburn, Northern Virginia, USA         ||
+      | us-west1, The Dalles, Oregon, USA                 ||
+      | us-west2, Los Angeles, California, USA            ||
+      | asia-northeast2, Osaka, Japan                     ||
+      | asia-northeast3, Seoul, Korea                     ||
+      | asia-south1, Mumbai, India                        ||
+      | asia-southeast2, Jakarta, Indonesia               ||
+      | australia-southeast1, Sydney, Australia           ||
+      | europe-north1, Hamina, Finland                    ||
+      | europe-west3, Frankfurt, Germany                  ||
+      | europe-west6, Zürich, Switzerland                 ||
+      | northamerica-northeast1, Montréal, Québec, Canada ||
+      | southamerica-east1, Osasco (São Paulo), Brazil    ||
+      | us-west3, Salt Lake City, Utah, USA               ||
+      | us-west4, Las Vegas, Nevada, USA                  ||
+    When I repeat the following steps for each :region in cb.regions:
+    """
+    When I perform the :select_region_by_text web action with:
+      | region_name | #{cb.region} |
+    Then the step should succeed
+    """
+  
   # @author xueli@redhat.com
   # @case_id OCP-30503
   Scenario: Check the BYOC creation page
@@ -432,12 +607,36 @@ Feature: only about page related to cluster login page
       | product_id     | osd |
       | cloud_provider | aws |
     Then the step should succeed
-    When I run the :select_byoc_model web action
+    When I perform the :select_byoc_model web action with:
+      | AWS ||
     Then the step should succeed
     When I run the :byoc_page_loaded web action
     Then the step should succeed
-    When I run the :check_byoc_creation_page web action
+    When I perform the :check_byoc_creation_page web action with:
+      | max_machinecidr_range | /25 |
     Then the step should succeed
+    Given I saved following keys to list in :zones clipboard:
+      | us-east-1a ||
+      | us-east-1b ||
+      | us-east-1c ||
+      | us-east-1d ||
+      | us-east-1e ||
+      | us-east-1f ||
+    When I repeat the following steps for each :zone in cb.zones:
+    """
+    When I perform the :select_vpc_avalilability_zone web action with:
+      | row_number     | 1          |
+      | available_zone | #{cb.zone} |
+    Then the step should succeed
+    When I perform the :select_vpc_avalilability_zone web action with:
+      | row_number     | 2          |
+      | available_zone | #{cb.zone} |
+    Then the step should succeed
+    When I perform the :select_vpc_avalilability_zone web action with:
+      | row_number     | 3          |
+      | available_zone | #{cb.zone} |
+    Then the step should succeed
+    """
 
   # @author xueli@redhat.com
   # @case_id OCP-21086
@@ -456,7 +655,7 @@ Feature: only about page related to cluster login page
     When I perform the :create_osd_cluster web action with:
       | product_id     | osd           |
       | cloud_provider | aws           |
-      | cluster_name   | sdqe-ui-admin |
+      | cluster_name   | sdqe-adminosd |
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
     Then the step should succeed
@@ -470,7 +669,7 @@ Feature: only about page related to cluster login page
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-admin |
+      | cluster_name | sdqe-adminosd |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
@@ -549,7 +748,8 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I run the :check_aws_compute_node_instances_type web action
     Then the step should succeed
-    When I run the :select_byoc_model web action
+    When I perform the :select_byoc_model web action with:
+      | AWS ||
     Then the step should succeed
     When I run the :check_aws_compute_node_instances_type web action
     Then the step should succeed
@@ -568,4 +768,80 @@ Feature: only about page related to cluster login page
     When I run the :select_multi_az web action
     Then the step should succeed
     When I run the :check_gcp_compute_node_instances_type web action
+    Then the step should succeed
+
+  # @author xueli@redhat.com
+  # @case_id OCP-21107
+  Scenario: Verify the legal and illegal input on 'Create an OpenShift Dedicated Cluster' page
+    Given I open ocm portal as a regularUser user
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | aws |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_error_to_cluster_name_on_creation_page web action with:
+      | error_message | Cluster name is required. |
+    Then the step should succeed
+    Given I saved following keys to list in :names clipboard:
+      | приветPékinاختبار ||
+      | ^^^^^             ||
+      | under_line        ||
+      | 123numname        ||
+      | -crossstart       ||
+      | QWert123456       ||
+    When I repeat the following steps for each :name in cb.names:
+    """
+    When I perform the :input_cluster_name_on_osd_creation_page web action with:
+      | cluster_name | #{cb.name} |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_error_to_cluster_name_on_creation_page web action with:
+      | error_message | start with an alphabetic character, and end with an alphanumeric character. For example |
+    Then the step should succeed
+    """
+    When I perform the :input_cluster_name_on_osd_creation_page web action with:
+      | cluster_name | iamlongerthan15chars |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_error_to_cluster_name_on_creation_page web action with:
+      | error_message | Cluster names may not exceed 15 characters. |
+    Then the step should succeed
+    When I run the :expand_node_labels web action
+    Then the step should succeed
+    Given I saved following keys to list in :labels clipboard:
+      | приветPékinاختبار ||
+      | %^&*              ||
+      | -crossstart       ||
+    When I repeat the following steps for each :label in cb.labels:
+    """
+    When I perform the :input_node_label_key web action with:
+      | row_number | 0           |
+      | label_key  | #{cb.label} |
+    Then the step should succeed
+    When I perform the :input_node_label_value web action with:
+      | row_number   | 0           |
+      | label_value  | #{cb.label} |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_error_for_labels web action with:
+      | error_message | Need to update after SDA-3444 fixed |
+    Then the step should succeed
+    """
+    When I perform the :input_node_label_key web action with:
+      | row_number | 0                                                                |
+      | label_key  | iamlongerthan63charsiamlongerthan63charsiamlongerthan63charsiaml |
+    Then the step should succeed
+    When I perform the :input_node_label_value web action with:
+      | row_number   | 0                                                                |
+      | label_value  | iamlongerthan63charsiamlongerthan63charsiamlongerthan63charsiaml |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_error_for_labels web action with:
+      | error_message | Need to update after SDA-3444 fixed |
     Then the step should succeed

@@ -53,7 +53,7 @@ Feature: About cluster list page
       | location       | US East, N. Virginia |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-      | cluster_name   | sdqe-ui-admin |
+      | cluster_name   | sdqe-adminosd |
       | cluster_status | ready         |
       | cluster_type   | OSD           |
     Then the step should succeed
