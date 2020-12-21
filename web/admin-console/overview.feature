@@ -280,9 +280,7 @@ Feature: overview cases
       | link         | operators.coreos.com~v1alpha1~InstallPlan |
       | text         | InstallPlans              |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 2                         |
-      | text         | InstallPlanDetails        |
+    When I run the :check_installplandetails_text_in_breadcrumb web action
     Then the step should succeed
 
     # check project page
@@ -293,9 +291,7 @@ Feature: overview cases
       | link         | cluster/projects          |
       | text         | Projects                  |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 2                         |
-      | text         | ProjectDetails            |
+    When I run the :check_projectdetails_text_in_breadcrumb web action
     Then the step should succeed
 
     # check replica sets page
@@ -307,9 +303,7 @@ Feature: overview cases
       | link         | /replicasets              |
       | text         | ReplicaSets               |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 2                         |
-      | text         | ReplicaSetDetails         |
+    When I run the :check_replicasetdetails_text_in_breadcrumb web action
     Then the step should succeed
 
     # check machine page
@@ -320,9 +314,7 @@ Feature: overview cases
       | link         | /machine.openshift.io~v1beta1~Machine |
       | text         | Machines                  |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 2                         |
-      | text         | MachineDetails            |
+    When I run the :check_machinedetails_text_in_breadcrumb web action
     Then the step should succeed
     # check machine set page
     When I run the :goto_all_machine_sets_page web action
@@ -332,9 +324,7 @@ Feature: overview cases
       | link         | /machine.openshift.io~v1beta1~MachineSet |
       | text         | MachineSets               |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 2                         |
-      | text         | MachineSetDetails         |
+    When I run the :check_machinesetdetails_text_in_breadcrumb web action
     Then the step should succeed
 
     # check pod and container page
@@ -352,9 +342,7 @@ Feature: overview cases
       | link         | pods/<%= cb.url.split("pods/")[-1].gsub("/","") %> |
       | text         | <%= cb.url.split("pods/")[-1].gsub("/","") %>      |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 3                              |
-      | text         | ContainerDetails               |
+    When I run the :check_containerdetails_text_in_breadcrumb web action
     Then the step should succeed
 
     # check image stream and image stream tag page
@@ -371,9 +359,7 @@ Feature: overview cases
       | link         | imagestreams/<%= cb.url.split("imagestreams/")[-1].gsub("/","") %> |
       | text         | <%= cb.url.split("imagestreams/")[-1].gsub("/","") %>              |
     Then the step should succeed
-    When I perform the :check_text_in_breadcrumb web action with:
-      | layer_number | 3                              |
-      | text         | ImageStreamTagDetails          |
+    When I run the :check_imagestreamtagdetails_text_in_breadcrumb web action
     Then the step should succeed
 
   # @author yapei@redhat.com
