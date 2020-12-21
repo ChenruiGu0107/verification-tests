@@ -155,9 +155,9 @@ Feature: nodeAffinity
       | name     | node-affinity-required-case14478 |
     Then the step should succeed
     And the output should match:
-      | PodScheduled\\s+False |
-      | FailedScheduling      |
-      | [Mm]atch\s?[Nn]ode\s?[Ss]elector  |
+      | PodScheduled\\s+False    |
+      | FailedScheduling         |
+      | 0/.* nodes are available |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14480
@@ -172,9 +172,9 @@ Feature: nodeAffinity
       | name     | node-anti-affinity-required-case14480 |
     Then the step should succeed
     And the output should match:
-      | PodScheduled\\s+False |
-      | FailedScheduling      |
-      | [Mm]atch\s?[Nn]ode\s?[Ss]elector     |
+      | PodScheduled\\s+False    |
+      | FailedScheduling         |
+      | 0/.* nodes are available |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14479
@@ -260,9 +260,9 @@ Feature: nodeAffinity
       | name     | node-affinity-selector-case14556 |
     Then the step should succeed
     And the output should match:
-      | PodScheduled\\s+False |
-      | FailedScheduling      |
-      | [Mm]atch\s?[Nn]ode\s?[Ss]elector      |
+      | PodScheduled\\s+False    |
+      | FailedScheduling         |
+      | 0/.* nodes are available |
     """
 
   # @author wmeng@redhat.com
@@ -283,9 +283,9 @@ Feature: nodeAffinity
       | name     | node-affinity-selector-case14557 |
     Then the step should succeed
     And the output should match:
-      | PodScheduled\\s+False |
-      | FailedScheduling      |
-      | [Mm]atch\s?[Nn]ode\s?[Ss]elector    |
+      | PodScheduled\\s+False    |
+      | FailedScheduling         |
+      | 0/.* nodes are available |
     """
 
   # @author wmeng@redhat.com
@@ -326,9 +326,9 @@ Feature: nodeAffinity
       | name     | multiple-match-expressions-case14577 |
     Then the step should succeed
     And the output should match:
-      | PodScheduled\\s+False |
-      | FailedScheduling      |
-      | [Mm]atch\s?[Nn]ode\s?[Ss]elector     |
+      | PodScheduled\\s+False    |
+      | FailedScheduling         |
+      | 0/.* nodes are available |
     """
 
   # @author wmeng@redhat.com
