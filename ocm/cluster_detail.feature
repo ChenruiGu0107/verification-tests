@@ -303,13 +303,13 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-archive |
+      | filter_keyword | sdqe-ui-disconnected |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-archive |
+      | cluster_name   | sdqe-ui-disconnected |
     Then the step should succeed
     When I perform the :check_ocp_in_detail_page web action with:
-      | cluster_name   | sdqe-ui-archive |
+      | cluster_name   | sdqe-ui-disconnected |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -552,3 +552,102 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I run the :check_add_notification_contact_button_disabled web action
     Then the step should fail
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-28136
+  Scenario: Update the Subscription Setting and check the result on the cluster overview page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I run the :check_subscription_settings_dialog web action
+    Then the step should succeed
+    When I perform the :update_subscription_settings_in_dialog web action with:
+      | support_level     | Premium    |
+      | production_status | Production |
+      | service_level     | L1-L3      |
+      | unit              | Cores/vCPU |
+      | unit_value        | 11         |
+    Then the step should succeed
+    When I run the :check_subscription_settings_dialog web action
+    Then the step should succeed
+    When I perform the :update_subscription_settings_in_dialog web action with:
+      | support_level     | Self-Support      |
+      | production_status | Disaster Recovery |
+      | service_level     | L3-only           |
+      | unit              | Sockets           |
+      | unit_value        | 4                 |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-35840
+  Scenario: Check the validation when update the Subscription Setting
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I run the :check_subscription_settings_dialog web action
+    Then the step should succeed
+    When I perform the :check_subscription_settings_error_message web action with:
+      | unit_value    | -1      |
+      | error_message | value can only be a positive integer. |
+    Then the step should succeed
+    When I perform the :check_subscription_settings_error_message web action with:
+      | unit_value    | 2aa      |
+      | error_message | value can only be a positive integer. |
+    Then the step should succeed
+    When I perform the :check_subscription_settings_error_message web action with:
+      | unit_value    | 9999999999999      |
+      | error_message | cannot be larger than 200000. |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-35653
+  Scenario: Check the validation for the notification contact of support tab in cluster detail page - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I run the :click_support_tab web action
+    Then the step should succeed
+    When I perform the :check_error_message_in_notification_contact_dialog web action with:
+      | notification_contact | sdqe-regular01       |
+    Then the step should succeed
+    When I perform the :check_error_message_in_notification_contact_dialog web action with:
+      | notification_contact | sdqe-nonexistaccount |
+    Then the step should succeed
+    When I perform the :check_illegal_error_message_in_notification_contact_dialog web action with:
+      | notification_contact | $% |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-35652
+  Scenario: Check the function of notification contacts section in support tab on cluster detail page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I run the :click_support_tab web action
+    Then the step should succeed
+    When I perform the :add_notification_contact web action with:
+      | notification_contact | ocm-orgadmin |
+    Then the step should succeed
+    When I perform the :delete_notification_contact web action with:
+      | notification_contact | ocm-orgadmin |
+    Then the step should succeed
