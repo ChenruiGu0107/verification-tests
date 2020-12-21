@@ -490,3 +490,112 @@ Feature: Testing Scheduler Operator related scenarios
       | filename                            | podfilename       |
       | policy_aff_aff_antiaffi43.json      | pod_ocp11889.json | # @case_id OCP-30067
       | policy_aff_antiaffi_antiaffi43.json | pod_ocp12191.json | # @case_id OCP-30068
+
+  # @author knarra@redhat.com
+  # @case_id OCP-37484
+  @admin
+  @destructive
+  Scenario: Scheduler_plugins - Validate HighNodeUtilization profile
+    Given the CR "Scheduler" named "cluster" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                                          |
+      | resource_name | cluster                                                            |
+      | p             |[{"op":"add", "path":"/spec/profile", "value":HighNodeUtilization}] |
+      | type          | json                                                               |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-kube-scheduler" project
+    When I run the :get admin command with:
+      | resource | configmap/config |
+      | o        | yaml             |
+    And the output should contain:
+      | {"disabled":[{"name":"NodeResourcesLeastAllocated"}],"enabled":[{"name":"NodeResourcesMostAllocated"}]} |
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.podname %> |
+    Then the step should succeed
+    And the output should contain:
+      | apiVersion: kubescheduler.config.k8s.io/v1beta1 |
+      | kind: NodeResourcesMostAllocatedArgs            |
+      | NodeResourcesMostAllocated                      |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-37483
+  @admin
+  @destructive
+  Scenario: Scheduler_plugins - Validate LowNodeUtilization profile
+    Given the CR "Scheduler" named "cluster" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                                           |
+      | resource_name | cluster                                                             |
+      | p             |[{"op":"add", "path":"/spec/profile", "value":"LowNodeUtilization"}] |
+      | type          | json                                                                |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-kube-scheduler" project
+    When I run the :get admin command with:
+      | resource | configmap/config |
+      | o        | yaml             |
+    And the output should contain:
+      | {"leaderElect":true,"resourceLock":"configmaps","resourceNamespace":"openshift-kube-scheduler"} |
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.podname %> |
+    Then the step should succeed
+    And the output should contain:
+      | apiVersion: kubescheduler.config.k8s.io/v1beta1 |
+      | kind: NodeResourcesLeastAllocatedArgs           |
+      | NodeResourcesLeastAllocated                     |
+
+  # @author knarra@redhat.com
+  # case_id OCP-37485
+  @admin
+  @destructive
+  Scenario: Scheduler_plugins - Validate NoScoring profile
+    Given the CR "Scheduler" named "cluster" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                                  |
+      | resource_name | cluster                                                    |
+      | p             |[{"op":"add", "path":"/spec/profile", "value":"NoScoring"}] |
+      | type          | json                                                       |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-kube-scheduler" project
+    When I run the :get admin command with:
+      | resource | configmap/config |
+      | o        | yaml             |
+    And the output should contain:
+      | "profiles":[{"plugins":{"preScore":{"disabled":[{"name":"*"}]},"score":{"disabled":[{"name":"*"}]}} |
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.podname %> |
+    Then the step should succeed
+    And the output should contain:
+      | preScore: {} |
+      | score: {}    |
