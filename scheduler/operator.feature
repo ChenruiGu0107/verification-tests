@@ -569,7 +569,6 @@ Feature: Testing Scheduler Operator related scenarios
       | resource      | Scheduler                                                  |
       | resource_name | cluster                                                    |
       | p             |[{"op":"add", "path":"/spec/profile", "value":"NoScoring"}] |
-      | type          | json                                                       |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -597,3 +596,87 @@ Feature: Testing Scheduler Operator related scenarios
     And the output should contain:
       | preScore: {} |
       | score: {}    |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-31939
+  @admin
+  @destructive
+  Scenario: Verify logLevel settings in kube-scheduler operator
+    Given the CR "cluster" named "kubescheduler" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | kubescheduler                                                 |
+      | resource_name | cluster                                                       |
+      | p             | [{"op":"replace", "path":"/spec/logLevel", "value":TraceAll}] |
+      | type          | json                                                          |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-kube-scheduler" project
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | - -v=10 |
+    When I run the :patch admin command with:
+      | resource      | kubescheduler                                              |
+      | resource_name | cluster                                                    |
+      | p             | [{"op":"replace", "path":"/spec/logLevel", "value":Trace}] |
+      | type          | json                                                       |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | - -v=6 |
+    When I run the :patch admin command with:
+      | resource      | kubescheduler                                              |
+      | resource_name | cluster                                                    |
+      | p             | [{"op":"replace", "path":"/spec/logLevel", "value":Debug}] |
+      | type          | json                                                       |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given a pod becomes ready with labels:
+      | app=openshift-kube-scheduler |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | - -v=4 |
