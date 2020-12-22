@@ -13,7 +13,7 @@ Feature: Configuration of environment variables check
       | resource_name | expansion-pod |
     Then the step should succeed
     And the output should contain:
-      |  serving on 8080 |
+      |  serving on 8081 |
       |  serving on 8888 |
 
   # @author pruan@redhat.com
