@@ -1,17 +1,22 @@
 Feature: Alerting for machine-api
 
   # @author jhou@redhat.com
-  # @case_id OCP-25615
+  # @author zhsun@redhat.com
   @admin
-  Scenario: Machine metrics should be collected
+  Scenario Outline: Machine metrics should be collected
     Given I switch to cluster admin pseudo user
 
     When I perform the GET prometheus rest client with:
-      | path  | /api/v1/query?                         |
-      | query | mapi_machine_created_timestamp_seconds |
+      | path  | /api/v1/query? |
+      | query | <metric_name>  |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"] == "success"
-    And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "mapi_machine_created_timestamp_seconds"
+    And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "<metric_name>"
+    
+    Examples:
+      | metric_name                               |
+      | mapi_machine_created_timestamp_seconds    | # @case_id OCP-25615
+      | mapi_machine_phase_transition_seconds_sum | # @case_id OCP-37264
 
   # @author jhou@redhat.com
   # @case_id OCP-25828
