@@ -37,7 +37,7 @@ Feature: Testing abrouting
       | (80%) |
     Given I have a pod-for-ping in the project
     # access the route without cookies
-    Given I wait up to 30 seconds for the steps to pass:
+    Given I wait for the steps to pass:
     """
     When I execute on the pod:
       | curl |

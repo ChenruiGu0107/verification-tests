@@ -90,6 +90,7 @@ Feature: resouces related scenarios
       | cascade           | true   |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
+    And I wait until number of replicas match "1" for replicationController "test-1"
 
     When I run the :delete client command with:
       | _tool             | <tool> |
@@ -108,8 +109,8 @@ Feature: resouces related scenarios
       | name      | test-b                                              |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
     Then the step should succeed
-    Given I wait until replicationController "test-a-1" is ready
-    Given I wait until replicationController "test-b-1" is ready
+    And I wait until number of replicas match "1" for replicationController "test-a-1"
+    And I wait until number of replicas match "1" for replicationController "test-b-1"
     When I run the :delete client command with:
       | _tool             | <tool>   |
       | object_type       | rc       |
