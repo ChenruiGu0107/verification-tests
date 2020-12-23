@@ -590,11 +590,11 @@ Feature: Cluster Autoscaler Tests
     When I run the :logs admin command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
-    And the output should contain:
-      | Scale-up timed out for node group openshift-machine-api/<machineset_name>             |
-      | Disabling scale-up for node group openshift-machine-api/<machineset_name>             |
-      | Removing unregistered node failed-machine-openshift-machine-api_                      |
-      | Node group openshift-machine-api/<machineset_name> is not ready for scaleup - backoff |
+    And the output should match:
+      | Scale-up timed out for node group .*openshift-machine-api/<machineset_name>             |
+      | Disabling scale-up for node group .*openshift-machine-api/<machineset_name>             |
+      | Removing unregistered node failed-machine-openshift-machine-api_                        |
+      | Node group .*openshift-machine-api/<machineset_name> is not ready for scaleup - backoff |
     """
     # Node group could be re-enabled scale up
     And I wait up to 360 seconds for the steps to pass:
