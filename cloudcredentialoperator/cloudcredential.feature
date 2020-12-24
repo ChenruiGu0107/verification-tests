@@ -343,3 +343,96 @@ Feature: cloud credential operator
     Then the expression should be true> Time.parse(cb.before_time) < Time.parse(cb.after_time)
     """
     Then the expression should be true> (Time.parse(cb.after_time) -  Time.parse(cb.before_time)) == 90
+
+  # @author lwan@redhat.com
+  # @case_id OCP-37116
+  Scenario: CredentialsRequest should contain description in `oc explain`
+    Given I run the :explain client command with:
+      | resource  | credentialsrequest |
+    Then the step should succeed
+    And the output should contain:
+      | DESCRIPTION |
+      | CredentialsRequest is the Schema for the credentialsrequests API |
+      | FIELDS      |
+      | apiVersion  |
+      | kind        |
+      | metadata    |
+      | spec        |
+      | status      |
+
+  # @author lwan@redhat.com
+  # @case_id OCP-36498
+  @admin
+  Scenario: CCO credentials secret change to STS-style
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-image-registry" project
+    And evaluation of `secret("installer-cloud-credentials").value_of("aws_access_key_id")` is stored in the :key_id clipboard
+    And evaluation of `secret("installer-cloud-credentials").value_of("aws_secret_access_key")` is stored in the :secret_key clipboard
+    And evaluation of `secret("installer-cloud-credentials").value_of("credentials")` is stored in the :credentials clipboard
+    Then the expression should be true> "<%= cb.credentials %>" == "[default]\naws_access_key_id = <%= cb.key_id %>\naws_secret_access_key = <%= cb.secret_key %>"
+  
+  # @author lwan@redhat.com
+  # @case_id OCP-35334
+  @admin
+  @destructive
+  Scenario: pre-upgrade checks with cco in mint/passthrough mode
+    Given I switch to cluster admin pseudo user
+    And I use the "kube-system" project
+    #check cco is in mint mode
+    When I run the :get client command with:
+      | resource     | secret                            |
+      | resource_name| aws-creds                         | 
+      | o            | jsonpath={.metadata.annotations}  |
+    And the output should contain:
+      | "cloudcredential.openshift.io/mode":"mint" |
+    Given I run the :get client command with:
+      | resource      | secret    |
+      | resource_name | aws-creds |
+      | o             | yaml      |
+    Then I save the output to file> file-aws-creds.yaml
+    And admin ensures "aws-creds" secret is deleted
+    And I register clean-up steps:
+    """
+    Given I run the :create client command with:
+      | f | file-aws-creds.yaml |
+    """
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['status'] == "False" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['reason'] == "MissingRootCredential" 
+    """
+    Then I run the :create client command with:
+      | f | file-aws-creds.yaml |
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True" 
+    """
+    #change cco mode to Passthrough
+    Given as admin I successfully merge patch resource "cloudcredential/cluster" with:
+      | {"spec": {"credentialsMode": "Passthrough"}} |
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "cloudcredential/cluster" with:
+      | {"spec": {"credentialsMode": ""}} |
+    """
+    When I run the :get client command with:
+      | resource     | secret                           |
+      | resource_name| aws-creds                        | 
+      | o            | jsonpath={.metadata.annotations} |
+    And the output should contain:
+      | "cloudcredential.openshift.io/mode":"passthrough" |
+    And admin ensures "aws-creds" secret is deleted
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "False" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['reason'] == "MissingRootCredential" 
+    """
+    Then I run the :create client command with:
+      | f | file-aws-creds.yaml |
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True" 
+    """
+
