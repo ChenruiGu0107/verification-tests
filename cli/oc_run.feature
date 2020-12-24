@@ -3,9 +3,9 @@ Feature: oc run related scenarios
   Scenario Outline: Create container with oc run command
     Given I have a project
     When I run the :create_deployment client command with:
-      | _tool   | <tool> |
-      | name    | mysql  |
-      | image   | mysql  |
+      | _tool   | <tool>                                                                                                         |
+      | name    | mysql                                                                                                          |
+      | image   | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |
     Then the step should succeed
     When I run the :run client command with:
       | _tool        | <tool>          |
@@ -44,20 +44,20 @@ Feature: oc run related scenarios
     And a pod becomes ready with labels:
       | run=webapp4 |
     When I run the :run client command with:
-      | name      | debug    |
-      | image     | centos:7 |
-      | -i        | true     |
-      | tty       | true     |
-      | _timeout  | 90       |
+      | name      | debug                                                                                                |
+      | image     | quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5 |
+      | -i        | true                                                                                                 |
+      | tty       | true                                                                                                 |
+      | _timeout  | 90                                                                                                   |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:
       | run=debug |
     When I run the :run client command with:
-      | name     | debug1   |
-      | image    | centos:7 |
-      | -i       | true     |
-      | _timeout | 60       |
+      | name     | debug1                                                                                               |
+      | image    | quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5 |
+      | -i       | true                                                                                                 |
+      | _timeout | 60                                                                                                   |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:

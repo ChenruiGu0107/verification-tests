@@ -4,13 +4,13 @@ Feature: job.feature
   Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
     Given I have a project
     When I run the :create_cronjob client command with:
-      | name             | sj1       |
-      | image            | busybox   |
-      | restart          | Never     |
-      | schedule         | * * * * * |
-      | oc_opts_end      |           |
-      | exec_command     | sleep     |
-      | exec_command_arg | 30        |
+      | name             | sj1                                                                                                   |
+      | image            | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d | 
+      | restart          | Never                                                                                                 |
+      | schedule         | * * * * *                                                                                             |
+      | oc_opts_end      |                                                                                                       |
+      | exec_command     | sleep                                                                                                 |
+      | exec_command_arg | 30                                                                                                    |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | job-name |
