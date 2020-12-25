@@ -6,9 +6,9 @@ Feature: Get the build dependencies
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :import_image client command with:
-      | image_name   | ruby |
-      | from         | centos/ruby-25-centos7 |
-      | confirm      | true |
+      | image_name   | ruby                                  |
+      | from         | quay.io/openshifttest/ruby-25-centos7 |
+      | confirm      | true                                  |
     Then the step should succeed
     When I get project is as JSON
     Then the output should contain "<%= cb.proj_name %>/ruby"

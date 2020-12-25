@@ -108,8 +108,10 @@ Feature: dockerbuild.feature
   Scenario: Add ARGs in docker build via webhook trigger
     Given I have a project
     When I run the :new_build client command with:
-      | code | https://github.com/openshift/ruby-hello-world |
-      | build_arg   | ARG=VALUE        |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.6                            |
+      | strategy     | docker                                        |
+      | build_arg    | ARG=VALUE                                     |
     Then the step should succeed
     When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
@@ -158,9 +160,10 @@ Feature: dockerbuild.feature
   Scenario: Add ARGs in build with invalid way
     Given I have a project
     When I run the :new_build client command with:
-      | code     | https://github.com/openshift/ruby-hello-world |
-      | strategy | source                                        |
-      | to       | test                                          |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.6                            |
+      | strategy     | source                                        |
+      | to           | test                                          |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -182,18 +185,21 @@ Feature: dockerbuild.feature
       | all         | |
     Then the step should succeed
     When I run the :new_build client command with:
-      | code      | https://github.com/openshift/ruby-hello-world |
-      | strategy  | source                                        |
-      | to        | test                                          |
-      | build_arg | ARG=VALUE                                     |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.6                            | 
+      | strategy     | source                                        |
+      | to           | test                                          |
+      | build_arg    | ARG=VALUE                                     |
     Then the step should fail
     And the output should match:
       | [Cc]annot use             |
       | without a [Dd]ocker build |
     # start docker build with invalid args
     When I run the :new_build client command with:
-      | code      | https://github.com/openshift/ruby-hello-world |
-      | build_arg | ARG=VALUE                                     |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.6                            |
+      | strategy     | docker                                        |
+      | build_arg    | ARG=VALUE                                     |
     Then the step should succeed
     Given the "ruby-hello-world-1" build was created
     When I run the :start_build client command with:
