@@ -5,8 +5,9 @@ Feature: oc tag related scenarios
   Scenario: oc tag gets istag pointing to image of latest revision from the source istag
     Given I have a project
     And evaluation of `project.name` is stored in the :stage clipboard
+    Given I obtain test data file "templates/application-template-stibuild.json"
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     When I run the :start_build client command with:
