@@ -248,13 +248,13 @@ Feature: Only for case related to cluster detail page
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-admin |
+      | cluster_name | sdqe-adminosd |
     Then the step should succeed
     When I perform the :click_networking_tab web action with:
       | timeout | 5 |
     Then the step should succeed
     When I perform the :check_disabled_buttons_on_networking_tab web action with:
-      | trimed_cluster_name | sdqe-ui-admin |
+      | trimed_cluster_name | sdqe-adminosd |
       | machine_cidr        | 10.0.0.0/16   |
       | service_cidr        | 172.30.0.0/16 |
       | pod_cidr            | 10.128.0.0/14 |
@@ -505,10 +505,10 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-admin               |
+      | filter_keyword | sdqe-adminosd |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-admin               |
+      | cluster_name   | sdqe-adminosd |
     Then the step should succeed
     When I perform the :check_support_tab web action with:
       | owner_email    | tzhou+uiorgadmin@redhat.com |
@@ -521,7 +521,7 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     Given I saved following keys to list in :clusters clipboard:
       | sdqe-ui-default ||
-      | sdqe-ui-admin   ||
+      | sdqe-adminosd   ||
     When I repeat the following steps for each :cluster_name in cb.clusters:
     """
     When I perform the :go_to_cluster_detail_page web action with:
@@ -537,7 +537,7 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as a regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-admin   |
+      | cluster_name   | sdqe-adminosd |
     Then the step should succeed
     When I run the :click_support_tab web action
     Then the step should succeed
