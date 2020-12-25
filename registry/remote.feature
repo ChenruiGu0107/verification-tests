@@ -85,9 +85,9 @@ Feature: remote registry related scenarios
       | n         | <%= project.name %> |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | ruby-25-centos7        |
-      | from       | centos/ruby-25-centos7 |
-      | confirm    | true                   |
+      | image_name | ruby-25-centos7                       |
+      | from       | quay.io/openshifttest/ruby-25-centos7 |
+      | confirm    | true                                  |
     Then the step should succeed
     And I have a skopeo pod in the project
     Given I enable image-registry default route
