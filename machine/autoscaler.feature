@@ -541,11 +541,17 @@ Feature: Cluster Autoscaler Tests
     And admin ensures machine number is restored after scenario
 
     #Create an invalid machineset with replicas=0
-    Given I clone a machineset and name it "<machineset_name>"
+    Given I pick a random machineset to scale
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
+    And I save the output to file> <machineset_name>.yaml
+    And I replace content in "<machineset_name>.yaml":
+      | <%= machine_set.name %> | <machineset_name> |
+      | /replicas.*/            | replicas: 0       |
 
-    When I scale the machineset to -1
+    When I run the :create admin command with:
+      | f | <machineset_name>.yaml |
     Then the step should succeed
-    And the machineset should have expected number of running machines
+    And admin ensures "<machineset_name>" machineset is deleted after scenario
 
     Given as admin I successfully merge patch resource "machineset/<machineset_name>" with:
       | {"spec":{"template":{"spec":{"providerSpec":{"value":{<invalid_value>}}}}}} |
@@ -607,8 +613,12 @@ Feature: Cluster Autoscaler Tests
     """
 
     Examples:
-      | invalid_value             | machineset_name        |
-      | "instanceType": "invalid" | machineset-clone-30377 | # @case_id OCP-30377
+      | invalid_value               | machineset_name        |
+      | "instanceType": "invalid"   | machineset-clone-30377 | # @case_id OCP-30377
+      | "machineType": "invalid"    | machineset-clone-37854 | # @case_id OCP-37854
+      | "vmSize": "invalid"         | machineset-clone-37855 | # @case_id OCP-37855
+      | "flavor": "invalid"         | machineset-clone-37856 | # @case_id OCP-37856
+      | "folder": "/dc1/vm/invalid" | machineset-clone-37857 | # @case_id OCP-37857
 
   # @author zhsun@redhat.com
   # @case_id OCP-30387
