@@ -623,3 +623,65 @@ Feature: stibuild.feature
   Then the step should succeed
   And evaluation of `@result[:stdout]` is stored in the :buildca clipboard
   And the expression should be true> cb.userca == cb.buildca
+
+  # @author wewang@redhat.com
+  # @case_id OCP-37460
+  @admin
+  Scenario: Print Buildah version in Builds
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:latest                         |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build    |
+      | oc_opts_end      |                                 |
+      | exec_command     | /usr/bin/openshift-docker-build | 
+      | exec_command_arg | version                         |                                
+      | n                | <%= project.name %>             |
+    And the output should contain:
+      | Buildah version |
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build             |
+      | oc_opts_end      |                                          |
+      | exec_command     | /usr/bin/openshift-extract-image-content |
+      | exec_command_arg | version                                  |
+      | n                | <%= project.name %>                      |
+    And the output should contain:
+      | Buildah version  |
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build |
+      | oc_opts_end      |                              |
+      | exec_command     | /usr/bin/openshift-git-clone |
+      | exec_command_arg | version                      |
+      | n                | <%= project.name %>          |
+    And the output should contain:
+      | Buildah version |
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build         |
+      | oc_opts_end      |                                      |
+      | exec_command     | /usr/bin/openshift-manage-dockerfile |
+      | exec_command_arg | version                              |
+      | n                | <%= project.name %>                  |
+    And the output should contain:
+      | Buildah version |
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build |
+      | oc_opts_end      |                              |
+      | exec_command     | /usr/bin/openshift-sti-build |
+      | exec_command_arg | version                      |
+      | n                | <%= project.name %>          |
+    And the output should contain:
+      | Buildah version |
+    When I run the :start_build client command with:
+      | buildconfig    | ruby-hello-world |
+      | build_loglevel | 5                |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build completed
+    When I run the :logs client command with:
+      | f             | f                        |
+      | resource_name | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should contain:
+      | Powered by buildah |
