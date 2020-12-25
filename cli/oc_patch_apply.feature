@@ -413,9 +413,9 @@ Feature: oc patch/apply related scenarios
   Scenario Outline: Apply a configuration to a resource
     Given I have a project
     When I run the :create_deployment client command with:
-      | _tool | <tool>                    |
-      | name  | myapp                     |
-      | image | openshift/hello-openshift |
+      | _tool | <tool>                                          |
+      | name  | myapp                                           |
+      | image | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     When I run the :patch client command with:
       | _tool         | <tool>                                                                            |

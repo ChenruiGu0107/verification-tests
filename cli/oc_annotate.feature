@@ -2,10 +2,11 @@ Feature: oc annotate related features
   # @author xxia@redhat.com
   Scenario Outline: Update the annotations on more resources
     Given I have a project
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" replacing paths:
+    When I run oc create with "hello-pod.json" replacing paths:
       | ["metadata"]["name"]  | hello-again |
     Then the step should succeed
     And all existing pods are ready with labels:

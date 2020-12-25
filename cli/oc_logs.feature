@@ -18,15 +18,17 @@ Feature: oc logs related features
   # @author xxia@redhat.com
   Scenario Outline: oc logs for a resource with miscellaneous options
     Given I have a project
-    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
-    When I create a new application with:
-      | file | application-template-stibuild-without-customize-route.json |
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+
     Given I obtain test data file "pods/pod_with_two_containers.json"
     When I run the :create client command with:
       | f    | pod_with_two_containers.json |
     Then the step should succeed
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f    | hello-pod.json |
     Then the step should succeed
 
     Given the pod named "doublecontainers" becomes ready
@@ -90,13 +92,13 @@ Feature: oc logs related features
       | since-time       | 2000-01-01T00:00:00Z |
     Then the step should fail
 
-    Given the "ruby-sample-build-1" build finished
+    Given the "ruby-hello-world-1" build finished
     When I run the :logs client command with:
-      | resource_name    | bc/ruby-sample-build |
+      | resource_name    | bc/ruby-hello-world  |
       | version          | 1                    |
     Then the step should succeed
     When I run the :logs client command with:
-      | resource_name    | bc/ruby-sample-build |
+      | resource_name    | bc/ruby-hello-world  |
       | version          | 5                    |
     Then the step should fail
     And the output should contain:

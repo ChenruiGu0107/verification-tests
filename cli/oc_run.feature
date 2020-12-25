@@ -442,22 +442,22 @@ Feature: oc run related scenarios
     Given the master version >= "4.5"
     Given I have a project
     When I run the :run client command with:
-      | _tool   | <tool>           |
-      | name    | podrestart       |
-      | image   | openshift/origin |
-      | restart | Always           |
+      | _tool   | <tool>                       |
+      | name    | podrestart                   |
+      | image   | quay.io/openshifttest/origin |
+      | restart | Always                       |
     Then the step should succeed
     When I run the :run client command with:
-      | _tool   | <tool>           |
-      | name    | podonfailure     |
-      | image   | openshift/origin |
-      | restart | OnFailure        |
+      | _tool   | <tool>                       |
+      | name    | podonfailure                 |
+      | image   | quay.io/openshifttest/origin |
+      | restart | OnFailure                    |
     Then the step should succeed
     When I run the :run client command with:
-      | _tool   | <tool>           |
-      | name    | podnever         |
-      | image   | openshift/origin |
-      | restart | Never            |
+      | _tool   | <tool>                       |
+      | name    | podnever                     |
+      | image   | quay.io/openshifttest/origin |
+      | restart | Never                        |
     Then the step should succeed
     And I wait for the steps to pass:
     """

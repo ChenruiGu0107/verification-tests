@@ -21,8 +21,8 @@ Feature: oc_volume.feature
   Scenario: Add volume to all available resources in the namespace
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | name      | myrc1                 |
-      | image     | aosqe/hello-openshift |
+      | name      | myrc1                                           |
+      | image     | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     Given number of replicas of "myrc1" deployment config becomes:
       | desired   | 1 |
@@ -37,8 +37,8 @@ Feature: oc_volume.feature
     Then the step should succeed
     And the output should contain "replicationcontroller/myrc1-1 resource requirements updated"
     When I run the :create_deploymentconfig client command with:
-      | name      | myrc2                 |
-      | image     | aosqe/hello-openshift |
+      | name      | myrc2                                           |
+      | image     | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     Given number of replicas of "myrc2" deployment config becomes:
       | desired   | 1 |

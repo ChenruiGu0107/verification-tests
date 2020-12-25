@@ -110,10 +110,10 @@ Feature: containers related features
 
     # Prepare pod for following CLI executions behind proxy
     When I run the :run client command with:
-      | _tool     | <tool>                 |
-      | name      | mypod                  |
-      | image     | aosqe/hello-openshift  |
-      | restart   | Never                  |
+      | _tool     | <tool>                                              |
+      | name      | mypod                                               |
+      | image     | quay.io/openshifttest/hello-openshift-fedora:latest |
+      | restart   | Never                                               |
     Then the step should succeed
     And the pod named "mypod" becomes ready
 
