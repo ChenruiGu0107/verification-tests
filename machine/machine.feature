@@ -49,13 +49,6 @@ Feature: Machine features testing
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["alertstate"] =~ /pending|firing/
     """
 
-    When I perform the GET prometheus rest client with:
-      | path  | /api/v1/query?              |
-      | query | mapi_instance_create_failed |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]["status"] == "success"
-    And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "mapi_instance_create_failed"
-
     Examples:
       | valid_field       | invalid_value          |
       | /machineType:.*/  | machineType: invalid   | # @case_id OCP-25927

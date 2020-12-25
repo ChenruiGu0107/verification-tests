@@ -59,3 +59,46 @@ Feature: Alerting for machine-api
     Then the step should succeed
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["alertstate"] =~ /pending|firing/
     """
+
+  # @author zhsun@redhat.com
+  @admin
+  Scenario Outline: mapi_instance_create_failed metrics should work on all providers
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And I pick a random machineset to scale
+
+    # Create an invalid machineset
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
+    And I save the output to file> machineset-invalid.yaml
+    And I replace content in "machineset-invalid.yaml":
+      | <%= machine_set.name %> | machineset-invalid |
+      | <valid_field>           | <invalid_value>    |
+      | /replicas:.*/           | replicas: 1        |
+
+    When I run the :create admin command with:
+      | f | machineset-invalid.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-invalid" machineset is deleted after scenario
+
+    # Verified machine has 'Failed' phase
+    Given I store the last provisioned machine in the :invalid_machine clipboard
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine(cb.invalid_machine).phase(cached: false) == "Failed"
+    """
+
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query?              |
+      | query | mapi_instance_create_failed |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["status"] == "success"
+    And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "mapi_instance_create_failed"
+
+    Examples:
+      | valid_field       | invalid_value           |
+      | /machineType:.*/  | machineType: invalid    | # @case_id OCP-37846
+      | /instanceType:.*/ | instanceType: invalid   | # @case_id OCP-36989
+      | /vmSize:.*/       | vmSize: invalid         | # @case_id OCP-37847
+      | /flavor:.*/       | flavor: invalid         | # @case_id OCP-37848
+      | /folder:.*/       | folder: /dc1/vm/invalid | # @case_id OCP-37849
