@@ -209,7 +209,7 @@ Feature: build 'apps' with CLI
       | app_repo |   https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     Then the "nodejs-ex-1" build completes
-    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.zip"
+    Given I obtain test data file "build/shared_compressed_files/nodejs-ex.zip"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex                 |
       | from_dir    | -                         |
@@ -217,7 +217,7 @@ Feature: build 'apps' with CLI
       | _binmode    |                           |
     Then the step succeeded
     Then the "nodejs-ex-2" build completes
-    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar"
+    Given I obtain test data file "build/shared_compressed_files/nodejs-ex.tar"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex                 |
       | from_dir    | -                         |
@@ -225,7 +225,7 @@ Feature: build 'apps' with CLI
       | _binmode    |                           |
     Then the step succeeded
     Then the "nodejs-ex-3" build completes
-    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar.gz"
+    Given I obtain test data file "build/shared_compressed_files/nodejs-ex.tar.gz"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex                 |
       | from_dir    | -                         |
@@ -233,7 +233,7 @@ Feature: build 'apps' with CLI
       | _binmode    |                           |
     Then the step succeeded
     Then the "nodejs-ex-4" build completes
-    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
+    Given I obtain test data file "build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex                 |
@@ -716,7 +716,7 @@ Feature: build 'apps' with CLI
       | binary   | true             |
       | name     | ruby-hello-world |
     Then the step should succeed
-    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
+    Given I obtain test data file "build/shared_compressed_files/ruby-hello-world.tar"
     Given evaluation of `@result[:response]` is stored in the :tarfile clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |

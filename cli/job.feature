@@ -137,11 +137,13 @@ Feature: job.feature
   @admin
   Scenario: Controllers burst via slow start - jobs
     Given I have a project
+    Given I obtain test data file "quota/pod-quota.yaml"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-quota.yaml |
-      | n | <%= project.name %>                                                                     |
+      | f | pod-quota.yaml      |
+      | n | <%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_long_activeDeadlineSeconds.yaml" replacing paths:
+    Given I obtain test data file "job/job_with_long_activeDeadlineSeconds.yaml" replacing paths:
+    When I run oc create over "job_with_long_activeDeadlineSeconds.yaml" replacing paths:
       | ["spec"]["parallelism"] | 15 |
       | ["spec"]["completions"] | 15 |
     Then the step should succeed
