@@ -45,10 +45,8 @@ Feature: tests on catalog page
     And the expression should be true> browser.url.end_with? "category=languages&keyword=php"
     When I run the :filter_by_sourcetoimage_type web action
     Then the step should succeed
-    And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ImageStream/
-    When I run the :filter_by_serviceclass_type web action
+    When I run the :check_browser_url_has_catagory_keyword_kind web action
     Then the step should succeed
-    And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ClusterServiceClass/
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-23615
@@ -156,8 +154,7 @@ Feature: tests on catalog page
     When I perform the :filter_by_keyword web action with:
       | keyword | ruby-helloworld-sample |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | No Results Match the Filter Criteria |
+    When I run the :check_no_results_text web action
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is         |

@@ -97,8 +97,11 @@ Feature: imagestream related
 
     Given I wait up to 120 seconds for the steps to pass:
     """
-    When I perform the :check_imagestream_help_link web action with:
-      | existing | true |
+    When I perform the :goto_one_imagestream_page web action with:
+      | project_name     | <%= project.name %> |
+      | imagestream_name | python-sample       |
+    Then the step should succeed
+    When I run the :check_imagestream_help_link web action
     Then the step should succeed
     """
     When I run the :open_imagestream_help_modal web action
