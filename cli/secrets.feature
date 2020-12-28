@@ -621,3 +621,45 @@ Feature: secrets related scenarios
       | type         | dockercfg         |
     Then the expression should be true> secret("secret13-validate").type == "dockercfg"
 
+ # @author xiuwang@redhat.com
+ # @case_id OCP-11523
+  Scenario: Build from private repo with/without secret of gitconfig auth method
+    Given I have a project
+    When I have an http-git service in the project
+    And I run the :set_env client command with:
+      | resource | dc/git                            |
+      | e        | REQUIRE_SERVER_AUTH=              |
+      | e        | REQUIRE_GIT_AUTH=openshift:redhat |
+      | e        | ALLOW_ANON_GIT_PULL=false         |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    Given I obtain test data dir "build/httpd-ex.git"
+    When I run the :cp client command with:
+      | source | httpd-ex.git                  | 
+      | dest   | <%= pod.name %>:/var/lib/git/ |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | openshift/httpd:latest~http://<%= cb.git_route %>/httpd-ex.git |
+    Then the step should succeed
+    Given the "httpd-ex-1" build was created
+    And the "httpd-ex-1" build failed
+    Given I obtain test data file "build/.gitconfig"
+    And I replace lines in ".gitconfig":
+      |app_route|<%= cb.git_route %>|
+    When I run the :create_secret client command with:
+      | secret_type | generic         |
+      | name        | gitconfigsecret |
+      | from_file   | .gitconfig      |
+    Then the step should succeed
+
+    And I run the :set_build_secret client command with:
+      | bc_name     | httpd-ex        |
+      | secret_name | gitconfigsecret |
+      | source      | true            |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | httpd-ex |
+    Then the step should succeed
+    Given the "httpd-ex-2" build completes
