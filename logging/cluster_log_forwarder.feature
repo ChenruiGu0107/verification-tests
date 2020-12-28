@@ -25,6 +25,11 @@ Feature: cluster log forwarder testing
   @admin
   @destructive
   Scenario: Couldn't add `outputs` named `default` in ClusterLogForwarder
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project` is stored in the :fluentd_proj clipboard
+    Given fluentd receiver is deployed as insecure in the "<%= cb.fluentd_proj.name %>" project
+
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
@@ -32,11 +37,12 @@ Feature: cluster log forwarder testing
       | remove_logging_pods | true                         |
       | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
-    Given fluentd receiver is deployed as secure in the "openshift-logging" project
+
     Given admin ensures "instance" cluster_log_forwarder is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/clusterlogforwarder/clf-invalid-output-name.yaml"
-    When I run the :create client command with:
+    When I process and create:
       | f | clf-invalid-output-name.yaml |
+      | p | URL=udp://fluentdserver.<%= cb.fluentd_proj.name %>.svc:24224 |
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
