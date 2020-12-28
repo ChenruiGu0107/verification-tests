@@ -704,13 +704,14 @@ Feature: operatorhub feature related
       | catalog_name     | redhat-operators    |
       | target_namespace | openshift-operators |
     Then the step should succeed
+    Given admin ensures "openshift-serverless" project is deleted after scenario
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    Given I use the "openshift-operators" project
+    Given I use the "openshift-serverless" project
     Given I wait for the "serverless-operator" subscriptions to appear
-    Given admin waits for the "serverless-operator" subscriptions to become ready in the "openshift-operators" project up to 240 seconds
+    Given admin waits for the "serverless-operator" subscriptions to become ready in the "openshift-serverless" project up to 240 seconds
     And evaluation of `subscription("serverless-operator").current_csv` is stored in the :current_csv clipboard
-    Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-serverless" project after scenario
 
     Given admin ensures "knative-serving" project is deleted after scenario
     # create knative-serving namespace and instance
