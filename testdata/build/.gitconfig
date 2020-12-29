@@ -1,0 +1,2 @@
+[url "http://openshift:redhat@app_route/httpd-ex.git"]
+    insteadOf = "http://app_route/httpd-ex.git"
