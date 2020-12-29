@@ -7,14 +7,13 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Fixed predicates rules testing Hostname for 4.x
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I obtain test data file "scheduler/policy_hostname.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                          |
+      | name      | scheduler-policy                |
       | from_file | policy.cfg=policy_hostname.json |
-      | namespace | openshift-config                                                                          |
+      | namespace | openshift-config                |
       Then the step should succeed
-
     When I run the :patch admin command with:
       | resource      | Scheduler                                       |
       | resource_name | cluster                                         |
@@ -48,13 +47,12 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Fixed priority rules testing ServiceSpreadingPriority for 4.x
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
-
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I obtain test data file "scheduler/policy_servicespreadingpriority.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                                          |
+      | name      | scheduler-policy                                |
       | from_file | policy.cfg=policy_servicespreadingpriority.json |
-      | namespace | openshift-config                                                                                          |
+      | namespace | openshift-config                                |
     Then the step should succeed
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
       | {"spec":{"policy":{"name":"scheduler-policy"}}} |
@@ -93,7 +91,7 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Set scheduler policy with invalid json file for 4.x
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
 
     When I run the :patch admin command with:
       | resource      | scheduler                        |
@@ -121,9 +119,9 @@ Feature: Testing Scheduler Operator related scenarios
     """
     Given I obtain test data file "scheduler/policy_empty.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                       |
+      | name      | scheduler-policy             |
       | from_file | policy.cfg=policy_empty.json |
-      | namespace | openshift-config                                                                       |
+      | namespace | openshift-config             |
     Then the step should succeed
 
     When I run the :patch admin command with:
@@ -154,13 +152,13 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Fixed priority rules testing - LeastRequestedPriority
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
 
     Given I obtain test data file "scheduler/policy_leastrequestedpriority.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                                        |
+      | name      | scheduler-policy                              |
       | from_file | policy.cfg=policy_leastrequestedpriority.json |
-      | namespace | openshift-config                                                                                        |
+      | namespace | openshift-config                              |
     Then the step should succeed
 
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -210,7 +208,7 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario Outline: Schedule pods within the same service for 4.x
     Given the master version >= "4.1"
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | my-scheduler-policy   |
@@ -269,7 +267,7 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario Outline: Schedule pods within the same service based on nested levels
     Given the master version >= "4.4"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I store the schedulable workers in the :nodes clipboard
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
@@ -335,12 +333,12 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Tune the node priority by the weight attribute
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I obtain test data file "scheduler/policy_weightattribute.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                                 |
+      | name      | scheduler-policy                       |
       | from_file | policy.cfg=policy_weightattribute.json |
-      | namespace | openshift-config                                                                                 |
+      | namespace | openshift-config                       |
     Then the step should succeed
 
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -386,9 +384,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project
     Given I obtain test data file "scheduler/policy_weightattributeone.json"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                                    |
+      | name      | scheduler-policy                          |
       | from_file | policy.cfg=policy_weightattributeone.json |
-      | namespace | openshift-config                                                                                    |
+      | namespace | openshift-config                          |
     Then the step should succeed
 
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -432,16 +430,16 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario Outline: Schedule pods within the same service based on nested levels < OCP4.3
     Given the master version <= "4.3"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     Given I store the schedulable workers in the :nodes clipboard
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
     Given node schedulable status should be restored after scenario
     Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                |
+      | name      | scheduler-policy      |
       | from_file | policy.cfg=<filename> |
-      | namespace | openshift-config                                                                |
+      | namespace | openshift-config      |
     Then the step should succeed
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
       | {"spec":{"policy":{"name":"scheduler-policy"}}} |

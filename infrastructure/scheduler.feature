@@ -125,7 +125,7 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: Configure master nodes schedulable
     Given the master version >= "4.1"
-    Given the "cluster" scheduler CR is restored after scenario
+    Given the CR "Scheduler" named "cluster" is restored after scenario
     When I run the :patch admin command with:
       | resource      | Scheduler                            |
       | resource_name | cluster                              |
@@ -530,7 +530,7 @@ Feature: Scheduler predicates and priority test suites
     Given status becomes :pending of 1 pods labeled:
       | env=testh |
     And evaluation of `pod.name` is stored in the :podh clipboard
-    And the pod named "<%= cb.podm %>" becomes terminating
+    Then the expression should be true> pod.nominated_node_name == cb.nodes[0].name
     And a pod becomes ready with labels:
       | env=testh |
 
