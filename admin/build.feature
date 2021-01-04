@@ -8,15 +8,15 @@ Feature: admin build related features
   Scenario: Prune old builds by admin command
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
 
     #Generate enough builds for the oadm command to clean
-    Given the "ruby-sample-build-1" build was created
+    Given the "ruby-hello-world-1" build completes
     And I run the steps 7 times:
     """
     When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
+      | buildconfig | ruby-hello-world |
     Then the step should succeed
     """
 
@@ -25,14 +25,14 @@ Feature: admin build related features
     Then the step should succeed
     And the output should contain "completed and failed builds"
     #Wait for the builds to finish:
-    Given the "ruby-sample-build-1" build finished
-    And the "ruby-sample-build-2" build finished
-    And the "ruby-sample-build-3" build finished
-    And the "ruby-sample-build-4" build finished
-    And the "ruby-sample-build-5" build finished
-    And the "ruby-sample-build-6" build finished
-    And the "ruby-sample-build-7" build finished
-    And the "ruby-sample-build-8" build finished
+    Given the "ruby-hello-world-1" build finished
+    And the "ruby-hello-world-2" build finished
+    And the "ruby-hello-world-3" build finished
+    And the "ruby-hello-world-4" build finished
+    And the "ruby-hello-world-5" build finished
+    And the "ruby-hello-world-6" build finished
+    And the "ruby-hello-world-7" build finished
+    And the "ruby-hello-world-8" build finished
 
     ## the real running env is really slow to finish build, enlarge the time scope for oadm_prune_builds
     When I run the :oadm_prune_builds admin command with:
@@ -45,7 +45,7 @@ Feature: admin build related features
       | Dry run |
       # make sure we match only builds for current project
       # some builds will succeed, some will fail so can't match exact numbers
-      | <%= project.name %>\\s*ruby-sample-build- |
+      | <%= project.name %>\\s*ruby-hello-world- |
     And I save pruned builds in the "<%= project.name %>" project into the :pruned1 clipboard
 
     When I run the :oadm_prune_builds admin command with:
@@ -57,7 +57,7 @@ Feature: admin build related features
     And the output should match:
       # make sure we match only builds for current project
       # some builds will succeed, some will fail so can't match exact numbers
-      | <%= project.name %>\\s*ruby-sample-build- |
+      | <%= project.name %>\\s*ruby-hello-world- |
 
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
     Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
@@ -72,7 +72,7 @@ Feature: admin build related features
 
     When I run the :delete client command with:
       | object_type       | buildconfig       |
-      | object_name_or_id | ruby-sample-build |
+      | object_name_or_id | ruby-hello-world  |
       | cascade           | false             |
     Then the step should succeed
 
@@ -87,7 +87,7 @@ Feature: admin build related features
       | Dry run |
       # make sure we match only builds for current project
       # some builds will succeed, some will fail so can't match exact numbers
-      | <%= project.name %>\\s*ruby-sample-build- |
+      | <%= project.name %>\\s*ruby-hello-world- |
     And I save pruned builds in the "<%= project.name %>" project into the :pruned1 clipboard
 
     When I run the :oadm_prune_builds admin command with:
@@ -100,7 +100,7 @@ Feature: admin build related features
     And the output should match:
       # make sure we match only builds for current project
       # some builds will succeed, some will fail so can't match exact numbers
-      | <%= project.name %>\\s*ruby-sample-build- |
+      | <%= project.name %>\\s*ruby-hello-world- |
 
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
     Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set

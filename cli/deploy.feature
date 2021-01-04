@@ -34,8 +34,8 @@ Feature: deployment related features
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | image | <%= project_docker_repo %>openshift/deployment-example |
-      | name  | deployment-example                                     |
+      | image | quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b |
+      | name  | deployment-example                                                                                               |
     Then the step should succeed
     # Wait till the deploy complete
     And the pod named "deployment-example-1-deploy" becomes ready
@@ -99,8 +99,8 @@ Feature: deployment related features
   Scenario: oc deploy negative test
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | image | aosqe/hello-openshift |
-      | name  | hooks                 |
+      | image | quay.io/openshifttest/hello-openshift:openshift |
+      | name  | hooks                                           |
     Then the step should succeed
     When I run the :rollout_latest client command with:
       | resource | notreal |
@@ -281,8 +281,8 @@ Feature: deployment related features
   Scenario: Trigger info is retained for deployment caused by config changes
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | image | <%= project_docker_repo %>openshift/deployment-example |
-      | name  | deployment-example                                     |
+      | image | quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b |
+      | name  | deployment-example                                                                                               |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     And I replace resource "dc" named "deployment-example":
@@ -1071,9 +1071,9 @@ Feature: deployment related features
       | f | deployment-example.yaml |
     Then the step should succeed
     When I run the :tag client command with:
-      | source_type | docker                          |
-      | source      | openshift/deployment-example:v1 |
-      | dest        | example:latest                  |
+      | source_type | docker                                      |
+      | source      | quay.io/openshifttest/deployment-example:v1 |
+      | dest        | example:latest                              |
     Then the step should succeed
     And status becomes :running of 1 pods labeled:
       | app=deployment-example |
@@ -1087,17 +1087,17 @@ Feature: deployment related features
     And number of replicas of the current replica set for the deployment becomes:
       | ready | 1 |
     And current replica set name of "deployment-example" deployment stored into :rs2 clipboard
-    Then the expression should be true> rs(cb.rs2).containers_spec[0].image == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    Then the expression should be true> rs(cb.rs2).containers_spec[0].image == "quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b"
     When I run the :tag client command with:
-      | source_type | docker                          |
-      | source      | openshift/deployment-example:v2 |
-      | dest        | example:latest                  |
+      | source_type | docker                                      |
+      | source      | quay.io/openshifttest/deployment-example:v2 |
+      | dest        | example:latest                              |
     Then the step should succeed
     Given replica set "<%= cb.rs2 %>" becomes non-current for the "deployment-example" deployment
     And number of replicas of the current replica set for the deployment becomes:
       | ready | 1 |
     And current replica set name of "deployment-example" deployment stored into :rs3 clipboard
-    Then the expression should be true> rs(cb.rs3).containers_spec[0].image == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+    Then the expression should be true> rs(cb.rs3).containers_spec[0].image == "quay.io/openshifttest/deployment-example@sha256:32431147e933f7aa80c6e5e94f1573437c5e724f674d5ed1ee8dcd61d29c2869"
 
   # @author chuyu@redhat.com
   # @case_id OCP-15155
@@ -1203,8 +1203,8 @@ Feature: deployment related features
     Given the master version >= "3.7"
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | image | <%= project_docker_repo %>openshift/deployment-example |
-      | name  | deployment-example                                     |
+      | image | quay.io/openshifttest/deployment-example |
+      | name  | deployment-example                       |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     When I run the :set_env client command with:
@@ -1234,8 +1234,8 @@ Feature: deployment related features
   Scenario: dnsPolicy: none works well
     Given I have a project
     When I run the :create_deploymentconfig client command with:
-      | image | openshift/hello-openshift |
-      | name  | hello-openshift           |
+      | image | quay.io/openshifttest/hello-openshift:openshift |
+      | name  | hello-openshift                                 |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | dc              |

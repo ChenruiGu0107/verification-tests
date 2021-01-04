@@ -475,12 +475,12 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Inside one pod, the user of oc operations is the service account that runs the pod
     Given I have a project
     When I run the :run client command with:
-      | name      | mydc                                       |
-      | image     | <%= project_docker_repo %>openshift/origin |
-      | env       | POD_NAMESPACE=<%= project.name %>          |
-      | command   | true                                       |
-      | cmd       | sleep                                      |
-      | cmd       | 3600                                       |
+      | name      | mydc                               |
+      | image     | quay.io/openshifttest/origin       |
+      | env       | POD_NAMESPACE=<%= project.name %>  |
+      | command   | true                               |
+      | cmd       | sleep                              |
+      | cmd       | 3600                               |
     Then the step should succeed
 
     When I run the :policy_add_role_to_user client command with:

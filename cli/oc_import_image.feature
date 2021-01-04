@@ -40,14 +40,14 @@ Feature: oc import-image related feature
   Scenario: Set owner refs in new RCs owned by DCs
     Given I have a project
     When I run the :tag client command with:
-      | source_type | docker                       |
-      | source      | openshift/deployment-example |
-      | dest        | deployment-example:latest    |
+      | source_type | docker                                   |
+      | source      | quay.io/openshifttest/deployment-example |
+      | dest        | deployment-example:latest                |
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
     And I wait for the "deployment-example:latest" istag to appear
     When I run the :create_deploymentconfig client command with:
-      | image | quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652 |
+      | image | quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b |
       | name  | deployment-example                                                                                               |
     Then the step should succeed
     When I run the :get client command with:
@@ -75,15 +75,15 @@ Feature: oc import-image related feature
     Given I have a project
 
     When I run the :tag client command with:
-      | source_type | docker                       |
-      | source      | openshift/deployment-example |
-      | dest        | deployment-example:latest    |
+      | source_type | docker                                   |
+      | source      | quay.io/openshifttest/deployment-example |
+      | dest        | deployment-example:latest                |
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
     And I wait for the "deployment-example:latest" istag to appear
 
     When I run the :create_deploymentconfig client command with:
-      | image | quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652 |
+      | image | quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b |
       | name  | deployment-example                                                                                               | 
     Then the step should succeed
     Then the "deployment-example" image stream was created

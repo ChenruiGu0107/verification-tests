@@ -63,13 +63,13 @@ Feature: job.feature
   Scenario: User can schedule(Cronjob) a job execution with different concurrencypolicy
     Given I have a project
     When I run the :create_cronjob client command with:
-      | name             | sj1       |
-      | image            | busybox   |
-      | restart          | Never     |
-      | schedule         | * * * * * |
-      | oc_opts_end      |           |
-      | exec_command     | sleep     |
-      | exec_command_arg | 180       |
+      | name             | sj1                                                                                                   |
+      | image            | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
+      | restart          | Never                                                                                                 |
+      | schedule         | * * * * *                                                                                             |
+      | oc_opts_end      |                                                                                                       |
+      | exec_command     | sleep                                                                                                 |
+      | exec_command_arg | 180                                                                                                   |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | job-name |
