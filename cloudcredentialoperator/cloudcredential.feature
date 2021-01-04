@@ -329,17 +329,19 @@ Feature: cloud credential operator
     Given I run the :get client command with:
       | resource     | configmap                                  |
       | resource_name| cloud-credential-operator-leader           | 
-      | o            | jsonpath={.metadata.managedFields[0].time} |
+      | o            | yaml                                       |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :before_time clipboard
+    And evaluation of `@result[:parsed]['metadata']['annotations']['control-plane.alpha.kubernetes.io/leader']` is stored in the :before_updated clipboard
+    And evaluation of `JSON.parse(cb.before_updated)['renewTime']` is stored in the :before_time clipboard
     And I wait up to 92 seconds for the steps to pass:
     """
     Given I run the :get client command with:
       | resource     | configmap                                  |
       | resource_name| cloud-credential-operator-leader           | 
-      | o            | jsonpath={.metadata.managedFields[0].time} |
+      | o            | yaml                                       |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :after_time clipboard
+    And evaluation of `@result[:parsed]['metadata']['annotations']['control-plane.alpha.kubernetes.io/leader']` is stored in the :after_updated clipboard
+    And evaluation of `JSON.parse(cb.after_updated)['renewTime']` is stored in the :after_time clipboard
     Then the expression should be true> Time.parse(cb.before_time) < Time.parse(cb.after_time)
     """
     Then the expression should be true> (Time.parse(cb.after_time) -  Time.parse(cb.before_time)) == 90
