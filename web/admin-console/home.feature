@@ -105,7 +105,7 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I perform the :goto_one_api_explore_page web action with:
       | project_name     | project-ocp-24306 |
-      | api_explore_name | core~v1~ConfigMap |
+      | api_explore_name | core~v1~Endpoints |
     Then the step should succeed
     When I run the :click_access_review_tab web action
     Then the step should succeed
@@ -114,7 +114,7 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :click_instances_tab web action
     Then the step should succeed
-    When I run the :check_no_configmaps_found_text web action
+    When I run the :check_no_endpoints_found_text web action
     Then the step should succeed
 
     #cluster admin checks api explore page

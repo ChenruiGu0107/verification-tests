@@ -42,9 +42,11 @@ Feature: User management related
       | resource_name | <%= user(0, switch: false).name %> |
       | kebab_item    | Impersonate User "<%= user(0, switch: false).name %>" |
     Then the step should succeed
-    When I perform the :check_secondary_menu web action with:
-      | secondary_menu | Users |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :check_users_secondary_menu web action
     Then the step should succeed
+    """
     When I perform the :check_rolebinding_of_user web action with:
       | username    | <%= user(0, switch: false).name %> |
       | rolebinding | cluster-admin |

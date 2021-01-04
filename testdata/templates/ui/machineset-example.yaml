@@ -19,5 +19,7 @@ spec:
             id: ami-0763a9bebd98ae80f
           placement:
             availabilityZone: us-east-2a
+          zone: us-central1-a
+          region: us-central1
       versions:
         kubelet: ''
