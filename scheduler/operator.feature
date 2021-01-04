@@ -560,7 +560,7 @@ Feature: Testing Scheduler Operator related scenarios
       | NodeResourcesLeastAllocated                     |
 
   # @author knarra@redhat.com
-  # case_id OCP-37485
+  # @case_id OCP-37485
   @admin
   @destructive
   Scenario: Scheduler_plugins - Validate NoScoring profile
