@@ -165,3 +165,55 @@ Feature: Testing DNS features
     Then the expression should be true> role_binding('prometheus-k8s').exists?
     Then the expression should be true> namespace('openshift-dns-operator').labels['openshift.io/cluster-monitoring'] == 'true'
 
+  # @author hongli@redhat.com
+  # @case_id OCP-37912
+  # @bug_id 1813062
+  @admin
+  @destructive
+  Scenario: DNS operator should show clear error message when DNS service IP already allocated
+    Given the master version >= "4.6"
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-dns" project
+    And I register clean-up steps:
+    """
+    When I run the :delete admin command with:
+      | object_type | pod                    |
+      | l           | name=dns-operator      |
+      | n           | openshift-dns-operator |
+    Then the step should succeed
+    And I wait up to 600 seconds for the steps to pass:
+      | Then the expression should be true> service('dns-default').exists?                                          |
+      | And the expression should be true> cluster_operator("dns").condition(type: 'Degraded')['status'] == "False" |
+      | And the expression should be true> cluster_operator("dns").condition(type: 'Available')['status'] == "True" |
+    """
+
+    # delete dns operator and dns service and create svc-37912
+    Given I obtain test data file "routing/dns/svc-37912.yaml"
+    When I run the :delete admin command with:
+      | object_type | pod                    |
+      | l           | name=dns-operator      |
+      | n           | openshift-dns-operator |
+      | wait        | false                  |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | service       |
+      | object_name_or_id | dns-default   |
+      | n                 | openshift-dns |
+    Then the step should succeed
+    Given admin ensures "svc-37912" service is deleted from the "openshift-dns" project after scenario
+    When I run the :create admin command with:
+      | f | svc-37912.yaml |
+    Then the step should succeed
+
+    # check dns operator if show error message
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | dnses.operator |
+      | resource_name | default        |
+      | o             | yaml           |
+    Then the step should succeed
+    And the output should contain 3 times:
+      | No IP assigned to DNS service |
+    """
+
