@@ -287,3 +287,41 @@ Feature: Machine features testing
       | HTTP_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %>  |
       | HTTPS_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %> |
       | NO_PROXY.*<%= cb.proxy["spec"]["noProxy"] %>      |
+  
+  # @author zhsun@redhat.com
+  # @case_id OCP-37689
+  @admin
+  Scenario Outline: Machines phase should become 'Failed' when the key permissions are invalid - GCP
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And I pick a random machineset to scale
+
+    # Create a machineset
+    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    And I save the output to file> machineset-clone-37689.yaml
+    And I replace content in "machineset-clone-37689.yaml":
+      | <%= machine_set.name %> | machineset-clone-37689 |
+      | /replicas.*/            | replicas: 0            |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-37689.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-clone-37689" machineset is deleted after scenario
+
+    Given as admin I successfully merge patch resource "machineset/machineset-clone-37689" with:
+      | {"spec":{"replicas":1,"template":{"spec":{"providerSpec":{"value":{"disks":[{"autoDelete":true,"boot":true,"encryptionKey":<value>,"sizeGb":128,"type":"pd-ssd"}]}}}}}} |
+
+    # Verified machine has 'Failed' phase
+    Given I store the last provisioned machine in the :invalid_machine clipboard
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine(cb.invalid_machine).phase(cached: false) == "Failed"
+    """
+
+    Examples:
+      | value                                                                                                                                                                     | 
+      | {"kmsKey":{"keyRing":"openshiftqe-invalid","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global-invalid","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe-invalid"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com-invalid"} | 
