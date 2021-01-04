@@ -325,3 +325,36 @@ Feature: Machine features testing
       | {"kmsKey":{"keyRing":"openshiftqe","location":"global-invalid","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
       | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe-invalid"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
       | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com-invalid"} | 
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-37497
+  @admin
+  @destructive
+  Scenario:  Dedicated Spot Instances could be created
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+    And I pick a random machineset to scale
+
+    # Create a machineset
+    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    And I save the output to file> machineset-clone-37497.yaml
+    And I replace content in "machineset-clone-37497.yaml":
+      | <%= machine_set.name %> | machineset-clone-37497 |
+      | /replicas.*/            | replicas: 0            |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-37497.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-clone-37497" machineset is deleted after scenario
+
+    Given as admin I successfully merge patch resource "machineset/machineset-clone-37497" with:
+      | {"spec":{"replicas":1,"template":{"spec":{"providerSpec":{"value":{"spotMarketOptions":{},"instanceType":"c4.8xlarge","placement":{"tenancy": "dedicated"}}}}}}} |
+
+    # Verify machine could be created successful
+    And I wait up to 300 seconds for the steps to pass:
+    """ 
+    Then the expression should be true> machine_set("machineset-clone-37497").desired_replicas(cached: false) == 1
+    """ 
+    Then the machineset should have expected number of running machines
