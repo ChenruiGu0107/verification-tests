@@ -264,3 +264,26 @@ Feature: Machine features testing
     Then the expression should be true> machine_set("machineset-clone-36153").desired_replicas(cached: false) == 1
     """ 
     Then the machineset should have expected number of running machines
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-37384
+  @admin
+  Scenario: Machine API components should honour cluster wide proxy settings
+    Given I switch to cluster admin pseudo user
+    When I run the :get admin command with:
+      | resource      | proxy   |
+      | resource_name | cluster |
+      | o             | yaml    |
+    Then the step should succeed
+    And evaluation of `YAML.load @result[:response]` is stored in the :proxy clipboard
+
+    When I use the "openshift-machine-api" project
+    And 1 pod becomes ready with labels:
+      | api=clusterapi |
+    When I run the :describe admin command with:
+      | resource | pod             |
+      | name     | <%= pod.name %> |
+    And the output should match:
+      | HTTP_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %>  |
+      | HTTPS_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %> |
+      | NO_PROXY.*<%= cb.proxy["spec"]["noProxy"] %>      |
