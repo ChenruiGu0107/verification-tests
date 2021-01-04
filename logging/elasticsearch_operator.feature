@@ -283,7 +283,7 @@ Feature: elasticsearch operator related tests
       | op           | GET                         |
     Then the step should succeed
     And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health
-    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health
+    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health(cached: false)
     # make the cluster unhealth
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | test-index-001 |
@@ -308,7 +308,7 @@ Feature: elasticsearch operator related tests
       | op           | GET                         |
     Then the step should succeed
     And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health
-    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health
+    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health(cached: false)
     And the expression should be true> @result[:parsed]['active_primary_shards'] == elasticsearch('elasticsearch').active_primary_shards
     And the expression should be true> @result[:parsed]['unassigned_shards'] == elasticsearch('elasticsearch').unassigned_shards
     """
@@ -405,7 +405,7 @@ Feature: elasticsearch operator related tests
     """
       Given the expression should be true> pod('#{cb.es_pod}').exists?
     """
-    
+
   # @author qitang@redhat.com
   # @case_id OCP-34294
   @admin
@@ -448,7 +448,7 @@ Feature: elasticsearch operator related tests
   # @case_id OCP-34988
   @admin
   @destructive
-  Scenario: Elasticsearch-prometheus-rules checking.	
+  Scenario: Elasticsearch-prometheus-rules checking.
     Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                         |
@@ -510,7 +510,7 @@ Feature: elasticsearch operator related tests
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
-    
+
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
