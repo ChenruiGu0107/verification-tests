@@ -26,7 +26,6 @@ Feature: KUBE API server related features
   # @case_id OCP-27665
   @admin
   Scenario: Check if the kube-storage-version-migrator operator related manifests has been loaded
-    Given the master version >= "4.4"
     When I run the :get admin command with:
       | resource       | customresourcedefinition                          |
       | resource_name  | storagestates.migration.k8s.io                    |
@@ -115,7 +114,6 @@ Feature: KUBE API server related features
   @admin
   @destructive
   Scenario: customize audit config of apiservers
-    Given the master version >= "4.6"
     Given I switch to cluster admin pseudo user
     Given evaluation of `Time.now.utc.strftime "%s"` is stored in the :now clipboard
 
