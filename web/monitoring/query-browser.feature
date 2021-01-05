@@ -36,7 +36,7 @@ Feature: query browser
     Given evaluation of `project.name` is stored in the :proj_name clipboard
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo | openshift/deployment-example |
+      | app_repo | quay.io/openshifttest/deployment-example |
     Then the step should succeed
 
     #Go to developer mode, select the project
@@ -188,12 +188,12 @@ Feature: query browser
       """
     Then the step should succeed
     And the output should contain:
-      | :kube_pod_info_node_count: |
-      | ALERTS                     |
+      | kube_pod_status_scheduled |
+      | ALERTS                    |
     #check metrics from ocp conosle
     #check selected query from dropdown list
     When I perform the :perform_metric_query_drop_down_admin web action with:
-      | metrics_name | :kube_pod_info_node_count: |
+      | metrics_name | kube_pod_status_scheduled |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
@@ -236,7 +236,7 @@ Feature: query browser
     Then the step should succeed
     #check selected query from dropdown list
     When I perform the :perform_metric_query_drop_down_admin web action with:
-      | metrics_name | :kube_pod_info_node_count: |
+      | metrics_name | kube_pod_status_scheduled |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
@@ -438,7 +438,7 @@ Feature: query browser
     Given evaluation of `project.name` is stored in the :proj_name clipboard
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo | openshift/deployment-example |
+      | app_repo | quay.io/openshifttest/deployment-example |
     Then the step should succeed
 
     #Go to admin console
@@ -488,7 +488,7 @@ Feature: query browser
     Given evaluation of `project.name` is stored in the :proj_name clipboard
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo | openshift/deployment-example |
+      | app_repo | quay.io/openshifttest/deployment-example |
     Then the step should succeed
 
     #Go to admin console
@@ -523,7 +523,7 @@ Feature: query browser
       | project_name | <%= cb.proj_name %> |
     Then the step should succeed
     When I perform the :check_page_contains web action with:
-      | content | No Pods Found |
+      | content | No Pods |
     Then the step should succeed
 
   # @author hongyli@redhat.com
