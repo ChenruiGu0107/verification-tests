@@ -3,9 +3,9 @@ Feature: oc_rsync.feature
   Scenario Outline: Copying files from host to container using oc rsync
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | aosqe/scratch:tarrsync |
+      | app_repo | quay.io/openshifttest/scratch |
     Given a pod becomes ready with labels:
-      | deploymentconfig=scratch |
+      | deployment=scratch |
     Given I create the "test1" directory
     Given a "test1/testfile1" file is created with the following lines:
     """
@@ -42,9 +42,9 @@ Feature: oc_rsync.feature
   Scenario Outline: oc rsync with --delete option
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | aosqe/scratch:tarrsync |
+      | app_repo | quay.io/openshifttest/scratch |
     Given a pod becomes ready with labels:
-      | deploymentconfig=scratch |
+      | deployment=scratch |
     Given I create the "test" directory
     Given the "test/testfile1" file is created with the following lines:
     """
@@ -96,10 +96,10 @@ Feature: oc_rsync.feature
     Given I have a project
     Given I create the "test" directory
     When I run the :new_app client command with:
-      | docker_image | aosqe/scratch:tarrsync       |
+      | docker_image | quay.io/openshifttest/scratch |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=scratch-1 |
+      | deployment=scratch |
     When I run the :rsync background client command with:
       | source      | <%= localhost.workdir %>/test |
       | destination | <%= pod.name %>:/tmp |
@@ -196,15 +196,15 @@ Feature: oc_rsync.feature
   Scenario Outline: Copy files and directories to and from containers via oc cp
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo   | openshift/mysql-55-centos7   |
-      | env        | MYSQL_USER=user              |
-      | env        | MYSQL_PASSWORD=pass          |
-      | env        | MYSQL_DATABASE=db            |
-      | name       | myapp                        |
+      | app_repo   | quay.io/openshifttest/mysql-56-centos7 |
+      | env        | MYSQL_USER=user                        |
+      | env        | MYSQL_PASSWORD=pass                    |
+      | env        | MYSQL_DATABASE=db                      |
+      | name       | myapp                                  |
     Then the step should succeed
     Given I create the "local/foo_dir" directory
     Given a pod becomes ready with labels:
-      | app=myapp |
+      | deployment=myapp |
     # File
     When I run the :cp client command with:
       | _tool  | <tool>                      |
@@ -243,7 +243,7 @@ Feature: oc_rsync.feature
   Scenario Outline: oc rsync with --delete option test
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | aosqe/scratch:tarrsync |
+      | app_repo | quay.io/openshifttest/scratch |
     Given a pod becomes ready with labels:
       | deployment=scratch |
     Given I create the "test" directory
@@ -295,7 +295,7 @@ Feature: oc_rsync.feature
   Scenario Outline: Copying files from host to container using oc rsync test
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | aosqe/scratch:tarrsync |
+      | app_repo | quay.io/openshifttest/scratch |
     Given a pod becomes ready with labels:
       | deployment=scratch |
     Given I create the "test1" directory
@@ -336,7 +336,7 @@ Feature: oc_rsync.feature
     Given I have a project
     Given I create the "test" directory
     When I run the :new_app client command with:
-      | docker_image | aosqe/scratch:tarrsync |
+      | docker_image | quay.io/openshifttest/scratch |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=scratch |

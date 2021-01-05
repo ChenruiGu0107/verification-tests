@@ -8,19 +8,19 @@ Feature: oc run related scenarios
       | image   | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |
     Then the step should succeed
     When I run the :run client command with:
-      | _tool        | <tool>          |
-      | name         | webapp          |
-      | image        | training/webapp |
-      | -l           | test=one        |
-      | limits       | memory=256Mi    |
+      | _tool        | <tool>                              |
+      | name         | webapp                              |
+      | image        | quay.io/openshifttest/hello-app:2.0 |
+      | -l           | test=one                            |
+      | limits       | memory=256Mi                        |
     Then the step should succeed
     Given 1 pod becomes ready with labels:
       | test=one |
 
     When I run the :create_deployment client command with:
-      | _tool        | <tool>          |
-      | name         | webapp2         |
-      | image        | training/webapp |
+      | _tool        | <tool>                              |
+      | name         | webapp2                             |
+      | image        | quay.io/openshifttest/hello-app:2.0 |
     Then the step should succeed
     When I run the :set_resources client command with:
       | resource     | deployment   |
@@ -35,10 +35,10 @@ Feature: oc run related scenarios
       | app=webapp2 |
 
     When I run the :run client command with:
-      | name      | webapp4         |
-      | image     | training/webapp |
-      | attach    | true            |
-      | _timeout  | 60              |
+      | name      | webapp4                             |
+      | image     | quay.io/openshifttest/hello-app:2.0 |
+      | attach    | true                                |
+      | _timeout  | 60                                  |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:
