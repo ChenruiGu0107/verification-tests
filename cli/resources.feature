@@ -78,8 +78,8 @@ Feature: resouces related scenarios
   Scenario Outline: Delete resources with cascade selectors
     Given I have a project
     And I run the :create_deploymentconfig client command with:
-      | name      | test                                                |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | name      | test                                            |
+      | image     | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=test |
@@ -102,12 +102,12 @@ Feature: resouces related scenarios
       | deploymentconfig=test |
 
     When I run the :create_deploymentconfig client command with:
-      | name      | test-a                                              |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | name      | test-a                                          |
+      | image     | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     When I run the :create_deploymentconfig client command with:
-      | name      | test-b                                              |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | name      | test-b                                          |
+      | image     | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     And I wait until number of replicas match "1" for replicationController "test-a-1"
     And I wait until number of replicas match "1" for replicationController "test-b-1"

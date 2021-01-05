@@ -13,7 +13,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :get client command with:
       | resource | deployment |
@@ -26,7 +26,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                        |
       | resource_name | hello-openshift                                                                                                   |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652","name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I run the :get client command with:
       | resource | deployment |
