@@ -40,9 +40,7 @@ Feature: route related
 
     Given I store default router subdomain in the :subdomain clipboard
     When I open web server via the "http://passthroughroute-<%= project.name %>.<%= cb.subdomain %>" url
-    Then I perform the :check_routes_web_page_contains web action with:
-      | content | Hello-OpenShift web-server-1 https-8443 |
-    And the step should succeed
+    And the output should match "Hello-OpenShift.*web-server-1.*https-8443"
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-21007
@@ -368,9 +366,7 @@ Feature: route related
     # check basic route is reachable.
     Given I store default router subdomain in the :subdomain clipboard
     When I open web server via the "http://mybasicroute-<%= project.name %>.<%= cb.subdomain %>" url
-    Then I perform the :check_routes_web_page_contains web action with:
-      | content | Hello-OpenShift web-server-1 http-8080 |
-    And the step should succeed
+    And the output should match "Hello-OpenShift.*web-server-1.*http-8080"
 
     # check Status, status icon and condition table on route details
     When I perform the :goto_one_route_page web action with:

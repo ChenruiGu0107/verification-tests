@@ -1021,7 +1021,7 @@ Feature: operatorhub feature related
     Given the master version >= "4.6"
     Given I have a project
     Given evaluation of `project.name` is stored in the :userproject_name clipboard
-    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators@sha256:feb39d5dca35fcbf73713672016b8c802146252a96e3864a0a34209b154b6482"
 
     # check required badge and button during operator installation phase
     Given I switch to the first user
@@ -1103,7 +1103,7 @@ Feature: operatorhub feature related
   @destructive
   Scenario: schema grouping for specDescriptors and statusDescriptors
     Given the master version >= "4.6"
-    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators@sha256:feb39d5dca35fcbf73713672016b8c802146252a96e3864a0a34209b154b6482"
     Given I switch to the first user
     Given I have a project
     Given the first user is cluster-admin
