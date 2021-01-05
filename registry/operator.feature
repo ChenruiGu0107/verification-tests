@@ -99,12 +99,14 @@ Feature: Testing image registry operator
       | {"spec":{"nodeSelector":null}} |
     """
     When I use the "openshift-image-registry" project
+    And I wait for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | pod                     |
       | l        | docker-registry=default |
     Then the output should contain:
       | node-role.kubernetes.io/master=abc |
-      | didn't match node selector         |
+    """
 
   # @author xiuwang@redhat.com
   # @case_id OCP-23651
