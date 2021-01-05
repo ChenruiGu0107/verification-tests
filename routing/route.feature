@@ -1292,3 +1292,171 @@ Feature: Testing route
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/path/second/" url
     And the output should contain "second-test"
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-35548
+  # @bug_id 1867186
+  Scenario: "router.openshift.io/cookie-same-site" route annotation accepts "None","Lax" or "Strict" attribute for Reencrypt routes
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy secure service with signed secret annotation
+    Given I obtain test data file "routing/ingress/signed-service.json"
+    When I run the :create client command with:
+      | f | signed-service.json |
+    And the step should succeed
+    And I wait for the "service-secret" secret to appear up to 30 seconds
+
+    # Deploy a pod with secret volume and mountpaths along with configmap for new nginx config
+    Given I obtain test data file "routing/ingress/web-server-secret-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-secret-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    And evaluation of `pod.name` is stored in the :websrv_pod clipboard
+    When I get project configmaps
+    Then the output should match "nginx-config"
+
+    # Create a a REEN terminated route and check the default for "SameSite" is set to none
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
+    When I run the :create_route_reencrypt client command with:
+      | name     | route-reencrypt                                         |
+      | service  | service-secure                                          |
+      | cert     | route_reencrypt-reen.example.com.crt                    |
+      | key      | route_reencrypt-reen.example.com.key                    |
+      | hostname | route-reencrypt-<%= project.name %>.<%= cb.subdomain %> |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should match "Secure; SameSite=None"
+    """
+
+    # Add "Lax" annotation to the route
+    When I run the :annotate client command with:
+      | resource     | route                                    |
+      | resourcename | route-reencrypt                          |
+      | keyval       | router.openshift.io/cookie-same-site=Lax |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should match "Secure; SameSite=Lax"
+    """
+    
+    # Add "Strict" annotation to the route to test
+    When I run the :annotate client command with:
+      | resource     | route                                       |
+      | resourcename | route-reencrypt                             |
+      | overwrite    | true                                        |
+      | keyval       | router.openshift.io/cookie-same-site=Strict |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should match "Secure; SameSite=Strict"
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-35547
+  # @bug_id 1867186
+  Scenario: "router.openshift.io/cookie-same-site" route annotation accepts "None', "Lax" or "Strict" attribute for edge routes
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy pods and services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+
+    # Deploy edge route and verify the default "Samesite" values is set to "None"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    And I obtain test data file "routing/edge/route_edge-www.edge.com.key"
+    When I run the :create_route_edge client command with:
+      | name    | route-edge                  |
+      | service | service-unsecure            |
+      | cert    | route_edge-www.edge.com.crt |
+      | key     | route_edge-www.edge.com.key |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-edge-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should match "Secure; SameSite=None"
+    """  
+
+    # Add "Strict" annotation to the route to test
+    When I run the :annotate client command with:
+      | resource     | route                                       |
+      | resourcename | route-edge                                  |
+      | overwrite    | true                                        |
+      | keyval       | router.openshift.io/cookie-same-site=Strict |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-edge-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should match "Secure; SameSite=Strict"
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-35549
+  # @bug_id 1867186
+  Scenario: "router.openshift.io/cookie-same-site" route annotation does not work with Passthrough routes
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy pods and services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+
+    # Deploy a passthrough route
+    When I run the :create_route_passthrough client command with:
+      | name    | route-passth   |
+      | service | service-secure |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-passth-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should not match "Secure; SameSite=None"
+    """
+
+    # Set the "SameSite" annotation to "Lax" to check if it gets applied
+    When I run the :annotate client command with:
+      | resource     | route                                       |
+      | resourcename | route-passth                                |
+      | overwrite    | true                                        |
+      | keyval       | router.openshift.io/cookie-same-site=Strict |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | https://route-passth-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
+    Then the step should succeed
+    And the output should not match "Secure; SameSite=Lax"
+    """
