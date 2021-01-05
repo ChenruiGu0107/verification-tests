@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: testone
+  name: testone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testone
+  template:
+    metadata:
+      labels:
+        app: testone
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: key17095
+                operator: In
+                values:
+                - value17095
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
+        name: hello-openshift
