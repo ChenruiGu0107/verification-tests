@@ -97,9 +97,9 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> cron_job('curator').node_selector['curator'] == 'deploy'
     Given I wait up to 600 seconds for the steps to pass:
     """
-    And the expression should be true> cluster_logging('instance').es_node_conditions.to_s.include? "node(s) didn't match node selector"
-    And the expression should be true> cluster_logging('instance').kibana_cluster_condition.to_s.include? "node(s) didn't match node selector."
-    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.to_s.include? "node(s) didn't match node selector."
+    And the expression should be true> cluster_logging('instance').es_node_conditions.to_s.match? (/0\/\d+ nodes are available/)
+    And the expression should be true> cluster_logging('instance').kibana_cluster_condition.to_s.match? (/0\/\d+ nodes are available/)
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.to_s.match? (/0\/\d+ nodes are available/)
     """
     Given I obtain test data file "logging/clusterlogging/nodeSelector_change.yaml"
     When I run the :apply client command with:
@@ -567,7 +567,7 @@ Feature: cluster-logging-operator related cases
   # @case_id OCP-33981
   @admin
   @destructive
-  Scenario: logStore stanza is not required to deploy fluentd standalone	
+  Scenario: logStore stanza is not required to deploy fluentd standalone
     Given I obtain test data file "logging/clusterlogging/clusterlogging-fluentd-no-logStore.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                    |
