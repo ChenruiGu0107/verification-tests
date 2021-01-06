@@ -204,7 +204,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I run the :cluster_detail_page_loaded web action
     Then the step should succeed
-    
+
 
   # @author xueli@redhat.com
   # @case_id OCP-33439
@@ -219,7 +219,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I perform the :fill_in_required_items_on_osd_creation_page web action with:
       | cluster_name | sdqe-ui-33439  |
-      | machine_type | custom-4-16384 | 
+      | machine_type | custom-4-16384 |
     Then the step should succeed
 
     Given I saved following keys to list in :cidrs clipboard:
@@ -451,7 +451,7 @@ Feature: only about page related to cluster login page
       | region_id  | #{cb.region} |
     Then the step should succeed
     """
-  
+
   # @author xueli@redhat.com
   # @case_id OCP-21675
   Scenario: Verify region drop-down list in create cluster panel
@@ -597,7 +597,7 @@ Feature: only about page related to cluster login page
       | region_name | #{cb.region} |
     Then the step should succeed
     """
-  
+
   # @author xueli@redhat.com
   # @case_id OCP-30503
   Scenario: Check the BYOC creation page

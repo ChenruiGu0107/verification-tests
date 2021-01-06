@@ -10,4 +10,3 @@ Feature: only about the overview page of OCM
     When I run the :check_empty_overview_page web action
     Then the step should succeed
 
-    

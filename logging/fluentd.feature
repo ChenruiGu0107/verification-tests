@@ -44,12 +44,12 @@ Feature: fluentd related tests
   @commonlogging
   Scenario: the priority class are added in Logging collector
     Given the expression should be true> daemon_set('fluentd').template['spec']['priorityClassName'] == "cluster-logging"
- 
+
   # @author qitang@redhat.com
   # @case_id OCP-22985
   @admin
   @destructive
-  @commonlogging  
+  @commonlogging
   Scenario: Properly handle merge of JSON log messages - fluentd
     Given I switch to the first user
     Given I create a project with non-leading digit name

@@ -2,7 +2,7 @@ Feature: ONLY Fuse Plan related scripts in this file
 
   # @author yuwei@redhat.com
   # @case_id OCP-19003
-  Scenario: Check Fuse plan on 'Select a Plan' page	
+  Scenario: Check Fuse plan on 'Select a Plan' page
     Given I open accountant console in a browser
     When I run the :go_to_register_plan web action
     Then the step should succeed
@@ -26,7 +26,7 @@ Feature: ONLY Fuse Plan related scripts in this file
   # @author yuwei@redhat.com
   # @case_id OCP-19014
   # @note this Scenario requires a user that already has a fuse plan
-  Scenario: Check the account overview page after provisioned on a fuse cluster	
+  Scenario: Check the account overview page after provisioned on a fuse cluster
     Given I open accountant console in a browser
     When I run the :go_to_account_page web action
     Then the step should succeed
@@ -125,7 +125,7 @@ Feature: ONLY Fuse Plan related scripts in this file
 
   # @author yuwan@redhat.com
   # @case_id OCP-19004
-  Scenario: Check the 'Select Fuse Online Plan Size' page		
+  Scenario: Check the 'Select Fuse Online Plan Size' page
     Given I open accountant console in a browser
     When I run the :go_to_register_plan web action
     Then the step should succeed

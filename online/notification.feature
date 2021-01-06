@@ -77,7 +77,7 @@ Feature: Online "Notification" related scripts in this file
     Then the step should succeed
 
   # @author yuwan@redhat.com
-  Scenario Outline: Check notification alert message and related buttons on online	
+  Scenario Outline: Check notification alert message and related buttons on online
   Given I have a project
   Then evaluation of `project.name` is stored in the :project_name clipboard
   When I run the :new_app client command with:

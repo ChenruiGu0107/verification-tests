@@ -302,7 +302,7 @@ Feature: Testing registry
   # @author wzheng@redhat.com
   # @case_id OCP-21988
   @admin
-  Scenario: Registry can use AdditionalTrustedCA to trust an external secured registry 
+  Scenario: Registry can use AdditionalTrustedCA to trust an external secured registry
     Given I switch to cluster admin pseudo user
     When I run the :get client command with:
       | resource  | configmap        |
@@ -326,7 +326,7 @@ Feature: Testing registry
   # @case_id OCP-31767
   @admin
   @destructive
-  Scenario: Warning appears when registry use invalid AdditionalTrustedCA	
+  Scenario: Warning appears when registry use invalid AdditionalTrustedCA
     Given I switch to cluster admin pseudo user
     And I successfully merge patch resource "image.config.openshift.io/cluster" with:
      | {"spec": {"additionalTrustedCA": {"name": "registry-config-invalid"}}} |
@@ -341,4 +341,4 @@ Feature: Testing registry
       | namespace     | openshift-image-registry                    |
     And the output should contain:
       | configmap "registry-config-invalid" not found |
-      
+

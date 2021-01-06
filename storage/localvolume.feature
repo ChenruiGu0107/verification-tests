@@ -8,7 +8,7 @@ Feature: local storage operator testing
     And local storage operator has been installed successfully
     And local storage provisioner has been installed successfully
     And local storage PVs are created successfully in schedulable workers
-    
+
   # @author piqin@redhat.com
   # @case_id OCP-24524
   @admin

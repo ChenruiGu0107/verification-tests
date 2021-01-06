@@ -74,7 +74,7 @@ Feature: genericbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-30289
-  Scenario: Image triggers should work on v1 StatefulSets	
+  Scenario: Image triggers should work on v1 StatefulSets
     Given I have a project
     Given I obtain test data file "build/OCP-30289/statefulset-trigger.yaml"
     When I run the :create client command with:
@@ -86,7 +86,7 @@ Feature: genericbuild.feature
       | source | centos/ruby-25-centos7 |
       | dest   | rubytest:latest        |
     Then the step should succeed
-    And the pod named "testtrigger-0" becomes ready 
+    And the pod named "testtrigger-0" becomes ready
     And I wait for the steps to pass:
     """
     And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :after_change clipboard

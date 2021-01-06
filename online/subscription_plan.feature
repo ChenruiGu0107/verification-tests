@@ -403,7 +403,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
 
   # @author yuwan@redhat.com
   # @case_id OCP-20548
-  Scenario: Check the elements on Resume Subscription page	
+  Scenario: Check the elements on Resume Subscription page
     Given I open accountant console in a browser
     When I run the :click_to_change_plan web action
     Then the step should succeed

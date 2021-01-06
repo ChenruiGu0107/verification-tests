@@ -457,14 +457,14 @@ Feature: Testing image registry operator
   # @author xiuwang@redhat.com
   # @case_id OCP-25886
   @admin
-  Scenario: Set image registry operator default to Removed in Bare metal platform 
+  Scenario: Set image registry operator default to Removed in Bare metal platform
     When I run the :logs admin command with:
       | resource_name | deployment/cluster-image-registry-operator |
       | namespace     | openshift-image-registry                   |
       | c             | cluster-image-registry-operator            |
     And the output should contain:
       | The registry is removed            |
-      | All registry resources are removed | 
+      | All registry resources are removed |
 
   # @author wzheng@redhat.com
   # @case_id OCP-34991
@@ -527,7 +527,7 @@ Feature: Testing image registry operator
     And the output should match:
       | [Ii]nvalid         |
       | Managed\|Unmanaged |
-  
+
   # @author wzheng@redhat.com
   # @case_id OCP-25813
   @admin
@@ -539,7 +539,7 @@ Feature: Testing image registry operator
   # @author wzheng@redhat.com
   # @case_id OCP-33566
   @admin
-  Scenario: leader lease log appears in operator log if new image-registry pod generated	
+  Scenario: leader lease log appears in operator log if new image-registry pod generated
     When I run the :logs admin command with:
       | resource_name | deployment/cluster-image-registry-operator |
       | namespace     | openshift-image-registry                   |

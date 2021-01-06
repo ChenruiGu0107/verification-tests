@@ -637,7 +637,7 @@ Feature: secrets related scenarios
       | deployment=git-2     |
     Given I obtain test data dir "build/httpd-ex.git"
     When I run the :cp client command with:
-      | source | httpd-ex.git                  | 
+      | source | httpd-ex.git                  |
       | dest   | <%= pod.name %>:/var/lib/git/ |
     Then the step should succeed
     When I run the :new_app client command with:

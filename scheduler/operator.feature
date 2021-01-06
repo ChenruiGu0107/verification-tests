@@ -1,5 +1,5 @@
 Feature: Testing Scheduler Operator related scenarios
-	
+
   # @author knarra@redhat.com
   # @case_id OCP-12459
   @admin

@@ -51,7 +51,7 @@ Feature: pods related feature
     When I run the :goto_all_projects_pods_list web action
     Then the step should succeed
     When I run the :click_first_item_in_grid_cell_list web action
-    Then the step should succeed   
+    Then the step should succeed
     When I perform the :check_link_in_breadcrumb web action with:
       | layer_number | 1                   |
       | link         | all-namespaces/pods |
@@ -73,12 +73,12 @@ Feature: pods related feature
       | link_url       | all-namespaces/jobs |
     Then the step should succeed
 
-    # Check resource list set back to "all project" 
+    # Check resource list set back to "all project"
     # from cluster resource detail page to anothor resource list
     When I run the :goto_all_installed_operators_page web action
     Then the step should succeed
     When I run the :click_first_item_in_grid_cell_list web action
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text         | Installed Operators                 |
       | link_url     | all-namespaces/operators.coreos.com |
@@ -109,7 +109,7 @@ Feature: pods related feature
       | project_name | openshift-console |
     Then the step should succeed
     When I run the :click_first_item_in_grid_cell_list web action
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_in_breadcrumb web action with:
       | layer_number | 1                      |
       | link         | openshift-console/pods |
@@ -180,4 +180,4 @@ Feature: pods related feature
 
     # column management on All Projects list page - cluster-admin
     When I run the :check_changed_columns_in_all_projects_list_table web action
-    Then the step should succeed   
+    Then the step should succeed

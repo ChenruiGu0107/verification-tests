@@ -118,7 +118,7 @@ Feature: oc get related command
   # @author yinzhou@redhat.com
   # @case_id OCP-29479
   @admin
-  Scenario: Get clusterroles with '-o wide' 
+  Scenario: Get clusterroles with '-o wide'
     Given I switch to cluster admin pseudo user
     When I run the :get admin command with:
       | resource | clusterrolebinding.rbac |

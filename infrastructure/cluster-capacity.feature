@@ -240,7 +240,7 @@ Feature: cluster-capacity related features
     And a pod becomes ready with labels:
       | run=cluster-capacity |
     Then evaluation of `pod.name` is stored in the :capacity_pod clipboard
-    Given I wait until replicationController "cluster-capacity" is ready       
+    Given I wait until replicationController "cluster-capacity" is ready
     And I wait until number of replicas match "2" for replicationController "cluster-capacity"
     When I run the :logs client command with:
       | resource_name | pod/<%= cb.capacity_pod %> |

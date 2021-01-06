@@ -704,7 +704,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author yuwan@redhat.com
   # @case_id OCP-13491
-  Scenario: Check the elements on Primary Contact page - UI	
+  Scenario: Check the elements on Primary Contact page - UI
     Given I open accountant console in a browser
     When I perform the :click_edit_contact web action with:
       | contact_cap | Primary |
@@ -751,7 +751,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author yuwan@redhat.com
   # @case_id OCP-20795
-  Scenario: Check the elements on Billing Contact page - UI	
+  Scenario: Check the elements on Billing Contact page - UI
     Given I open accountant console in a browser
     When I perform the :click_edit_contact web action with:
       | contact_cap | Billing |

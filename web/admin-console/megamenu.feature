@@ -67,7 +67,7 @@ Feature: mega menu on console
 
     # make sure CSV is removed
     Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
-    
+
     # wait until operator is installed successfully, that is CSV.status.phase == Succeeded
     Given admin wait for the "<%= cb.current_csv %>" clusterserviceversions to become ready in the "openshift-operators" project up to 240 seconds
 

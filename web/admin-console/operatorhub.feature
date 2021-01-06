@@ -4,7 +4,7 @@ Feature: operatorhub feature related
   # @case_id OCP-24340
   @admin
   @destructive
-  Scenario: Add "custom form" vs "YAML editor" on "Create Custom Resource" page	
+  Scenario: Add "custom form" vs "YAML editor" on "Create Custom Resource" page
     Given the master version >= "4.3"
     Given I have a project
     Given evaluation of `project.name` is stored in the :userproject_name clipboard
@@ -571,7 +571,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/action-text"]` is stored in the :actiontext clipboard
     Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/remote-workflow"]` is stored in the :remoteworkflow clipboard
-    
+
     When I open admin console in a browser
     Then the step should succeed
     When I run the :goto_operator_hub_page web action
@@ -837,7 +837,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-26917
   @admin
-  Scenario: Custom Resource List view updates	
+  Scenario: Custom Resource List view updates
     Given the master version >= "4.4"
     Given I have a project
     Given the first user is cluster-admin
@@ -912,8 +912,8 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
-    Given admin checks that the "kiali" kiali exists in the "<%= project.name %>" project  
-   
+    Given admin checks that the "kiali" kiali exists in the "<%= project.name %>" project
+
     #check phase status
     When I run the :get admin command with:
       | resource      | etcdcluster         |
@@ -931,7 +931,7 @@ Feature: operatorhub feature related
     When I perform the :check_phase_status web action with:
       | status | <%= cb.etcd_phase %> |
     Then the step should succeed
-    
+
     #check state status
     When I run the :get admin command with:
       | resource      | pgcluster           |
@@ -949,7 +949,7 @@ Feature: operatorhub feature related
     When I perform the :check_state_status web action with:
       | status | <%= cb.postgresql_state %> |
     Then the step should succeed
-    
+
     # check condition status
     When I run the :get admin command with:
       | resource      | kiali               |
@@ -967,7 +967,7 @@ Feature: operatorhub feature related
     When I perform the :check_condition_status web action with:
       | status | <%= cb.kiali_condition %> |
     Then the step should succeed
-    
+
     #check all instance page
     When I perform the :goto_operator_all_instance_page web action with:
       | project_name | <%= project.name %> |
@@ -994,7 +994,7 @@ Feature: operatorhub feature related
       | f | mock-k8s-operator-csv.yaml |
       | f | mock-k8s-cr.yaml           |
       | n | <%= project.name %>        |
-    Then the step should succeed    
+    Then the step should succeed
     Given the first user is cluster-admin
     And I open admin console in a browser
     When I perform the :goto_operand_list_page web action with:
@@ -1096,7 +1096,7 @@ Feature: operatorhub feature related
     When I perform the :check_view_error_button web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-  
+
   # @author yapei@redhat.com
   # @case_id OCP-33748
   @admin
@@ -1158,7 +1158,7 @@ Feature: operatorhub feature related
     And the output should match:
       | cpu.*300m               |
       | ephemeral-storage.*30Mi |
-      | memory.*30Mi            |  
+      | memory.*30Mi            |
     """
     # then check on console
     Given I wait up to 5 seconds for the steps to pass:
@@ -1471,7 +1471,7 @@ Feature: operatorhub feature related
       | etcdoperator.*Succeeded          |
       | strimzi-cluster-operator.*Failed |
     """
-  
+
     # Suceeded/Failed csv are shown on intalled operators list page
     When I perform the :goto_installed_operators_page web action with:
       | project_name | <%= project.name %> |

@@ -3,7 +3,7 @@ Feature: deployment/dc related features via web
   # @author hasha@redhat.com
   # @case_id OCP-19558
   Scenario: Check deployment page
-    Given the master version >= "3.11"		
+    Given the master version >= "3.11"
     Given I have a project
     Given I obtain test data file "storage/nfs/claim-rwo-ui.json"
     When I run the :create client command with:

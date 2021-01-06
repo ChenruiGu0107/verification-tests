@@ -82,7 +82,7 @@ Feature: CRD related
 
     # check Critical receiver message on config page
     When I perform the :choose_item_from_dropdown_menu web action with:
-      | dropdown_menu_item | PagerDuty | 
+      | dropdown_menu_item | PagerDuty |
     Then the step should succeed
     # check message disappear
     And I perform the :check_alert_message web action with:
@@ -92,7 +92,7 @@ Feature: CRD related
 
     # submit Critical receiver config
     When I perform the :set_pagerduty_key web action with:
-      | input_value | test | 
+      | input_value | test |
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
@@ -111,7 +111,7 @@ Feature: CRD related
 
     # check Default receiver message on config page
     When I perform the :choose_item_from_dropdown_menu web action with:
-      | dropdown_menu_item | PagerDuty | 
+      | dropdown_menu_item | PagerDuty |
     Then the step should succeed
     # check message exist
     And I perform the :check_alert_message web action with:
@@ -121,7 +121,7 @@ Feature: CRD related
 
     # submit Default receiver config
     When I perform the :set_pagerduty_key web action with:
-      | input_value | test | 
+      | input_value | test |
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
@@ -140,10 +140,10 @@ Feature: CRD related
       | title       | Watchdog                                                  |
       | description | confirm that your alerting stack is functioning correctly |
     Then the step should succeed
-    
+
     # check Watchdog receiver messsage on config page
     When I perform the :choose_item_from_dropdown_menu web action with:
-      | dropdown_menu_item | PagerDuty | 
+      | dropdown_menu_item | PagerDuty |
     Then the step should succeed
     # check message disappear
     And I perform the :check_alert_message web action with:

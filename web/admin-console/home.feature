@@ -178,12 +178,12 @@ Feature: Home related pages via admin console
     # check Cluster ID
     When I perform the :check_cluster_id_in_details_card web action with:
       | cluster_id | <%= cluster_version("version").cluster_id %> |
-    Then the step should succeed  
+    Then the step should succeed
 
     # check Provider
     When I perform the :check_cluster_provider_in_details_card web action with:
       | provider | <%= infrastructure("cluster").platform %> |
-    Then the step should succeed  
+    Then the step should succeed
 
     # check OpenShift Version
     When I perform the :check_cluster_version_in_details_card web action with:
@@ -193,7 +193,7 @@ Feature: Home related pages via admin console
     # check Update channel
     When I perform the :check_update_channel_in_details_card web action with:
       | update_channel | <%= cluster_version("version").channel %> |
-    Then the step should succeed 
+    Then the step should succeed
 
     # browse to view settings
     When I run the :view_all_settings web action

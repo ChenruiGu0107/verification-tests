@@ -575,7 +575,7 @@ Feature: Cluster Autoscaler Tests
       | ["spec"]["scaleTargetRef"]["name"] | <machineset_name> |
     Then the step should succeed
     And admin ensures "maotest" machineautoscaler is deleted after scenario
-    
+
     # Create workload
     Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
     When I run the :create admin command with:

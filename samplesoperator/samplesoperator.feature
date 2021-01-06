@@ -220,7 +220,7 @@ Feature: samplesoperator
     """
     Given I get project configmaps
     Then the output should contain:
-      | ruby | 
+      | ruby |
     """
     Then admin waits for the "cluster" config_samples_operator_openshift_io to appear up to 120 seconds
     When I get project configmap named "imagestreamtag-to-image" as JSON
@@ -235,18 +235,18 @@ Feature: samplesoperator
     And I use the "openshift-cluster-samples-operator" project
     Given I get project configmaps
     Then the output should contain:
-      | ruby  | 
-      | httpd | 
+      | ruby  |
+      | httpd |
     Then the output should not contain:
-      | php  | 
-      | perl | 
+      | php  |
+      | perl |
     When I run the :describe admin command with:
       | resource | config.samples.operator.openshift.io |
       | name     | cluster                              |
     Then the step should succeed
     And the output should not contain:
-      | ruby  | 
-      | httpd | 
+      | ruby  |
+      | httpd |
     Given I switch to the first user
     And I have a project
     When I run the :new_app client command with:

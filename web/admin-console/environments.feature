@@ -169,7 +169,7 @@ Feature: environment related
 
   # @author hasha@redhat.com
   # @case_id OCP-20954
-  Scenario: Check environment editor for init container	
+  Scenario: Check environment editor for init container
     Given the master version >= "4.1"
     Given I have a project
     Given I obtain test data file "deployment/initcontainer.yaml"
@@ -422,7 +422,7 @@ Feature: environment related
       | parent_resource_type | Job |
       | parent_resource_name | pi  |
     Then the step should succeed
-    
+
     When I perform the :goto_one_build_environment_page web action with:
       | project_name   | <%= project.name %> |
       | build_name     | ruby-sample-build-1 |

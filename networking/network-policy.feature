@@ -2071,7 +2071,7 @@ Feature: Network policy plugin scenarios
     When I execute on the "black-pod" pod:
       | curl | --connect-timeout | 5 | <%= cb.blue_ip %>:8080      |
     Then the step should fail
-	
+
   # @author anusaxen@redhat.com
   # @case_id OCP-30881
   @admin
@@ -2100,7 +2100,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     And the output should contain 10 times:
       | allow-from-blue |
-    
+
     Given I have a project
     #Creating Policies in loop again
     Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
@@ -2187,8 +2187,8 @@ Feature: Network policy plugin scenarios
       | f | nw_with_ns_and_ps_selector.yaml |
       | n | <%= cb.proj1 %>                 |
     Then the step should succeed
-    
-    #Accessing pod in project1 from pod in project2 
+
+    #Accessing pod in project1 from pod in project2
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
@@ -2213,8 +2213,8 @@ Feature: Network policy plugin scenarios
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should succeed 
-    
+    Then the step should succeed
+
     #Scale up the pod in project1 and project3
     Given I use the "<%= cb.proj1 %>" project
     When I run the :scale client command with:
@@ -2240,7 +2240,7 @@ Feature: Network policy plugin scenarios
     When I execute on the "<%= cb.p3pod3 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
     Then the step should succeed
-      
+
     #Label Project3 to original key val which is team=openshift
     When I run the :label admin command with:
       | resource  | namespace       |

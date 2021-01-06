@@ -187,7 +187,7 @@ Feature: storage (storageclass, pv, pvc) related
   # @author yanpzhan@redhat.com
   # @case_id OCP-21034
   @admin
-  Scenario: storage class creation negative testing	
+  Scenario: storage class creation negative testing
     Given the master version >= "4.1"
     Given I open admin console in a browser
     Given the first user is cluster-admin

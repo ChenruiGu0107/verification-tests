@@ -2,7 +2,7 @@ Feature: KUBE API server related features
   # @author kewang@redhat.com
   # @case_id OCP-24698
   @admin
-  Scenario: Check the http accessible /readyz for kube-apiserver	
+  Scenario: Check the http accessible /readyz for kube-apiserver
     Given I store the schedulable masters in the :nodes clipboard
     When I run the :project admin command with:
       | project_name | openshift-kube-apiserver |
@@ -69,7 +69,7 @@ Feature: KUBE API server related features
   # @case_id OCP-21246
   @admin
   Scenario Outline: Check the exposed prometheus metrics of operators
-    When I run the :serviceaccounts_get_token admin command with: 
+    When I run the :serviceaccounts_get_token admin command with:
       | serviceaccount_name | cluster-monitoring-operator |
       | n                   | openshift-monitoring        |
     Then the step should succeed

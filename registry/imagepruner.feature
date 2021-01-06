@@ -42,9 +42,9 @@ Feature: Testing image pruner
   # @case_id OCP-27576
   @admin
   @destructive
-  Scenario: CronJob is added to automate image prune	
+  Scenario: CronJob is added to automate image prune
     Given I switch to cluster admin pseudo user
-    When I use the "openshift-image-registry" project 
+    When I use the "openshift-image-registry" project
     When I get project image_pruner_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
       | failedJobsHistoryLimit: 3          |
@@ -58,7 +58,7 @@ Feature: Testing image pruner
       | keepTagRevisions: 3                 | keepTagRevisions: 1                 |
       | failedJobsHistoryLimit: 3           | failedJobsHistoryLimit: 1           |
       | ignoreInvalidImageReferences: true  | ignoreInvalidImageReferences: false |
-      | schedule: ""                        | schedule: "* * * * *"               | 
+      | schedule: ""                        | schedule: "* * * * *"               |
       | successfulJobsHistoryLimit: 3       | successfulJobsHistoryLimit: 1       |
     When I run the :apply client command with:
       | f | imagepruners.yaml |

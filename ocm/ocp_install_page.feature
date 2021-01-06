@@ -86,7 +86,7 @@ Feature: Only about install page
       | provider_name  | Amazon Web Services                  |
       | infrastructure | Installer-provisioned infrastructure |
     Then the step should succeed
-  
+
   # @author tzhou@redhat.com
   # @case_id OCP-24069
   Scenario: Check elements on the OCP install page - AWS UPI - UI
@@ -166,7 +166,7 @@ Feature: Only about install page
       | provider_name  | Google Cloud Platform           |
       | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
-  
+
   # @author tzhou@redhat.com
   # @case_id OCP-24072
   Scenario: Check elements on the OCP install page - vSphere - UI
@@ -349,4 +349,4 @@ Feature: Only about install page
     When I run the :go_to_pull_secret_page web action
     Then the step should succeed
     When I run the :check_pull_secret_page web action
-    Then the step should succeed 
+    Then the step should succeed

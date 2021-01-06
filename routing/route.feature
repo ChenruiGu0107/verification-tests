@@ -1212,7 +1212,7 @@ Feature: Testing route
     And evaluation of `pod.name` is stored in the :websrv_pod clipboard
     When I get project configmaps
     Then the output should match "nginx-config"
- 
+
     # Create a a REEN terminated route
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
     Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
@@ -1351,7 +1351,7 @@ Feature: Testing route
     Then the step should succeed
     And the output should match "Secure; SameSite=Lax"
     """
-    
+
     # Add "Strict" annotation to the route to test
     When I run the :annotate client command with:
       | resource     | route                                       |
@@ -1399,7 +1399,7 @@ Feature: Testing route
       | curl | -sS | https://route-edge-<%= project.name %>.<%= cb.subdomain %>/ | -kI |
     Then the step should succeed
     And the output should match "Secure; SameSite=None"
-    """  
+    """
 
     # Add "Strict" annotation to the route to test
     When I run the :annotate client command with:
