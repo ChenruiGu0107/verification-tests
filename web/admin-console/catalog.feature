@@ -11,17 +11,29 @@ Feature: tests on catalog page
       | is_name      | ruby                |
       | label        | testapp=one         |
     Then the step should succeed
-    Given the "ruby-1" build completed
-    And a pod is present with labels:
-      | testapp=one |
+    When I run the :get client command with:
+      | resource | all         |
+      | selector | testapp=one |
+    And the output should match:
+      | service.*ruby-ex          |
+      | deploymentconfig.*ruby-ex |
+      | buildconfig.*ruby-ex      |
+      | imagestream.*ruby-ex      |
+      | route.*ruby-ex            |
 
     When I perform the :create_app_from_deploy_image web action with:
       | project_name   | <%= project.name %>   |
-      | search_content | aosqe/hello-openshift |
       | label          | testdc=two            |
+      | search_content | quay.io/openshifttest/hello-openshift:aosqe |
     Then the step should succeed
-    And a pod is present with labels:
-      | testdc=two |
+    When I run the :get client command with:
+      | resource | all        |
+      | selector | testdc=two |
+    And the output should match:
+      | deploymentconfig.*hello-openshift |
+      | service.*hello-openshift          |
+      | imagestream.*hello-openshift      |
+      | route.*hello-openshift            |
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-21250

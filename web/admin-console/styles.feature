@@ -178,14 +178,20 @@
 
     When I open admin console in a browser
     Then the step should succeed
-    When I perform the :check_alert_style_on_deploy_image_page web action with:
-      | project_name   | <%= project.name %>   |
-      | search_content | aosqe/hello-openshift |
-    Then the step should succeed
-
-    When I perform the :check_alert_style_on_create_app_page web action with:
+    When I perform the :goto_deploy_image_page web action with:
       | project_name | <%= project.name %> |
-      | is_name      | ruby                |
+    Then the step should succeed
+    When I perform the :search_and_deploy_image web action with:
+      | search_content | quay.io/openshifttest/hello-openshift:aosqe |
+    Then the step should succeed
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I get project deploymentconfigs
+    Then the output should contain "hello-openshift"
+    """
+    When I perform the :check_alert_style_on_deploy_image_page web action with:
+      | project_name   | <%= project.name %>                         |
+      | search_content | quay.io/openshifttest/hello-openshift:aosqe |
     Then the step should succeed
 
     When I perform the :check_alert_style_on_dc_env_page web action with:

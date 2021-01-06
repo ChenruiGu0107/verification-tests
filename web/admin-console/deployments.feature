@@ -193,15 +193,14 @@ Feature: deployment/dc related features via web
     # quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e
     # Digest image blocked by bug for https://bugzilla.redhat.com/show_bug.cgi?id=1823616
     When I perform the :search_and_deploy_image web action with:
-      | search_content | aosqe/hello-openshift |
+      | search_content | quay.io/openshifttest/hello-openshift:aosqe |
     Then the step should succeed
     # Check created resources
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | all                 |
       | n        | <%= project.name %> |
-    Then the step should succeed
     And the output should match:
       | deploymentconfig.*hello-openshift       |
       | replicationcontroller/hello-openshift-1 |
@@ -216,12 +215,11 @@ Feature: deployment/dc related features via web
     Then the step should succeed
     When I run the :delete_dc_with_dependency_objects web action
     Then the step should succeed
-    Given I wait up to 120 seconds for the steps to pass:
+    Given I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | all                 |
       | n        | <%= project.name %> |
-    Then the step should succeed
     And the output should not match:
       | deploymentconfig.*python       |
       | replicationcontroller/python-1 |

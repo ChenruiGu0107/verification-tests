@@ -42,7 +42,7 @@ Feature: Node related
     """
 
     When I run the :new_app_as_dc client command with:
-      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I perform the :add_tolerations_to_pod web action with:
       | project_name      | <%= project.name %> |
