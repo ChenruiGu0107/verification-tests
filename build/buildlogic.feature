@@ -324,9 +324,9 @@ Feature: buildlogic.feature
     And I have a skopeo pod in the project
     Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:
-      | app_repo | http://github.com/openshift/ruby-hello-world.git |
-      | strategy | docker                                           |
-      | l        | app=newbuild1                                    |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7~https://github.com/openshift/ruby-hello-world.git |
+      | strategy | docker                                                                                  |                                                                          
+      | l        | app=newbuild1                                                                           |
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
     When I run the :patch client command with:
