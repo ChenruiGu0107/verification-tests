@@ -80,8 +80,8 @@ Feature: Machine features testing
   # @author zhsun@redhat.com
   # @case_id OCP-30257
   @admin
-  Scenario Outline: Cluster-reader should be able to view machine resources	
-    Given cluster role "cluster-reader" is added to the "first" user 
+  Scenario Outline: Cluster-reader should be able to view machine resources
+    Given cluster role "cluster-reader" is added to the "first" user
     Given I switch to the first user
     Then I use the "openshift-machine-api" project
 
@@ -154,7 +154,7 @@ Feature: Machine features testing
     And the step should succeed
     Then the output should contain "Wrote inspect data to inspect.local"
     """
-    
+
   # @author zhsun@redhat.com
   # @case_id OCP-32392
   @admin
@@ -166,7 +166,7 @@ Feature: Machine features testing
     And admin ensures machine number is restored after scenario
     And I pick a random machineset to scale
 
-    # Create a machineset 
+    # Create a machineset
     Given I run the :get admin command with:
       | resource      | machineset              |
       | resource_name | <%= machine_set.name %> |
@@ -206,7 +206,7 @@ Feature: Machine features testing
     And I pick a random machineset to scale
 
     # Either resourceID or [Offer, Publisher, SKU, Version] must be set
-    When I get project machineset named "<%= machine_set.name %>" as YAML 
+    When I get project machineset named "<%= machine_set.name %>" as YAML
     And I save the output to file> machineset-clone-34313.yaml
     And I replace content in "machineset-clone-34313.yaml":
       | <%= machine_set.name %> | win-34313                |
@@ -244,7 +244,7 @@ Feature: Machine features testing
     And I pick a random machineset to scale
 
     # Create a machineset
-    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
     And I save the output to file> machineset-clone-36153.yaml
     And I replace content in "machineset-clone-36153.yaml":
       | <%= machine_set.name %> | machineset-clone-36153 |
@@ -260,9 +260,9 @@ Feature: Machine features testing
 
     # Verify machine could be created successful
     And I wait up to 300 seconds for the steps to pass:
-    """ 
+    """
     Then the expression should be true> machine_set("machineset-clone-36153").desired_replicas(cached: false) == 1
-    """ 
+    """
     Then the machineset should have expected number of running machines
 
   # @author zhsun@redhat.com
@@ -287,7 +287,7 @@ Feature: Machine features testing
       | HTTP_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %>  |
       | HTTPS_PROXY.*<%= cb.proxy["spec"]["httpProxy"] %> |
       | NO_PROXY.*<%= cb.proxy["spec"]["noProxy"] %>      |
-  
+
   # @author zhsun@redhat.com
   # @case_id OCP-37689
   @admin
@@ -298,7 +298,7 @@ Feature: Machine features testing
     And I pick a random machineset to scale
 
     # Create a machineset
-    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
     And I save the output to file> machineset-clone-37689.yaml
     And I replace content in "machineset-clone-37689.yaml":
       | <%= machine_set.name %> | machineset-clone-37689 |
@@ -320,11 +320,11 @@ Feature: Machine features testing
     """
 
     Examples:
-      | value                                                                                                                                                                     | 
-      | {"kmsKey":{"keyRing":"openshiftqe-invalid","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
-      | {"kmsKey":{"keyRing":"openshiftqe","location":"global-invalid","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
-      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe-invalid"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} | 
-      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com-invalid"} | 
+      | value                                                                                                                                                                     |
+      | {"kmsKey":{"keyRing":"openshiftqe-invalid","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} |
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global-invalid","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} |
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe-invalid"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com"} |
+      | {"kmsKey":{"keyRing":"openshiftqe","location":"global","name":"openshiftqe"},"kmsKeyServiceAccount":"aos-qe-serviceaccount@openshift-qe.iam.gserviceaccount.com-invalid"} |
 
   # @author zhsun@redhat.com
   # @case_id OCP-37497
@@ -338,7 +338,7 @@ Feature: Machine features testing
     And I pick a random machineset to scale
 
     # Create a machineset
-    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
     And I save the output to file> machineset-clone-37497.yaml
     And I replace content in "machineset-clone-37497.yaml":
       | <%= machine_set.name %> | machineset-clone-37497 |
@@ -354,7 +354,7 @@ Feature: Machine features testing
 
     # Verify machine could be created successful
     And I wait up to 300 seconds for the steps to pass:
-    """ 
+    """
     Then the expression should be true> machine_set("machineset-clone-37497").desired_replicas(cached: false) == 1
-    """ 
+    """
     Then the machineset should have expected number of running machines

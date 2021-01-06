@@ -156,12 +156,12 @@ Feature: Testing ingress to route object
     And I have a project
     And I store default router subdomain in the :subdomain clipboard
 
-    # Create secret certificate for ingress edge termination in the project 
+    # Create secret certificate for ingress edge termination in the project
     Given I obtain test data file "routing/ingress/ingress-secret.yaml"
     When I run the :create client command with:
       | f | ingress-secret.yaml |
     Then the step should succeed
-   
+
     # Create pods and backend service
     Given I obtain test data file "routing/web-server-rc.yaml"
     When I run the :create client command with:
@@ -185,7 +185,7 @@ Feature: Testing ingress to route object
     And the output should contain "Hello-OpenShift"
     """
 
-    
+
   # @author aiyengar@redhat.com
   # @case_id OCP-33962
   Scenario: Setting "route.openshift.io/termination" annotation to "Reencrypt" in ingress resource deploys "reen" terminated route object
@@ -200,7 +200,7 @@ Feature: Testing ingress to route object
     And the step should succeed
     And I wait for the "service-secret" secret to appear up to 30 seconds
 
-    # Create secret certificate for ingress reencypt termination in the project 
+    # Create secret certificate for ingress reencypt termination in the project
     Given I obtain test data file "routing/ingress/ingress-secret.yaml"
     When I run the :create client command with:
       | f | ingress-secret.yaml |
@@ -241,9 +241,9 @@ Feature: Testing ingress to route object
   Scenario: Setting values other than "edge/passthrough/reencrypt" for "route.openshift.io/termination" annotation are ignored by ingress object
     Given the master version >= "4.6"
     And I have a project
-    And I store default router subdomain in the :subdomain clipboard 
+    And I store default router subdomain in the :subdomain clipboard
 
-    # Create secret certificate for ingress edge termination in the project 
+    # Create secret certificate for ingress edge termination in the project
     Given I obtain test data file "routing/ingress/ingress-secret.yaml"
     When I run the :create client command with:
       | f | ingress-secret.yaml |

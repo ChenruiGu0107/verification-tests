@@ -440,8 +440,8 @@ Feature: oc patch/apply related scenarios
     Then I replace lines in "myapp.yaml":
       | version: "4.5" | version: "4.5.1" |
     When I run the :apply client command with:
-      | f | myapp.yaml |      
-    Then the step should succeed 
+      | f | myapp.yaml |
+    Then the step should succeed
     When I run the :apply_view_last_applied client command with:
       | _tool     | <tool>           |
       | resource  | deployment/myapp |
@@ -449,8 +449,8 @@ Feature: oc patch/apply related scenarios
     Then I replace lines in "myapp.yaml":
       | version: "4.5.1" | version: "4.5.2" |
     When I run the :apply_set_last_applied client command with:
-      | f | myapp.yaml |      
-    Then the step should succeed 
+      | f | myapp.yaml |
+    Then the step should succeed
 
     Examples:
       | tool    |

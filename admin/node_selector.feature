@@ -4,7 +4,7 @@ Feature: NodeSelector related tests
   # @case_id OCP-12793
   @admin
   @destructive
-  Scenario: ClusterDefaultNodeSelector will be ignored if namespace nodeSelector exist		
+  Scenario: ClusterDefaultNodeSelector will be ignored if namespace nodeSelector exist
     Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
@@ -57,7 +57,7 @@ Feature: NodeSelector related tests
   # @case_id OCP-12792
   @admin
   @destructive
-  Scenario: NodeSelector in pod should merge with clusterDefaultNodeSelector		
+  Scenario: NodeSelector in pod should merge with clusterDefaultNodeSelector
     Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
@@ -114,7 +114,7 @@ Feature: NodeSelector related tests
   # @case_id OCP-12791
   @admin
   @destructive
-  Scenario: NodeSelector in pod should merge with namespace nodeSelector			
+  Scenario: NodeSelector in pod should merge with namespace nodeSelector
     Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
@@ -170,7 +170,7 @@ Feature: NodeSelector related tests
   # @case_id OCP-12790
   @admin
   @destructive
-  Scenario: Pod create should fail when nodeSelector conflicts with whitelist				
+  Scenario: Pod create should fail when nodeSelector conflicts with whitelist
     Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
@@ -372,7 +372,7 @@ Feature: NodeSelector related tests
       | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True" |
     And I wait up to 1200 seconds for the steps to pass:
       | Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False" |
-      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"                    | 
+      | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Degraded')['status'] == "False"                    |
       | And the expression should be true> cluster_operator("kube-apiserver").condition(type: 'Available')['status'] == "True"                    |
     """
     And I wait up to 120 seconds for the steps to pass:

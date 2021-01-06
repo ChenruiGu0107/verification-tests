@@ -3,7 +3,7 @@ Feature: console-operator related
   # @author hasha@redhat.com
   # @case_id OCP-22343
   @admin
-  Scenario: console operator and console deployment have resource limits	
+  Scenario: console operator and console deployment have resource limits
     Given the master version >= "4.1"
     Given the first user is cluster-admin
     Given I use the "openshift-console" project

@@ -101,7 +101,7 @@ Feature: Testing HTTP Headers related scenarios
       | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
-    # Deploy route     
+    # Deploy route
     Given I obtain test data file "routing/unsecure/route_unsecure.json"
     When I run oc create over "route_unsecure.json" replacing paths:
       | ["spec"]["host"] | <%= cb.proj_name %>.34163.example.com |
@@ -169,7 +169,7 @@ Feature: Testing HTTP Headers related scenarios
       | name=web-server-rc |
     Then the expression should be true> service('service-unsecure').exists?
 
-    # Deploy route     
+    # Deploy route
     Given I obtain test data file "routing/unsecure/route_unsecure.json"
     When I run oc create over "route_unsecure.json" replacing paths:
       | ["spec"]["host"] | <%= cb.proj_name %>.34191.example.com |
@@ -417,7 +417,7 @@ Feature: Testing HTTP Headers related scenarios
     Given I obtain test data file "routing/operator/ingressctrl-httpheadercookies.yaml"
     And I run oc create over "ingressctrl-httpheadercookies.yaml" replacing paths:
       | ["spec"]["domain"]                             | <%= cb.subdomain.gsub("apps","test-34188") %>                                     |
-      | ["metadata"]["name"]                           | test-34188                                                                        | 
+      | ["metadata"]["name"]                           | test-34188                                                                        |
       | ["spec"]["httpHeaders"]["uniqueId"]["format"]  | '%{+Q}b'                                                                          |
       | ["spec"]["logging"]["access"]["httpLogFormat"] | '%ID %ci:%cp [%tr] %ft %s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %hr %hs %{+Q}r' |
     Then the step should succeed

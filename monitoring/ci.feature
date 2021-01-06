@@ -54,7 +54,7 @@ Feature: Install and configuration related scenarios
     And I use the "openshift-monitoring" project
     Given a pod becomes ready with labels:
       | statefulset.kubernetes.io/pod-name=prometheus-k8s-0 |
-    
+
     # check container_fs_usage
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
@@ -197,7 +197,7 @@ Feature: Install and configuration related scenarios
       | resource | #{cb.crd_s} |
     Then the output should not contain "<empty>"
     """
-  
+
   # @author hongyli@redhat.com
   # @case_id OCP-30088
   Scenario: User can not deploy ThanosRuler CRs in user namespaces
@@ -258,7 +258,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.5"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
- 
+
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -287,7 +287,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "alertname":"DrillAlert" |
-    """ 
+    """
     # get alerts pods
     When I run the :get client command with:
       | resource | pod                  |
@@ -308,7 +308,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "alertname":"DrillAlert" |
-    """ 
+    """
 
   # @author hongyli@redhat.com
   # @case_id OCP-37303
@@ -318,7 +318,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.7"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
- 
+
     #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
@@ -347,7 +347,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "alertname":"DrillAlert" |
-    """ 
+    """
     # get alerts pods
     When I run the :get client command with:
       | resource | pod                  |
@@ -368,7 +368,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "alertname":"DrillAlert" |
-    """ 
+    """
 
 
   # @author hongyli@redhat.com
@@ -423,7 +423,7 @@ Feature: Install and configuration related scenarios
     Then the output should contain:
       | ignoreNamespaceSelectors: true |
     """
-  
+
   # @author hongyli@redhat.com
   # @case_id OCP-21576
   @admin
@@ -538,7 +538,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "__name__":"alertmanager_alerts" |
-   
+
     #check alerts page
     When I perform the HTTP request:
     """
@@ -618,7 +618,7 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('alertmanager-main').spec.host` is stored in the :alertmanager_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-     
+
     #Check thanos querier from svc to wait for some time
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -634,7 +634,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-    """ 
+    """
     #check alertmanager
     When I perform the HTTP request:
     """
@@ -647,7 +647,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-  
+
     #check thanos rule
     When I perform the HTTP request:
     """
@@ -674,7 +674,7 @@ Feature: Install and configuration related scenarios
       | Watchdog                |
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-      
+
   # @author hongyli@redhat.com
   # @case_id OCP-37307
   @admin
@@ -728,7 +728,7 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('alertmanager-main').spec.host` is stored in the :alertmanager_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-     
+
     #Check thanos querier from svc to wait for some time
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -744,7 +744,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-    """ 
+    """
     #check alertmanager
     When I perform the HTTP request:
     """
@@ -757,7 +757,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-  
+
     #check thanos rule
     When I perform the HTTP request:
     """
@@ -784,7 +784,7 @@ Feature: Install and configuration related scenarios
       | Watchdog                |
       | <%= cb.project_name1 %> |
       | <%= cb.project_name2 %> |
-      
+
   # @author hongyli@redhat.com
   # @case_id OCP-28961
   @admin
@@ -888,7 +888,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | thanos-rule.rules |
     """
-    
+
     #Create one project and prometheus rules under it
     When I run the :new_project client command with:
       | project_name | ocp-28961-proj |
@@ -917,7 +917,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | KubePodNotReady |
-    """ 
+    """
     #alerts can be found in thanos-ruler page
     When I wait up to 120 seconds for the steps to pass:
     """
@@ -934,14 +934,14 @@ Feature: Install and configuration related scenarios
       | KubePodNotReady |
       | Watchdog        |
       | TargetDown      |
-    """ 
+    """
     #check rules could be found on thanos-ruler UI with specific project
     When I perform the HTTP request:
       """
       :url: https://<%= cb.thanos_ruler_route %>/rules
       :method: get
       :headers:
-         :Authorization: Bearer <%= cb.sa_token %> 
+         :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should contain:
@@ -1051,7 +1051,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | thanos-rule.rules |
     """
-    
+
     #Create one project and prometheus rules under it
     When I run the :new_project client command with:
       | project_name | ocp-28961-proj |
@@ -1080,7 +1080,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | KubePodNotReady |
-    """ 
+    """
     #alerts can be found in thanos-ruler page
     When I wait up to 120 seconds for the steps to pass:
     """
@@ -1097,14 +1097,14 @@ Feature: Install and configuration related scenarios
       | KubePodNotReady |
       | Watchdog        |
       | TargetDown      |
-    """ 
+    """
     #check rules could be found on thanos-ruler UI with specific project
     When I perform the HTTP request:
       """
       :url: https://<%= cb.thanos_ruler_route %>/rules
       :method: get
       :headers:
-         :Authorization: Bearer <%= cb.sa_token %> 
+         :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should contain:
@@ -1163,7 +1163,7 @@ Feature: Install and configuration related scenarios
       | prometheus |
     And the output should not contain:
       | alertmanager |
-    
+
     When I use the "openshift-monitoring" project
     And evaluation of `route('thanos-querier').spec.host` is stored in the :thanos_querier_route clipboard
     # get sa/prometheus-k8s token
@@ -1184,7 +1184,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | prometheus-example-app |
       | ocp-25925-proj         |
-    """ 
+    """
 
     When I run the :delete client command with:
       | object_type       | configmap                 |
@@ -1250,7 +1250,7 @@ Feature: Install and configuration related scenarios
       | prometheus |
     And the output should not contain:
       | alertmanager |
-    
+
     When I use the "openshift-monitoring" project
     And evaluation of `route('thanos-querier').spec.host` is stored in the :thanos_querier_route clipboard
     # get sa/prometheus-k8s token
@@ -1271,7 +1271,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | prometheus-example-app |
       | ocp-25925-proj         |
-    """ 
+    """
 
     When I run the :delete client command with:
       | object_type       | configmap                 |
@@ -1304,12 +1304,12 @@ Feature: Install and configuration related scenarios
       :url: https://<%= cb.grafana_route %>/avatar/%0a
       :method: get
       :headers:
-         :Authorization: Bearer <%= cb.sa_token %> 
+         :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should fail
     And the output should contain:
       | Avatar not found |
-  
+
   # @author hongyli@redhat.com
   # @case_id OCP-31989
   @admin
@@ -1486,7 +1486,7 @@ Feature: Install and configuration related scenarios
       | prometheus-user-workload-grpc-tls |
       | thanos-ruler-grpc-tls             |
     """
-  
+
   # @author hongyli@redhat.com
   # @case_id OCP-33446
   @admin
@@ -1590,7 +1590,7 @@ Feature: Install and configuration related scenarios
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-    
+
     Given I use the "openshift-monitoring" project
     And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
 
@@ -1605,7 +1605,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | ThanosQueryRangeLatencyHigh |
-    
+
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
       | f         | config_map_enableUserWorkload.yaml |
@@ -1641,7 +1641,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | requests_total |
     """
-    
+
   # @author hongyli@redhat.com
   # @case_id OCP-29837
   @admin
@@ -1680,7 +1680,7 @@ Feature: Install and configuration related scenarios
       | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
-    
+
     And I obtain test data file "monitoring/pod_servicemonitor_rule-ocp-29837_new.yaml"
     Given I replace lines in "pod_servicemonitor_rule-ocp-29837_new.yaml":
       | replaceme-proj | <%= cb.proj_name %> |
@@ -1707,7 +1707,7 @@ Feature: Install and configuration related scenarios
     Then the output should contain:
       | example        |
       | new-podmonitor |
-  
+
     When I run the :get client command with:
       | resource      | PrometheusRule      |
       | resource_name | drill.rules         |
@@ -1895,7 +1895,7 @@ Feature: Install and configuration related scenarios
       | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | watchdog.rules |
-    
+
     When I run the :delete client command with:
       | object_type       | PrometheusRule      |
       | object_name_or_id | watchdog.rules      |
@@ -1943,7 +1943,7 @@ Feature: Install and configuration related scenarios
       | n        | <%= cb.proj_name %> |
     Then the output should contain:
       | story-rules |
-    
+
     When I run the :delete client command with:
       | object_type       | PrometheusRule      |
       | object_name_or_id | story-rules         |
@@ -2008,7 +2008,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.3"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-   
+
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -2053,7 +2053,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | CCOTargetNamespaceMissing |
     """
-    
+
     # query Watchdog alerts
     And I wait up to 240 seconds for the steps to pass:
     """
@@ -2084,7 +2084,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | <%= cb.proj_name %> |
-    """ 
+    """
 
   # @author hongyli@redhat.com
   # @case_id OCP-26063
@@ -2246,7 +2246,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.3"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-   
+
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -2262,7 +2262,7 @@ Feature: Install and configuration related scenarios
       | resource | ns |
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)openshift(.*)/]}.compact!` is stored in the :openshift_namespaces clipboard
-    
+
     When I repeat the following steps for each :deny_namespace in cb.deny_namespaces:
     """
     When I run the :get client command with:
@@ -2319,7 +2319,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.7"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-   
+
     #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
@@ -2335,7 +2335,7 @@ Feature: Install and configuration related scenarios
       | resource | ns |
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)openshift(.*)/]}.compact!` is stored in the :openshift_namespaces clipboard
-    
+
     When I repeat the following steps for each :deny_namespace in cb.deny_namespaces:
     """
     When I run the :get client command with:
@@ -2476,7 +2476,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | alertmanager   |
       | prometheus-k8s |
-    """  
+    """
 
     And I wait up to 240 seconds for the steps to pass:
     """
@@ -2499,7 +2499,7 @@ Feature: Install and configuration related scenarios
       | monitorpvc |
       | 2Gi        |
     """
-    
+
     # get sa/prometheus-k8s token
     When I run the :serviceaccounts_get_token admin command with:
       | serviceaccount_name | prometheus-k8s       |
@@ -2570,20 +2570,20 @@ Feature: Install and configuration related scenarios
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)cluster-monitoring-operator(.*)/]}.compact!` is stored in the :cmo_pods_a clipboard
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)node-exporter(.*)/]}.compact!` is stored in the :ne_pods_a clipboard
     And evaluation of `cb.monitoring_pods_a-cb.cmo_pods_a-cb.ne_pods_a` is stored in the :other_pods_a clipboard
- 
+
     And I wait up to 120 seconds for the steps to pass:
     """
     And the expression should be true> pod('prometheus-k8s-0').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
     And the expression should be true> pod('alertmanager-main-0').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
     And the expression should be true> pod('prometheus-k8s-0').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
     And the expression should be true> pod('alertmanager-main-0').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
-    """ 
+    """
     When I repeat the following steps for each :pod_a in cb.other_pods_a:
     """
     Given the pod named "#{cb.pod_a}" status becomes :running within 240 seconds
     And the expression should be true> pod('#{cb.pod_a}').tolerations(cached: false).to_s.include?"node-role.kubernetes.io/master"
     And the expression should be true> pod('#{cb.pod_a}').nodeselector(cached: false).to_s.include?'{"monitoring"=>"deploy"}'
-    """  
+    """
 
   # @author hongyli@redhat.com
   # @case_id OCP-35518
@@ -2650,7 +2650,7 @@ Feature: Install and configuration related scenarios
     Then the output should contain:
       | prometheus-operator |
       | Running             |
- 
+
     And I obtain test data file "monitoring/operator_prometheus_example.yaml"
     Given I replace lines in "operator_prometheus_example.yaml":
       | replaceme-proj | <%= cb.proj_name %> |
@@ -2712,7 +2712,7 @@ Feature: Install and configuration related scenarios
       | replicas | 0                         |
     Then the step should succeed
     And I wait until number of replicas match "0" for deployment "cluster-version-operator"
-    
+
     Given I use the "openshift-monitoring" project
     When I run the :scale client command with:
       | resource | deploy                      |
@@ -2763,7 +2763,7 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('alertmanager-main').spec.host` is stored in the :alert_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-    
+
     #check default page is graph and displays correctly
     When I perform the HTTP request:
     """
@@ -2812,7 +2812,7 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('grafana').spec.host` is stored in the :grafana_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-    
+
     #check default page is graph and displays correctly
     When I perform the HTTP request:
     """
@@ -2858,7 +2858,7 @@ Feature: Install and configuration related scenarios
 
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    
+
     And admin ensures "nfs-sc" storageclass is deleted after scenario
     And I register clean-up steps:
     """
@@ -2893,7 +2893,7 @@ Feature: Install and configuration related scenarios
       | scc       | nfs-provisioner                                           |
       | user_name | system:serviceaccount:<%= cb.proj_name %>:nfs-provisioner |
     Then the step should succeed
-  
+
     #Copy from https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/rbac.yaml
     And I obtain test data file "monitoring/nfs_rbac.yaml"
     And I replace lines in "nfs_rbac.yaml":
@@ -2921,7 +2921,7 @@ Feature: Install and configuration related scenarios
       | f         | nfs_sc.yaml |
       | overwrite | true        |
     Then the step should succeed
-    
+
     When I run the :get client command with:
       | resource | sc |
     Then the step should succeed
@@ -2944,7 +2944,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | alertmanager   |
       | prometheus-k8s |
-    """    
+    """
     Given I use the "openshift-monitoring" project
     Given I wait for the "prometheus-k8s-0" pod to appear up to 120 seconds
     And the pod named "prometheus-k8s-0" status becomes :running
@@ -2971,7 +2971,7 @@ Feature: Install and configuration related scenarios
     Given the master version >= "4.7"
     And the first user is cluster-admin
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
- 
+
     #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:

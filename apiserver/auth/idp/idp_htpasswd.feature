@@ -85,7 +85,7 @@ Feature: idp feature
   # @case_id OCP-23514
   @admin
   @destructive
-  Scenario: Config provision strategy as "add"(4.x)	
+  Scenario: Config provision strategy as "add"(4.x)
     Given the "cluster" oauth CRD is restored after scenario
     Given a "htpasswd" file is created with the following lines:
     """
@@ -131,7 +131,7 @@ Feature: idp feature
     When I run the :get admin command with:
       | resource | user/ocp23514_user |
     Then the step should succeed
-   
+
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"new-htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
     Given I wait for the steps to pass:
@@ -174,10 +174,10 @@ Feature: idp feature
   # @case_id OCP-23515
   @admin
   @destructive
-  Scenario: Config provision strategy as "claim"(4.x)	
+  Scenario: Config provision strategy as "claim"(4.x)
     Given the "cluster" oauth CRD is restored after scenario
 
-    # htpasswd file creation	    
+    # htpasswd file creation
     Given a "htpasswd" file is created with the following lines:
     """
     ocp23515_user:$2y$05$Y.cO61j/5B6tnSmOZMcKXu7QrXbUJBlEGYT6sqD.5z7SFboEbnwsa
@@ -276,7 +276,7 @@ Feature: idp feature
   # @case_id OCP-29916
   @admin
   @destructive
-  Scenario: [BUG: 1814898] User should able to login when ldap query times out when htpasswd IDP credentials are used.	
+  Scenario: [BUG: 1814898] User should able to login when ldap query times out when htpasswd IDP credentials are used.
     Given the "cluster" oauth CRD is restored after scenario
     Given a "htpasswd" file is created with the following lines:
     """
@@ -334,5 +334,5 @@ Feature: idp feature
       | n             | openshift-authentication |
     Then the step should succeed
     And the output should match:
-      | Error.*login.*newton.*LDAP.*Network Error.*0.0.0.0:386.*connection refused | 
-      
+      | Error.*login.*newton.*LDAP.*Network Error.*0.0.0.0:386.*connection refused |
+

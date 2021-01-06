@@ -76,7 +76,7 @@ Feature: Testing openshift-controller-manager-operator
   # @case_id OCP-26828
   @admin
   @destructive
-  Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 	
+  Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 
     Given the master version == "4.1"
     When I switch to cluster admin pseudo user
     And I register clean-up steps:
@@ -91,7 +91,7 @@ Feature: Testing openshift-controller-manager-operator
   # @author wewang@redhat.com
   # @case_id OCP-34642
   @admin
-  Scenario: ocm-o properly handles intermittent issues retrieving deployments from api server 
+  Scenario: ocm-o properly handles intermittent issues retrieving deployments from api server
     Given I switch to cluster admin pseudo user
     When I use the "openshift-controller-manager-operator" project
     And a pod becomes ready with labels:

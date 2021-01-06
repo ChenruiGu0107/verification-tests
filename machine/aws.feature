@@ -12,7 +12,7 @@ Feature: AWS machine specific features testing
     And I pick a random machineset to scale
 
     # Create a machineset
-    Given I get project machineset named "<%= machine_set.name %>" as YAML 
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
     And I save the output to file> machineset-clone-37915.yaml
     And I replace content in "machineset-clone-37915.yaml":
       | <%= machine_set.name %> | machineset-clone-37915 |
@@ -28,9 +28,9 @@ Feature: AWS machine specific features testing
 
     # Verify machine could be created successful
     And I wait up to 300 seconds for the steps to pass:
-    """ 
+    """
     Then the expression should be true> machine_set("machineset-clone-37915").desired_replicas(cached: false) == 1
-    """ 
+    """
     Then the machineset should have expected number of running machines
 
   # @author zhsun@redhat.com
@@ -44,7 +44,7 @@ Feature: AWS machine specific features testing
     And admin ensures machine number is restored after scenario
     And I pick a random machineset to scale
 
-    # Create a machineset 
+    # Create a machineset
     Given I run the :get admin command with:
       | resource      | machineset              |
       | resource_name | <%= machine_set.name %> |
@@ -92,14 +92,14 @@ Feature: AWS machine specific features testing
       | f | machineset-clone-32122.yaml |
     Then the step should succeed
     And admin ensures "machineset-clone-32122" machineset is deleted after scenario
-    
+
     # Add another two block devices
     Given as admin I successfully merge patch resource "machineset/machineset-clone-32122" with:
       | {"spec":{"replicas": 1,"template": {"spec":{"providerSpec":{"value":{"blockDevices": [{"deviceName":"/dev/sdf","ebs":{"encrypted":true,"iops":0,"kmsKey":{"arn":""},"volumeSize":120,"volumeType":"gp2"}},{"deviceName":"/dev/sdg","ebs":{"encrypted":true,"iops":0,"kmsKey":{"arn":""},"volumeSize":120,"volumeType":"gp2"}},{"ebs":{"encrypted":true,"iops":0,"kmsKey":{"arn":""},"volumeSize":120,"volumeType":"gp2"}}]}}}}}} |
     And I wait up to 300 seconds for the steps to pass:
-    """ 
+    """
     Then the expression should be true> machine_set("machineset-clone-32122").desired_replicas(cached: false) == 1
-    """ 
+    """
     Then the machineset should have expected number of running machines
 
     # Check another two devices are attached

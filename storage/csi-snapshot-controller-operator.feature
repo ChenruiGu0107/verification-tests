@@ -3,7 +3,7 @@ Feature: CSI snapshot operator related scenarios
   # @author wduan@redhat.com
   # @case_id OCP-27564
   @admin
-  Scenario: CSI snapshot controller operator is installed by default	
+  Scenario: CSI snapshot controller operator is installed by default
     Given the master version >= "4.4"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-cluster-storage-operator" project

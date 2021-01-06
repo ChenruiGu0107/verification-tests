@@ -107,7 +107,7 @@ Feature: dashboards related cases
     When I perform the :check_resource_pod_name_and_link web action with:
       | pod_name     | hello-openshift-invalid |
       | project_name | <%= project.name %>     |
-    Then the step should succeed    
+    Then the step should succeed
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-26557

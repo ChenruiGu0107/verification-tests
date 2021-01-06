@@ -1,5 +1,5 @@
 Feature: etcd related features
-	
+
   # @author geliu@redhat.com
   # @case_id OCP-24280
   @admin
@@ -38,7 +38,7 @@ Feature: etcd related features
     Given a pod becomes ready with labels:
       | etcd_cluster=example |
     And status becomes :running of 3 pods labeled:
-      | app=etcd | 
+      | app=etcd |
 
   # @author geliu@redhat.com
   # @case_id OCP-19981
@@ -47,7 +47,7 @@ Feature: etcd related features
   Scenario: Resize an etcd cluster
     Given I switch to cluster admin pseudo user
     Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
-    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario 
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario
     And I obtain test data file "admin/subscription.yaml"
     When I run the :create client command with:
       | f | subscription.yaml |
@@ -58,7 +58,7 @@ Feature: etcd related features
     When I use the "default" project
     When I obtain test data file "admin/etcd-cluster.yaml"
     When I run the :create client command with:
-      | f | etcd-cluster.yaml | 
+      | f | etcd-cluster.yaml |
     Given a pod becomes ready with labels:
       | etcd_cluster=example |
     And status becomes :running of 3 pods labeled:
@@ -106,10 +106,10 @@ Feature: etcd related features
   Scenario: upgrade an etcd cluster
     Given I switch to cluster admin pseudo user
     Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
-    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario 
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario
     And I obtain test data file "admin/subscription.yaml"
     When I run the :create client command with:
-      | f | subscription.yaml | 
+      | f | subscription.yaml |
     When I use the "openshift-operators" project
     And status becomes :running of 1 pods labeled:
       | name=etcd-operator-alm-owned |
@@ -129,7 +129,7 @@ Feature: etcd related features
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :describe client command with:	    
+    When I run the :describe client command with:
       | resource | po       |
       | l        | app=etcd |
     Then the output should match:

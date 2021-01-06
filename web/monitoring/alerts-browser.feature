@@ -902,12 +902,12 @@ Feature: alerts browser
     Then the step should succeed
     And the output should contain:
       | TestAlert |
-    """ 
+    """
 
     Given I open admin console in a browser
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
-    
+
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | user |
     Then the step should succeed
@@ -915,7 +915,7 @@ Feature: alerts browser
       | alert_name | TestAlert |
       | status     | Firing    |
     Then the step should succeed
-  
+
     #Go to alert rule page, and come back, filter come back to default status
     When I run the :goto_monitoring_alertrules_page web action
     Then the step should succeed

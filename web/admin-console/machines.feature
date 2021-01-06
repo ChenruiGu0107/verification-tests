@@ -268,7 +268,7 @@ Feature: machineconfig/machineconfig pool related
       | namespace    | openshift-machine-api                                        |
       | overwrite    | true                                                         |
       | keyval       | machine.openshift.io/remediation-strategy=external-baremetal |
-    Then the step should succeed      
+    Then the step should succeed
 
     # Create unhealthyCondition to trigger machine remediation
     When I create the 'Ready' unhealthyCondition

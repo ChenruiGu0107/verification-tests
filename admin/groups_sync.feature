@@ -15,7 +15,7 @@ Feature: Group sync related scenarios
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
     When I run the :oadm_groups_sync admin command with:
       | sync_config | <file_name> |
-      | confirm     |             | 
+      | confirm     |             |
     Then the step should succeed
     And the output should match:
       | <sync_regex> |
@@ -59,7 +59,7 @@ Feature: Group sync related scenarios
     When I run the :cp client command with:
       | source | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/add-user-to-group.ldif |
       | dest   | <%= cb.ldap_pod_name %>:/tmp/add-user-to-group.ldif                                         |
-      | n      | <%= project.name %>                                                                         | 
+      | n      | <%= project.name %>                                                                         |
     Then the step should succeed
     When I run the :rsh client command with:
       | pod    |  <%= cb.ldap_pod_name %>                                                                               |
@@ -122,7 +122,7 @@ Feature: Group sync related scenarios
     When I run the :rsh client command with:
       | pod    |  <%= cb.ldap_pod_name %>                                                                               |
       | _stdin | ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
-      | n      | <%= project.name %>                                                                                    | 
+      | n      | <%= project.name %>                                                                                    |
     Then the step should succeed
     Given a "whitelist_openshift" file is created with the following lines:
       | tc509129group3 |
@@ -245,7 +245,7 @@ Feature: Group sync related scenarios
       | confirm      |                            |
     Then the step should succeed
     When I run the :get client command with:
-      | resource     | groups                     | 
+      | resource     | groups                     |
     Then the step should succeed
     And the output should not contain:
       | tc515433group2                            |

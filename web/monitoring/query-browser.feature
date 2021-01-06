@@ -564,4 +564,3 @@ Feature: query browser
     When I perform the :check_page_contains web action with:
       | content | parse error: unexpected character inside braces: |
     Then the step should succeed
-   

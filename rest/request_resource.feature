@@ -35,7 +35,7 @@ Feature: REST related features
   # @author xiuwang@redhat.com
   # @case_id OCP-18984
   @admin
-  Scenario: Request to view all imagestreams via registry catalog api	
+  Scenario: Request to view all imagestreams via registry catalog api
     Given I have a project
     Given I enable image-registry default route
     Given default image registry route is stored in the :registry_route clipboard

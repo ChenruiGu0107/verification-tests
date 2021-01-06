@@ -12,7 +12,7 @@ Feature: Alerting for machine-api
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"] == "success"
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "<metric_name>"
-    
+
     Examples:
       | metric_name                               |
       | mapi_machine_created_timestamp_seconds    | # @case_id OCP-25615

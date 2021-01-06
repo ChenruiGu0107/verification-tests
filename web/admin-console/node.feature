@@ -136,7 +136,7 @@ Feature: Node related
     Then the step should succeed
     When I run the :check_node_list_column_headers web action
     Then the step should succeed
-    
+
     # check pod has terminal tab page
     When I run the :click_first_item_in_grid_cell_list web action
     Then the step should succeed

@@ -186,7 +186,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | code         | https://github.com/openshift/ruby-hello-world |
-      | image_stream | openshift/ruby:2.6                            | 
+      | image_stream | openshift/ruby:2.6                            |
       | strategy     | source                                        |
       | to           | test                                          |
       | build_arg    | ARG=VALUE                                     |
@@ -350,7 +350,7 @@ Feature: dockerbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-37309
-  Scenario: Dockerfile builds should have permission to change ca dir 
+  Scenario: Dockerfile builds should have permission to change ca dir
     Given I have a project
     Given I obtain test data file "build/OCP-37309/ca-dir-perm.yaml"
     When I run the :create client command with:

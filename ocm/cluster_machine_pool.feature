@@ -1,5 +1,5 @@
 Feature: This is for cluster machine pools testing
-    
+
   # @author xueli@redhat.com
   # @case_id OCP-35970
   Scenario: User can create machine pools to cluster via UI

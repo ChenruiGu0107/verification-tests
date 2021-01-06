@@ -567,7 +567,7 @@ Feature: cluster-logging-operator related cases
   # @case_id OCP-33981
   @admin
   @destructive
-  Scenario: logStore stanza is not required to deploy fluentd standalone	
+  Scenario: logStore stanza is not required to deploy fluentd standalone
     Given I obtain test data file "logging/clusterlogging/clusterlogging-fluentd-no-logStore.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                    |

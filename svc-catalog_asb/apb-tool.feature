@@ -2,7 +2,7 @@ Feature: The apb tool related scenarios
   # @author jfan@redhat.com
   # @case_id OCP-29835
   @admin
-  Scenario: [stage] apb-tools image check 
+  Scenario: [stage] apb-tools image check
     Given I have a project
     Given I store master major version in the :master_version clipboard
     Given I create the serviceaccount "apbtoolsstage"

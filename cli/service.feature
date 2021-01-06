@@ -201,7 +201,7 @@ Feature: service related scenarios
 
   # @author chezhang@redhat.com
   # @case_id OCP-12376
-  Scenario: Negative test for ExternalName Service type		
+  Scenario: Negative test for ExternalName Service type
     Given I have a project
     Given I obtain test data file "services/ExternalSvc-with-IP.yaml"
     When I run the :create client command with:

@@ -27,13 +27,13 @@ Feature: cloud credential operator
     Then the step should succeed
     And the output should contain:
       | <%= cb.cloud_credential_operator_image %> |
-   
+
     # Check cluster operators cloud-credential should be in correct status
     Given the expression should be true> cluster_operator('cloud-credential').condition(type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Available')['status'] == "True"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['status'] == "True"
-    
+
     # Check imagePullPolicy is 'IfNotPresent'
     Given I use the "openshift-cloud-credential-operator" project
     And the expression should be true> pod.container_specs.first.image_pull_policy == "IfNotPresent"
@@ -52,7 +52,7 @@ Feature: cloud credential operator
     #get cluster version
     And evaluation of `cluster_version('version').version` is stored in the :cluster_version clipboard
     #get sa/prometheus-k8s token
-    And I use the "openshift-monitoring" project 
+    And I use the "openshift-monitoring" project
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
     Then I run the :exec admin command with:
       | n                | openshift-monitoring |
@@ -195,7 +195,7 @@ Feature: cloud credential operator
   # @case_id OCP-28074
   @admin
   @destructive
-  Scenario: CCO needs to recreate a new credential automatically 
+  Scenario: CCO needs to recreate a new credential automatically
     Given I switch to cluster admin pseudo user
     And I use the "openshift-cloud-credential-operator" project
     #create a credentialsrequest request
@@ -208,13 +208,13 @@ Feature: cloud credential operator
     """
     Given I run the :get client command with:
       | resource     | secret                             |
-      | resource_name| my-cred-request-secret             | 
+      | resource_name| my-cred-request-secret             |
       | o            | jsonpath={.data.aws_access_key_id} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :aws_access_key_id_pre clipboard
     Given I run the :get client command with:
       | resource     | secret                                 |
-      | resource_name| my-cred-request-secret                 | 
+      | resource_name| my-cred-request-secret                 |
       | o            | jsonpath={.data.aws_secret_access_key} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :aws_secret_access_key_pre clipboard
@@ -228,14 +228,14 @@ Feature: cloud credential operator
     """
     Given I run the :get client command with:
       | resource     | secret                             |
-      | resource_name| my-cred-request-secret             | 
+      | resource_name| my-cred-request-secret             |
       | o            | jsonpath={.data.aws_access_key_id} |
     Then the step should succeed
     And the output should not match:
       |<%= cb.aws_access_key_id_pre %>|
     Given I run the :get client command with:
       | resource     | secret                                 |
-      | resource_name| my-cred-request-secret                 | 
+      | resource_name| my-cred-request-secret                 |
       | o            | jsonpath={.data.aws_secret_access_key} |
     Then the step should succeed
     And the output should not match:
@@ -245,7 +245,7 @@ Feature: cloud credential operator
   # @author lwan@redhat.com
   # @case_id OCP-34465
   @admin
-  Scenario: Metrics is exposed on https 
+  Scenario: Metrics is exposed on https
     Given I switch to cluster admin pseudo user
     Then I use the "openshift-cloud-credential-operator" project
     And evaluation of `service('cco-metrics').ip(user: user)` is stored in the :cco_prom_ip clipboard
@@ -291,17 +291,17 @@ Feature: cloud credential operator
     Then the step should succeed
     And the output should contain:
       | <%= cb.cloud_credential_operator_image %> |
-   
+
     # Check cluster operators cloud-credential should be in correct status
     Given the expression should be true> cluster_operator('cloud-credential').condition(type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Available')['status'] == "True"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['status'] == "True"
-    
+
     # Check imagePullPolicy is 'IfNotPresent'
     Given I use the "openshift-cloud-credential-operator" project
     And the expression should be true> deployment("cloud-credential-operator").container_spec(name: 'cloud-credential-operator').image_pull_policy == "IfNotPresent"
- 
+
   # @author lwan@redhat.com
   # @case_id OCP-35636
   @admin
@@ -328,7 +328,7 @@ Feature: cloud credential operator
     """
     Given I run the :get client command with:
       | resource     | configmap                                  |
-      | resource_name| cloud-credential-operator-leader           | 
+      | resource_name| cloud-credential-operator-leader           |
       | o            | yaml                                       |
     Then the step should succeed
     And evaluation of `@result[:parsed]['metadata']['annotations']['control-plane.alpha.kubernetes.io/leader']` is stored in the :before_updated clipboard
@@ -337,7 +337,7 @@ Feature: cloud credential operator
     """
     Given I run the :get client command with:
       | resource     | configmap                                  |
-      | resource_name| cloud-credential-operator-leader           | 
+      | resource_name| cloud-credential-operator-leader           |
       | o            | yaml                                       |
     Then the step should succeed
     And evaluation of `@result[:parsed]['metadata']['annotations']['control-plane.alpha.kubernetes.io/leader']` is stored in the :after_updated clipboard
@@ -372,7 +372,7 @@ Feature: cloud credential operator
     And evaluation of `secret("installer-cloud-credentials").value_of("aws_secret_access_key")` is stored in the :secret_key clipboard
     And evaluation of `secret("installer-cloud-credentials").value_of("credentials")` is stored in the :credentials clipboard
     Then the expression should be true> "<%= cb.credentials %>" == "[default]\naws_access_key_id = <%= cb.key_id %>\naws_secret_access_key = <%= cb.secret_key %>"
-  
+
   # @author lwan@redhat.com
   # @case_id OCP-35334
   @admin
@@ -383,7 +383,7 @@ Feature: cloud credential operator
     #check cco is in mint mode
     When I run the :get client command with:
       | resource     | secret                            |
-      | resource_name| aws-creds                         | 
+      | resource_name| aws-creds                         |
       | o            | jsonpath={.metadata.annotations}  |
     And the output should contain:
       | "cloudcredential.openshift.io/mode":"mint" |
@@ -400,15 +400,15 @@ Feature: cloud credential operator
     """
     And I wait up to 10 seconds for the steps to pass:
     """
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['status'] == "False" 
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['reason'] == "MissingRootCredential" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['status'] == "False"
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable')['reason'] == "MissingRootCredential"
     """
     Then I run the :create client command with:
       | f | file-aws-creds.yaml |
     Then the step should succeed
     And I wait up to 10 seconds for the steps to pass:
     """
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True"
     """
     #change cco mode to Passthrough
     Given as admin I successfully merge patch resource "cloudcredential/cluster" with:
@@ -420,21 +420,21 @@ Feature: cloud credential operator
     """
     When I run the :get client command with:
       | resource     | secret                           |
-      | resource_name| aws-creds                        | 
+      | resource_name| aws-creds                        |
       | o            | jsonpath={.metadata.annotations} |
     And the output should contain:
       | "cloudcredential.openshift.io/mode":"passthrough" |
     And admin ensures "aws-creds" secret is deleted
     And I wait up to 10 seconds for the steps to pass:
     """
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "False" 
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['reason'] == "MissingRootCredential" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "False"
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['reason'] == "MissingRootCredential"
     """
     Then I run the :create client command with:
       | f | file-aws-creds.yaml |
     Then the step should succeed
     And I wait up to 10 seconds for the steps to pass:
     """
-    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True" 
+    And the expression should be true> cluster_operator('cloud-credential').condition(type: 'Upgradeable',cached: false)['status'] == "True"
     """
 

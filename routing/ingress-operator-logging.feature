@@ -5,7 +5,7 @@ Feature: Test Ingress API logging options
   @admin
   Scenario: Create an ingresscontroller that logs to a sidecar container
     Given the master version >= "4.5"
-    And I have a project 
+    And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
     Given I switch to cluster admin pseudo user
@@ -25,7 +25,7 @@ Feature: Test Ingress API logging options
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
     Then the expression should be true> deployment('router-test-30059').exists?
     When I run the :get admin command with:
-      | resource      | pod                                   |    
+      | resource      | pod                                   |
       | resource_name | <%= cb.router_pod %>                  |
       | n             | openshift-ingress                     |
       | o             | jsonpath='{.spec.containers[1].name}' |
@@ -38,7 +38,7 @@ Feature: Test Ingress API logging options
     Given I obtain test data file "routing/web-server-rc.yaml"
     When I run the :create client command with:
       | f | web-server-rc.yaml |
-    Then the step should succeed     
+    Then the step should succeed
     And a pod becomes ready with labels:
       | name=web-server-rc |
     And evaluation of `pod.ip` is stored in the :websrv_pod_ip clipboard
@@ -68,14 +68,14 @@ Feature: Test Ingress API logging options
     Then the step should succeed
     And the output should match:
       | <%= cb.websrv_pod_ip %>:8080 |
- 
+
 
    # @author aiyengar@redhat.com
    # @case_id OCP-30066
    @admin
    Scenario: Enable log-send-hostname in HAproxy configuration by default
      Given the master version >= "4.5"
-     And I have a project 
+     And I have a project
      And I store default router subdomain in the :subdomain clipboard
      Given I switch to cluster admin pseudo user
      And admin ensures "test-30066" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
@@ -93,7 +93,7 @@ Feature: Test Ingress API logging options
       | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-30066 |
     Then the expression should be true> deployment('router-test-30066').exists?
     And I wait up to 30 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | grep | log-send-hostname | /var/lib/haproxy/conf/haproxy.config | -q |
     Then the step should succeed

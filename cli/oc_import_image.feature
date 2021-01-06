@@ -84,7 +84,7 @@ Feature: oc import-image related feature
 
     When I run the :create_deploymentconfig client command with:
       | image | quay.io/openshifttest/deployment-example@sha256:0631a0c7aee3554391156d991138af4b00e9a724f9c5813f4079930c8fc0d16b |
-      | name  | deployment-example                                                                                               | 
+      | name  | deployment-example                                                                                               |
     Then the step should succeed
     Then the "deployment-example" image stream was created
 

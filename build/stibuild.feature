@@ -73,7 +73,7 @@ Feature: stibuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15970
-  Scenario: Create an application using template with route defined	
+  Scenario: Create an application using template with route defined
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
@@ -197,7 +197,7 @@ Feature: stibuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-23174
-  Scenario: Image source extraction w/ symlink should success when running a build	
+  Scenario: Image source extraction w/ symlink should success when running a build
     Given I have a project
     Given I obtain test data file "build/OCP-23174/symlink-rel-both.yaml"
     When I run the :create client command with:
@@ -288,7 +288,7 @@ Feature: stibuild.feature
   # @author wewang@redhat.com
   # @case_id OCP-23414
   @admin
-  Scenario: Build should succeed with no error logs and delay	
+  Scenario: Build should succeed with no error logs and delay
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/sclorg/nginx-ex/master/openshift/templates/nginx.json |
@@ -380,7 +380,7 @@ Feature: stibuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-18926
-  Scenario: Setting Paused boolean in buildconfig when images are changed	
+  Scenario: Setting Paused boolean in buildconfig when images are changed
     Given I have a project
     Given I obtain test data file "build/OCP-18926/paused-build.json"
     When I run the :new_app client command with:
@@ -437,7 +437,7 @@ Feature: stibuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-30239
-  Scenario: use an image from registry.redhat.io as source during a build	
+  Scenario: use an image from registry.redhat.io as source during a build
   When I have a project
     Given I obtain test data file "build/OCP-30239/bc_imagesource.yaml"
   Then I run the :create client command with:
@@ -462,7 +462,7 @@ Feature: stibuild.feature
     | secret_type | generic        |
     | from_file   | .dockercfgjson=invaildsecret.json |
     | type        | kubernetes.io/dockercfgjson                                                                       |
-  Then the step should succeed 
+  Then the step should succeed
   When I run the :set_build_secret client command with:
     | bc_name     | ruby-hello-world |
     | secret_name | invalid-secret   |
@@ -545,7 +545,7 @@ Feature: stibuild.feature
     When I run the :debug admin command with:
       | resource         | pod/ruby-hello-world-1-build |
       | oc_opts_end      |                              |
-      | exec_command     | cat                          | 
+      | exec_command     | cat                          |
       | exec_command_arg | /var/lib/kubelet/config.json |
       | n                | <%= project.name %>          |
     Then the step should succeed
@@ -587,7 +587,7 @@ Feature: stibuild.feature
   Given I run the :get admin command with:
     | resource      | configmap                          |
     | resource_name | user-ca-bundle                     |
-    | template      | '{{index .data "ca-bundle.crt" }}' | 
+    | template      | '{{index .data "ca-bundle.crt" }}' |
     | namespace     | openshift-config                   |
   And the step should succeed
   And I save the output to file> user_ca
@@ -637,8 +637,8 @@ Feature: stibuild.feature
     When I run the :debug admin command with:
       | resource         | pod/ruby-hello-world-1-build    |
       | oc_opts_end      |                                 |
-      | exec_command     | /usr/bin/openshift-docker-build | 
-      | exec_command_arg | version                         |                                
+      | exec_command     | /usr/bin/openshift-docker-build |
+      | exec_command_arg | version                         |
       | n                | <%= project.name %>             |
     And the output should contain:
       | Buildah version |

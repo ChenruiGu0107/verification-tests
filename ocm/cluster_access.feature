@@ -1,7 +1,7 @@
 Feature: only about cluster access cases
 
   # @author yuwan@redhat.com
-  Scenario Outline: Check the UI layout for configuring IDP-UI	
+  Scenario Outline: Check the UI layout for configuring IDP-UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:

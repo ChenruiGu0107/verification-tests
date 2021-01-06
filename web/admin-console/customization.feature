@@ -468,7 +468,7 @@ Feature: customize console related
   # @author hasha@redhat.com
   # @case_id OCP-24286
   @admin
-  Scenario: Check ConsoleLink extension CRD	
+  Scenario: Check ConsoleLink extension CRD
     Given the master version >= "4.2"
     Given admin ensures "applicationmenu1" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "helpmenu1" console_links_console_openshift_io is deleted after scenario

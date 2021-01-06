@@ -48,7 +48,7 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I perform the :check_osd_usage_in_detail_page web action with:
       | uninstalling ||
-    
+
     # Add a successful step to make sure browser close action will succeed
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
@@ -161,7 +161,7 @@ Feature: Only for case related to cluster detail page
 
   # @author yuwan@redhat.com
   # @case_id OCP-23866
-  Scenario: Add/delete users for the cluster on the UHC portal 
+  Scenario: Add/delete users for the cluster on the UHC portal
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_access_control_tab web action with:
@@ -402,7 +402,7 @@ Feature: Only for case related to cluster detail page
       | filter_item    | Info |
       | result_keyword | Info |
     Then the step should succeed
-    
+
   # @author xueli@redhat.com
   # @case_id OCP-29669
   Scenario: Networking tab only shows for the ready OSD cluster with provider AWS

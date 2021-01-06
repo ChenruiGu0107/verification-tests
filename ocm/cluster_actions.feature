@@ -113,7 +113,7 @@ Feature: only about page related to cluster actions
 
   # @author yuwan@redhat.com
   # @case_id OCP-26640
-  Scenario: Check the layout of the Setting storage and load balancer quota in the cluster creation page   
+  Scenario: Check the layout of the Setting storage and load balancer quota in the cluster creation page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :switch_to_osd_creation_page web action with:
@@ -136,7 +136,7 @@ Feature: only about page related to cluster actions
     Then the step should succeed
     When I run the :check_lb_field_in_creation_page_missing web action
     Then the step should succeed
-    
+
   # @author xueli@redhat.com
   # @case_id OCP-27557
   Scenario: Edit buttons should only be enabled in disconnected cluster dropdown for user with right access
@@ -178,7 +178,7 @@ Feature: only about page related to cluster actions
     Then the step should succeed
     When I run the :check_disabled_actions_on_cluster_detail_page web action
     Then the step should succeed
-    
+
   # @author xueli@redhat.com
   # @case_id OCP-27556
   Scenario: User can update disconnected cluster via UI
@@ -221,7 +221,7 @@ Feature: only about page related to cluster actions
     When I perform the :check_cluster_metrics web action with:
       | total_sockets_value | 9    |
       | total_memory_value  | 10.3 |
-      | total_node_value    | 8    | 
+      | total_node_value    | 8    |
     Then the step should succeed
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
@@ -339,7 +339,7 @@ Feature: only about page related to cluster actions
     Then the step should succeed
     When I run the :click_cancel_button web action
     Then the step should succeed
-  
+
   # @author yuwan@redhat.com
   # @case_id OCP-26641
   Scenario: Scale storage and load balancer quota for the existing cluster on UI
@@ -396,7 +396,7 @@ Feature: only about page related to cluster actions
     When I perform the :check_persistent_storage_on_detail_page web action with:
       | persistent_storage_value | 600 |
     Then the step should succeed
-    
+
   # @author yuwan@redhat.com
   # @case_id OCP-22800
   Scenario: The normal user cannot edit/delete the cluster in the same organization but not owned by himself on the UHC portal
@@ -447,4 +447,3 @@ Feature: only about page related to cluster actions
     When I run the :click_cancel_button web action
     Then the step should succeed
 
-    

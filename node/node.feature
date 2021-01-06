@@ -324,7 +324,7 @@ Feature: Node management
     And the output should contain "quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7"
     """
     And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7'
-  
+
   # @author minmli@redhat.com
   # @case_id OCP-29679
   @admin
@@ -370,7 +370,7 @@ Feature: Node management
       | resource_name | <%= cb.nodes[0].name %> |
       | o             | yaml                    |
     Then the output should contain:
-      | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |         
+      | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |
     """
 
   # @author minmli@redhat.com

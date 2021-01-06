@@ -5,7 +5,7 @@ Feature: job.feature
     Given I have a project
     When I run the :create_cronjob client command with:
       | name             | sj1                                                                                                   |
-      | image            | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d | 
+      | image            | quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d |
       | restart          | Never                                                                                                 |
       | schedule         | * * * * *                                                                                             |
       | oc_opts_end      |                                                                                                       |
