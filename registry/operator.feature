@@ -170,8 +170,8 @@ Feature: Testing image registry operator
     When I run the :describe client command with:
       | resource | config.imageregistry.operator.openshift.io |
       | name     | cluster                                    |
-    Then the output should contain:
-      | Account Name:  <%= cb.short_nm %> |
+    Then the output should match:
+      | Account Name:\\s+<%= cb.short_nm %> |
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"storage":{"azure":{"accountName":"<%= cb.longer_nm %>"}}}} |
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML

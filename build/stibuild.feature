@@ -429,7 +429,7 @@ Feature: stibuild.feature
     Given the master version >= "4.5"
     When I have a project
     Then I run the :new_build client command with:
-      | D    | FROM quay.io/openshifttest/ruby-25-centos7@sha256:51cc031049447a64b04e589507ec1e15dd1149178d5742b07e4ae82328c4d0ff |
+      | D    | FROM quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b | 
       | name | disconnect-build |
     And the step should succeed
     And the "disconnect-build-1" build was created
