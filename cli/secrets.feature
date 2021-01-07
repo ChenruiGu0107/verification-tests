@@ -100,10 +100,10 @@ Feature: secrets related scenarios
 
   # @author xxia@redhat.com
   # @case_id OCP-12036
-  Scenario: User can pull a private image from a docker registry when a pull secret is defined
+  Scenario: User can pull a private image from a registry when a pull secret is defined
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7:build~https://github.com/openshift/ruby-hello-world |
       | name     | test |
     Then the step should succeed
 
@@ -145,7 +145,7 @@ Feature: secrets related scenarios
   Scenario: Deploy will fail with incorrently formed pull secrets
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7:build~https://github.com/openshift/ruby-hello-world |
       | name     | test |
     Then the step should succeed
 
