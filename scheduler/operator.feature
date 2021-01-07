@@ -569,6 +569,7 @@ Feature: Testing Scheduler Operator related scenarios
       | resource      | Scheduler                                                  |
       | resource_name | cluster                                                    |
       | p             |[{"op":"add", "path":"/spec/profile", "value":"NoScoring"}] |
+      | type          | json                                                       |
     Then the step should succeed
     And I wait for the steps to pass:
     """
