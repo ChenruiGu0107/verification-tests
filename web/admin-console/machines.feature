@@ -216,26 +216,14 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :edit_machine_count web action with:
       | resource_count | 2 |
     Then the step should succeed
-    Given I wait up to 50 seconds for the steps to pass:
+    Given I wait up to 10 seconds for the steps to pass:
     """
-    When I perform the :check_table_line_count web action with:
-      | line_count | 2 |
-    Then the step should succeed
+    And the expression should be true> machine_set("example-ui").desired_replicas == 2
     """
 
     When I run the :delete_machineset_from_action web action
     Then the step should succeed
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | machine               |
-      | n        | openshift-machine-api |
-    Then the output should not contain:
-      | example-ui |
-    """
-    When I perform the :check_page_not_match web action with:
-      | content | example-ui |
-    Then the step should succeed
+    And I wait for the resource "machineset" named "example-ui" to disappear within 60 seconds
 
   # @author yapei@redhat.com
   # @case_id OCP-28203

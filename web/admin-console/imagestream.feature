@@ -95,7 +95,7 @@ Feature: imagestream related
     Then the step should succeed
     """
 
-    Given I wait up to 120 seconds for the steps to pass:
+    Given I wait up to 240 seconds for the steps to pass:
     """
     When I perform the :goto_one_imagestream_page web action with:
       | project_name     | <%= project.name %> |
