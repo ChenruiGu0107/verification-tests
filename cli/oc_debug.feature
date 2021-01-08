@@ -150,3 +150,25 @@ Feature: oc debug related scenarios
       | name     | hello-pod-debug |
     Then the output should not contain "Init Containers"
     """
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-38178
+  Scenario: oc debug with or without init container for pod
+    Given I have a project
+    Given I obtain test data file "pods/initContainers/initContainer.yaml"
+    When I run the :create client command with:
+      | f | initContainer.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=hello-pod |
+    When I run the :debug background client command with:
+      | resource  | pod/hello-pod |
+      | c         | wait          |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | hello-pod-debug |
+    Then the output should contain "Init Containers"
+    """
