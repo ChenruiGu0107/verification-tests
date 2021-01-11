@@ -69,7 +69,7 @@ Feature: only about cluster access cases
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-admin |
+      | cluster_name | sdqe-adminosd |
     Then the step should succeed
     When I run the :check_idp_hint_missing web action
     Then the step should succeed
