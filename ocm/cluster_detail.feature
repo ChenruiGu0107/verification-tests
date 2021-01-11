@@ -303,13 +303,13 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-disconnected |
+      | filter_keyword | sdqe-ui-ocp |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-disconnected |
+      | cluster_name   | sdqe-ui-ocp |
     Then the step should succeed
     When I perform the :check_ocp_in_detail_page web action with:
-      | cluster_name   | sdqe-ui-disconnected |
+      | cluster_name   | sdqe-ui-ocp |
     Then the step should succeed
 
   # @author tzhou@redhat.com

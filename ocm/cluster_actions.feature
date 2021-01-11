@@ -179,7 +179,7 @@ Feature: only about page related to cluster actions
     When I run the :check_disabled_actions_on_cluster_detail_page web action
     Then the step should succeed
 
-  # @author xueli@redhat.com
+  # @author tzhou@redhat.com
   # @case_id OCP-27556
   Scenario: User can update disconnected cluster via UI
     Given I open ocm portal as an orgAdmin user

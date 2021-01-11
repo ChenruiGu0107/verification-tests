@@ -46,7 +46,7 @@ Feature: Only about install page
     When I perform the :check_provider_card web action with:
       | provider         | Red Hat Virtualization        |
       | provider_context | Run on Red Hat Virtualization |
-      | provider_href    | rhv/installer-provisioned     |
+      | provider_href    | rhv                           |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
       | provider         | Bare Metal        |
