@@ -3,9 +3,8 @@ Feature: Egress IP related features
   # @author bmeng@redhat.com
   # @case_id OCP-15467
   @admin
+  @destructive
   Scenario: Pods will lose external access if the same egressIP is set to multiple netnamespaces and error logs in sdn
-    Given the cluster is running on OpenStack
-    And the env is using multitenant or networkpolicy network
     Given I select a random node's host
     And evaluation of `node.name` is stored in the :egress_node clipboard
     # add the egress ip to the hostsubnet
@@ -20,8 +19,8 @@ Feature: Egress IP related features
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(2).ip` is stored in the :p1pod2ip clipboard
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
@@ -31,20 +30,14 @@ Feature: Egress IP related features
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(-2).name` is stored in the :p2pod1 clipboard
-    And evaluation of `pod(-1).ip` is stored in the :p2pod2ip clipboard
+    And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
+    And evaluation of `pod(4).ip` is stored in the :p2pod2ip clipboard
 
     # add the egress ip to the project
-    When I run the :patch admin command with:
-      | resource      | netnamespace |
-      | resource_name | <%= cb.project1 %> |
-      | p             | {"egressIPs":["<%= cb.valid_ip %>"]} |
-    Then the step should succeed
-    When I run the :patch admin command with:
-      | resource      | netnamespace |
-      | resource_name | <%= cb.project2 %> |
-      | p             | {"egressIPs":["<%= cb.valid_ip %>"]} |
-    Then the step should succeed
+    Given as admin I successfully merge patch resource "netnamespace/<%= cb.project1 %>" with:
+      | {"egressIPs": ["<%= cb.valid_ip %>"]} |
+    Given as admin I successfully merge patch resource "netnamespace/<%= cb.project2 %>" with:
+      | {"egressIPs": ["<%= cb.valid_ip %>"]} |
 
     # check the network log about the error
     Given I get the networking components logs of the node since "1m" ago
@@ -81,10 +74,8 @@ Feature: Egress IP related features
   # @author bmeng@redhat.com
   # @case_id OCP-15469
   @admin
+  @destructive
   Scenario: Pods will lose external access if there is no node can host the egress IP which admin assigned to the netns
-    Given the cluster is running on OpenStack
-    And the env is using multitenant or networkpolicy network
-
     # create project with pod
     Given I have a project
     And evaluation of `project.name` is stored in the :project clipboard
@@ -99,11 +90,8 @@ Feature: Egress IP related features
 
     # add the egress ip to the project which is not holding by any node
     Given I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run the :patch admin command with:
-      | resource      | netnamespace |
-      | resource_name | <%= cb.project %> |
-      | p             | {"egressIPs":["<%= cb.valid_ip %>"]} |
-    Then the step should succeed
+    Given as admin I successfully merge patch resource "netnamespace/<%= cb.project %>" with:
+      | {"egressIPs": ["<%= cb.valid_ip %>"]} |
 
     # try to access external network
     When I execute on the "<%= cb.pod1 %>" pod:
