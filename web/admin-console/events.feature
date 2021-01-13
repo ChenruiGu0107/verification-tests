@@ -5,15 +5,6 @@ Feature: events and logs related
   Scenario: Check resource events
     Given the master version >= "3.11"
     Given I have a project
-    And I open admin console in a browser
-
-    # no events when project is empty
-    When I perform the :goto_project_events web action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-    When I perform the :check_page_match web action with:
-      | content | No Events |
-    Then the step should succeed
 
     # create 1st build
     Given I obtain test data file "build/bc.json"
@@ -32,6 +23,10 @@ Feature: events and logs related
     Then the step should succeed
     And the "ruby-ex-2" build finished
 
+    And I open admin console in a browser
+    When I perform the :goto_project_events web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I perform the :filter_event_by_name_or_message web action with:
       | filter_text | ruby-ex-1 |
     Then the step should succeed
