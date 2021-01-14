@@ -153,7 +153,7 @@ Feature: oc debug related scenarios
 
   # @author yinzhou@redhat.com
   # @case_id OCP-38178
-  Scenario: oc debug with or without init container for pod
+  Scenario: oc should be able to debug init container
     Given I have a project
     Given I obtain test data file "pods/initContainers/initContainer.yaml"
     When I run the :create client command with:
