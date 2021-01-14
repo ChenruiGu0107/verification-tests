@@ -1460,3 +1460,88 @@ Feature: Testing route
     Then the step should succeed
     And the output should not match "Secure; SameSite=Lax"
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-37714
+  # @bug_id 1904010
+  @admin
+  Scenario: Ingresscontroller routes traffic only to ready pods/backends
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy webserver with readiness probe dependence on /tmp/ready file
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/ingress/web-server-OCP-37714.yaml"
+    When I run the :create client command with:
+      | f | web-server-OCP-37714.yaml |
+    Then the step should succeed
+    And I wait until number of replicas match "1" for replicationController "web-server-rc"
+    When I get project configmaps
+    Then the output should match "nginx-config"
+    And the expression should be true> service('service-unsecure').exists?
+
+    # Collect the podnames for the next iteration
+    Given I store in the clipboard the pods labeled:
+      | name=web-server-rc |
+
+    # expose the route and verify its reachablity
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | http://service-unsecure-<%= project.name %>.<%= cb.subdomain %>/ | -I |
+    Then the step should succeed
+    And the output should contain "503 Service Unavailable"
+    """
+
+    # Check the entries in the haproxy backend pool for the exposed service
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And all default router pods become ready
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | grep | -w | service-unsecure | /var/lib/haproxy/conf/haproxy.config | -A 16 |
+    Then the step should succeed
+    And the output should not contain:
+      | pod:<%= cb.pods[0].name%>:service-unsecure:http |
+    """
+
+    # Switch to project and fix the failing livness probe
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    When I run the :exec client command with:
+      | pod              | <%= cb.pods[0].name %> |
+      | exec_command     | touch                  |
+      | exec_command_arg | /tmp/ready             |
+    Then status becomes :running of 1 pods labeled:
+      | name=web-server-rc |
+
+    # Verify the access to the route
+    And the pod named "hello-pod" becomes ready
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | http://service-unsecure-<%= project.name %>.<%= cb.subdomain %>/ | -I |
+    Then the step should succeed
+    And the output should contain "200 OK"
+    """
+
+    # Verify pod entries in the haproxy backend pool for the exposed service
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And all default router pods become ready
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | grep | -w | backend be_http:<%= cb.proj_name %>:service-unsecure | /var/lib/haproxy/conf/haproxy.config | -A 16 |
+    Then the step should succeed
+    And the output should contain:
+      | pod:<%= cb.pods[0].name%>:service-unsecure:http |
+    """
