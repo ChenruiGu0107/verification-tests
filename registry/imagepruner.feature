@@ -13,7 +13,7 @@ Feature: Testing image pruner
     Then the step should succeed
     Then the output should contain:
       | --prune-registry=true     |
-    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Unmanaged
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Removed
     And I register clean-up steps:
     """
     Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
