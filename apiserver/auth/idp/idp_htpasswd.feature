@@ -292,17 +292,9 @@ Feature: idp feature
     Given I obtain test data file "authorization/idp/OCP-29916/OCP-29916_idp_spec.json"
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | <%= File.read("OCP-29916_idp_spec.json") %> |
-    Given I wait for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
-    """
-    And I wait for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
-    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
-    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
-    """
-    And I wait for the steps to pass:
+    Given operator "authentication" becomes progressing
+    And operator "authentication" becomes available/non-progressing/non-degraded within 120 seconds
+    Given I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get admin command with:
       | resource | pod                      |
