@@ -24,8 +24,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_detail web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
     When I run the :check_silence_detail web action
     Then the step should succeed
@@ -79,8 +78,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to restore environment
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -116,8 +114,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to restore environment
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -177,8 +174,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to restore environment
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -265,8 +261,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to restore environment
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -294,8 +289,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to prepare Expired status alert
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
     When I run the :check_silence_detail web action
     Then the step should succeed
@@ -358,8 +352,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -386,8 +379,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to prepare Expired status silence
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
     When I run the :check_silence_detail web action
     Then the step should succeed
@@ -456,8 +448,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -502,8 +493,7 @@ Feature: alerts browser
     Then the step should succeed
     #Expire silence to restore environment
     When I run the :expire_alert_from_actions web action
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -542,8 +532,7 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :expire_alert_from_cog_menu web action with:
       | alert_name | Watchdo.* |
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -577,8 +566,7 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :expire_alert_from_cog_menu web action with:
       | alert_name | Watchdo.* |
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -615,8 +603,7 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :expire_alert_from_cog_menu web action with:
       | alert_name | Watchdo.* |
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -647,8 +634,7 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :expire_alert_from_cog_menu web action with:
       | alert_name | Watchdo.* |
-    And I click the following "button" element:
-      | text | Expire Silence |
+    When I run the :submit_changes web action
     Then the step should succeed
 
   # @author hongyli@redhat.com

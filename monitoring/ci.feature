@@ -182,7 +182,7 @@ Feature: Install and configuration related scenarios
     #oc get crd | grep monitoring | awk '{print $1}'
     When I run the :get client command with:
       | resource | crd |
-    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)monitoring(.*)/]}.compact!` is stored in the :crds_monitoring clipboard
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)monitoring.coreos.com(.*)/]}.compact!` is stored in the :crds_monitoring clipboard
     #check "oc get crd $i -oyaml | grep preserveUnknownFields" for all resources
     When I repeat the following steps for each :crd in cb.crds_monitoring:
     """
@@ -463,7 +463,7 @@ Feature: Install and configuration related scenarios
       | overwrite | true                                |
     Then the step should succeed
     #check retention time
-    Then I wait up to 60 seconds for the steps to pass:
+    Then I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | prometheus |
@@ -1396,13 +1396,17 @@ Feature: Install and configuration related scenarios
     And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
 
     #trigger grpc-tls rotation by adding annotation
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | secret               |
       | resource_name | grpc-tls             |
       | n             | openshift-monitoring |
       | o             | yaml                 |
     Then the step should succeed
+    """
     And I save the output to file> grpc-tls.yaml
+
     When evaluation of `"metadata:\n  annotations:\n    monitoring.openshift.io/grpc-tls-forced-rotate: \"true\""` is stored in the :str_annotaion clipboard
     And I replace lines in "grpc-tls.yaml":
       | metadata: | <%= cb.str_annotaion %> |
@@ -1497,14 +1501,12 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-    When I run the :get client command with:
-      | resource | node |
-    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}[1]` is stored in the :node_name clipboard
 
+    Given I store the ready and schedulable workers in the :nodes clipboard
     #query an metric
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.prom_route %>/api/v1/query?query=100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle",instance="<%= cb.node_name %>"}[10m])) * 100)
+    :url: https://<%= cb.prom_route %>/api/v1/query?query=100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle",instance="<%= cb.nodes[0].name %>"}[30s])) * 100)
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.sa_token %>
@@ -1513,12 +1515,12 @@ Feature: Install and configuration related scenarios
     When evaluation of `@result[:parsed]["data"]["result"][0]["value"][1]` is stored in the :metric_cpu_usage clipboard
 
     When I run the :oadm_top_node admin command with:
-      | node_name | <%= cb.node_name %> |
+      | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s+/)}[1][2].chop` is stored in the :top_cpu_usage clipboard
 
     And evaluation of `cb.top_cpu_usage.to_f-cb.metric_cpu_usage.to_f` is stored in the :metric_cpu_usage_diff clipboard
-    Then the expression should be true> cb.metric_cpu_usage_diff <= 6 && cb.metric_cpu_usage_diff >= -6
+    Then the expression should be true> cb.metric_cpu_usage_diff <= 9 && cb.metric_cpu_usage_diff >= -9
 
   # @author hongyli@redhat.com
   # @case_id OCP-33244
@@ -1991,7 +1993,7 @@ Feature: Install and configuration related scenarios
       | f         | custome_metric-deploy.yaml |
       | overwrite | true                       |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
+    And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | --raw=/apis/custom.metrics.k8s.io/v1beta1 |
@@ -2123,7 +2125,7 @@ Feature: Install and configuration related scenarios
       | n         | <%= cb.proj_name %>                |
     Then the step should succeed
     #with view access
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                                                                                                                                               |
@@ -2198,7 +2200,7 @@ Feature: Install and configuration related scenarios
       | n         | <%= cb.proj_name %>                |
     Then the step should succeed
     #with view access
-    And I wait up to 180 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                                                                                                                                               |
@@ -2506,7 +2508,7 @@ Feature: Install and configuration related scenarios
       | n                   | openshift-monitoring |
     Then the step should succeed
     And evaluation of `@result[:stdout]` is stored in the :sa_token clipboard
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
