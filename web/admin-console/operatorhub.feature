@@ -1536,3 +1536,61 @@ Feature: operatorhub feature related
       | content | EtcdRestore |
     Then the step should succeed
 
+  # @author yapei@redhat.com
+  # @case_id OCP-37098
+  @admin
+  Scenario: Improved OperatorHub view
+    Given the master version >= "4.7"
+    Given admin creates "ui-37098-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators@sha256:feb39d5dca35fcbf73713672016b8c802146252a96e3864a0a34209b154b6482" with display name "UI OCP-37098 Test"
+    Given I switch to the first user
+    Given the first user is cluster-admin
+
+    Given I open admin console in a browser
+    When I run the :goto_catalog_source_page web action
+    Then the step should succeed
+
+    # check kebab actions for default catalogsource
+    When I run the :check_kebab_menus_for_default_cs web action
+    Then the step should succeed
+
+    # check kebab actions for customized catalogsource
+    When I perform the :check_kebab_menus_for_custom_cs web action with:
+      | cs_name | ui-37098-operators |
+    Then the step should succeed
+
+    # check catalogsource columns for one catalogsource
+    When I perform the :check_columns_for_cs web action with:
+      | cs_name              | redhat-operators | 
+      | cs_status            | <%= catalog_source("redhat-operators").status %>               |
+      | publisher            | <%= catalog_source("redhat-operators").publisher %>            |
+      | registrypullinterval | <%= catalog_source("redhat-operators").registrypollinterval %> |
+      | endpoint             | <%= catalog_source("redhat-operators").endpoint %>             |
+    Then the step should succeed
+
+    When I perform the :check_columns_for_cs web action with:
+      | cs_name              | ui-37098-operators | 
+      | cs_status            | <%= catalog_source("ui-37098-operators").status %>               |
+      | publisher            | <%= catalog_source("ui-37098-operators").publisher %>            |
+      | registrypullinterval | <%= catalog_source("ui-37098-operators").registrypollinterval %> |
+      | endpoint             | <%= catalog_source("ui-37098-operators").endpoint %>             |
+    Then the step should succeed  
+
+    # check catalogsource details
+    When I perform the :goto_one_catalogsource_page web action with:
+      | cs_name | certified-operators |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | status               | <%= catalog_source("certified-operators").status %>               |
+      | display_name         | <%= catalog_source("certified-operators").displayname %>          |
+      | publisher            | <%= catalog_source("certified-operators").publisher %>            |
+      | endpoint             | <%= catalog_source("certified-operators").endpoint %>             |
+      | registrypullinterval | <%= catalog_source("certified-operators").registrypollinterval %> |
+    Then the step should succeed
+    
+    # check catalogsource operators tab
+    When I run the :check_catalogsource_operators_info web action
+    Then the step should succeed
+    
+    # packagemanifests page have catalogsource link
+    When I run the :check_packagemanifests_have_cs_link web action
+    Then the step should succeed
