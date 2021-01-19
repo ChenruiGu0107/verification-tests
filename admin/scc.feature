@@ -183,7 +183,7 @@ Feature: SCC policy related scenarios
     Given I have a project
     When I run the :run client command with:
       | name  | busybox                       |
-      | image | aosqe/busybox-http-app:latest |
+      | image | quay.io/openshifttest/busybox-http-app:latest |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | run=busybox |
