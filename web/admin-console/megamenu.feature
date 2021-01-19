@@ -172,7 +172,7 @@ Feature: mega menu on console
       | owner_resource_group     | metering.openshift.io             |
       | owner_resource_version   | v1                                |
       | owner_resource_kind      | MeteringConfig                    |
-      | owner_resource_name      | <%= cb.meteringconfig_name %>     |
+      | owner_resource_name      | openshift-metering                |
     Then the step should succeed
     When I perform the :check_usage_report_table web action with:
       | namespace   | <%= cb.metering_namespace.name %> |

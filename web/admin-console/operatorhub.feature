@@ -98,8 +98,7 @@ Feature: operatorhub feature related
       | project_name      | <%= cb.proj_name %>   |
       | subscription_name | keycloak-operator     |
     Then the step should succeed
-    When I perform the :check_page_match web action with:
-      | content | Catalog Source Removed |
+    When I run the :check_catalogsource_removed_message web action
     Then the step should succeed
 
     # create namespace scoped CatalogSource

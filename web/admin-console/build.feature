@@ -47,6 +47,7 @@ Feature: build related
     # Then the step should succeed
 
     # check Builds details
+    Given the "python-sample-1" build was created 
     When I perform the :goto_one_build_page web action with:
       | project_name  | <%= project.name %>  |
       | build_name    | python-sample-1      |
