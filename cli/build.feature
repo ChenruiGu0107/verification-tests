@@ -717,27 +717,20 @@ Feature: build 'apps' with CLI
       | name     | ruby-hello-world |
     Then the step should succeed
     Given I obtain test data file "build/shared_compressed_files/ruby-hello-world.tar"
-    Given evaluation of `@result[:response]` is stored in the :tarfile clipboard
     When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-      | from_dir    | -                |
-      | _stdin      | <%= cb.tarfile%> |
-      | _binmode    |                  |
+      | buildconfig | ruby-hello-world     |
+      | from_file   | ruby-hello-world.tar |
     Then the step succeeded
     And the "ruby-hello-world-1" build was created
     When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-      | from_dir    | -                |
-      | _stdin      | <%= cb.tarfile%> |
-      | _binmode    |                  |
+      | buildconfig | ruby-hello-world     |
+      | from_file   | ruby-hello-world.tar |
     Then the step succeeded
     And the "ruby-hello-world-2" build was created
     And the "ruby-hello-world-1" build is :complete
     When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-      | from_dir    | -                |
-      | _stdin      | <%= cb.tarfile%> |
-      | _binmode    |                  |
+      | buildconfig | ruby-hello-world     |
+      | from_file   | ruby-hello-world.tar |
     Then the step succeeded
     And the "ruby-hello-world-3" build was created
     And the "ruby-hello-world-2" build is :complete
@@ -892,16 +885,16 @@ Feature: build 'apps' with CLI
     When I remove the remote repository "origin" from the "ruby-hello-world" repo
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo     | ruby-hello-world   |
-      | image_stream | openshift/ruby:2.6 |
-      | name         | newtest            |
+      | app_repo     | ruby-hello-world |
+      | image_stream | openshift/ruby   |
+      | name         | newtest          |
     Then the step should succeed
     When I get project bc
     Then the output should contain "Binary"
     When I run the :new_build client command with:
-      | app_repo     | ruby-hello-world   |
-      | image_stream | openshift/ruby:2.6 |
-      | to           | test               |
+      | app_repo     | ruby-hello-world |
+      | image_stream | openshift/ruby   |
+      | to           | test             |
     When I get project bc
     Then the output should contain 2 times:
       | Binary |
