@@ -382,33 +382,33 @@ Feature: stibuild.feature
   # @case_id OCP-18926
   Scenario: Setting Paused boolean in buildconfig when images are changed
     Given I have a project
-    Given I obtain test data file "build/OCP-18926/paused-build.json"
     When I run the :new_app client command with:
-      | app_repo | paused-build.json |
-      | name     | paused-build |
+      | app_repo     | https://github.com/openshift/ruby-hello-world.git |
+      | docker_image | registry.access.redhat.com/rhscl/ruby-25-rhel7    |
+      | name         | paused-build                                      |
     Then the step should succeed
     And the "paused-build-1" build completed
     When I run the :tag client command with:
-      | source       | registry.access.redhat.com/rhscl/ruby-25-rhel7 |
-      | dest         | ruby-25-centos7:latest                         |
+      | source       | quay.io/openshifttest/ruby-25-centos7 |
+      | dest         | ruby-25-rhel7:latest                  |
     Then the step should succeed
-    And the "paused-build-2" build completed
+    And the "paused-build-2" build was created
     When I run the :patch client command with:
       | resource      | bc           |
       | resource_name | paused-build |
-      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"paused":abc},"type":"ImageChange"}]}}' |
+      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-rhel7:latest"},"paused":abc},"type":"ImageChange"}]}}' |
     Then the step should fail
     When I run the :patch client command with:
       | resource      | bc           |
       | resource_name | paused-build |
-      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"abcott. habcat. fiabci. ruvabc. rvoabc. nabcep. rpnabc. spoabc.":true},"type":"ImageChange"}]}}' |
+      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-rhel7:latest"},"abcott. habcat. fiabci. ruvabc. rvoabc. nabcep. rpnabc. spoabc.":true},"type":"ImageChange"}]}}' |
     When I get project buildconfig as YAML
     And the output should not contain:
       | abcott. habcat. fiabci. ruvabc. rvoabc. nabcep. rpnabc. spoabc. |
     When I run the :patch client command with:
       | resource      | bc           |
       | resource_name | paused-build |
-      | p             | {"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"paused":true},"type":"ImageChange"}]}} |
+      | p             | {"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-rhel7:latest"},"paused":true},"type":"ImageChange"}]}} |
     Then the step should succeed
     When I get project buildconfig as YAML
     And the output should contain:
