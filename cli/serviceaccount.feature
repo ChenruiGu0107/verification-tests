@@ -39,8 +39,8 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant view permission for the service account username to access to its own project
     Given I have a project
     When I create a new application with:
-      | docker image | <%= project_docker_repo %>openshift/hello-openshift |
-      | name         | myapp         |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | name         | myapp                                                                                                         |
     # `oc new-app` with just image but no code (such as https://github.com/openshift/ruby-hello-world.git. See oc new-app -h) creates no bc.
     # Thus could be used for AEP along with `the step should succeed`
     Then the step should succeed
@@ -62,9 +62,9 @@ Feature: ServiceAccount and Policy Managerment
     And the output should contain:
       | myapp   |
     When I create a new application with:
-      | docker image | <%= project_docker_repo %>openshift/hello-openshift |
-      | name         | another-app         |
-      | n            | <%= project.name %> |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | name         | another-app                                                                                                   |
+      | n            | <%= project.name %>                                                                                           |
     Then the step should fail
     When I run the :delete client command with:
       | object_type | pod                 |
@@ -441,7 +441,7 @@ Feature: ServiceAccount and Policy Managerment
       | project_name | <%= cb.project2 %> |
     Then the step should succeed
     When I run the :new_app client command with:
-      | docker_image | openshift/hello-openshift |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
     Then the step should succeed
 
     When I run the :policy_add_role_to_user client command with:
@@ -502,8 +502,9 @@ Feature: ServiceAccount and Policy Managerment
   # @case_id OCP-11722
   Scenario: Check the serviceaccount that runs pod
     Given I have a project
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f    | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
 
     Given the pod named "hello-openshift" becomes ready
