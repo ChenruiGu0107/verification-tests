@@ -5,13 +5,26 @@ Feature: Storage stage tests
   Scenario: [Stage] LocalVolume can be used by deployment
     Given the master version >= "4.2"
 
-    # storageclass(local-storage-sc) and pv(local-pv-*) is created during stage pipline
+    Given I store the schedulable nodes in the :nodes clipboard
+    And I use the "<%= cb.nodes[0].name %>" node
+    When I run commands on the host:
+        | losetup -d /dev/loop23                                     |
+        | mkdir /srv/block-devices                                   |
+        | dd if=/dev/zero of=/srv/block-devices/dev1 bs=1M count=100 |
+        | losetup /dev/loop23 /srv/block-devices/dev1                |
+    Then the step should succeed
+
+    # LSO is installed during stage pipline
+    # storageclass(local-storage-sc) and pv(local-pv-*) is supposed to be availabel at this moment
+    And I wait up to 90 seconds for the steps to pass:
+    """
     Given I check that the "local-storage-sc" storageclass exists
     When I run the :get admin command with:
       | resource | pv |
     Then the step should succeed
     And the output should contain:
       | local-pv- |
+    """
 
     Given I have a project
     Given I obtain test data file "storage/misc/pvc.json"
