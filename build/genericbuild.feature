@@ -83,8 +83,8 @@ Feature: genericbuild.feature
     And the pod named "testtrigger-0" becomes ready
     And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :before_change clipboard
     When I run the :tag client command with:
-      | source | centos/ruby-25-centos7 |
-      | dest   | rubytest:latest        |
+      | source | registry.access.redhat.com/rhscl/ruby-25-rhel7 |
+      | dest   | rubytest:latest                                |
     Then the step should succeed
     And the pod named "testtrigger-0" becomes ready
     And I wait for the steps to pass:
