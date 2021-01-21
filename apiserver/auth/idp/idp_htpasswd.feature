@@ -315,6 +315,9 @@ Feature: idp feature
     When I run the :get admin command with:
       | resource | user/newton |
     Then the step should succeed
+ 
+    # When request comes, it select random available pod to write logs in it  and same log is not written in another pod. It writes in only one pod. 
+    # So here getting one pod and checking logs for the same and stored in match1
     When I run the :get admin command with:
       | resource | pods                               |
       | n        | openshift-authentication           |
@@ -325,6 +328,21 @@ Feature: idp feature
       | resource_name | <%= cb.auth_pod_name %>  |
       | n             | openshift-authentication |
     Then the step should succeed
-    And the output should match:
-      | Error.*login.*newton.*LDAP.*Network Error.*0.0.0.0:386.*connection refused |
+    And evaluation of `@result[:response].include? "Error authenticating login"` is stored in the :match1 clipboard
+    
+    # Here getting second pod and checking logs for the same and stored in match2
+    And I run the :get admin command with:
+      | resource | pods                               |
+      | n        | openshift-authentication           |
+      | o        | jsonpath={.items[1].metadata.name} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :auth_pod_name1 clipboard
+    Given I run the :logs admin command with:
+      | resource_name | <%= cb.auth_pod_name1 %>  |
+      | n             | openshift-authentication  |
+    Then the step should succeed
+    And evaluation of `@result[:response].include? "Error authenticating login"` is stored in the :match2 clipboard
+    # If either of condition is true, TC is passed
+    Then the expression should be true> cb.match1 || cb.match2
+
 
