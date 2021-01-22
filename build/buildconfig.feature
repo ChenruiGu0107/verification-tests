@@ -18,7 +18,7 @@ Feature: buildconfig.feature
     Given I have a project
     When I run the :import_image client command with:
       | image_name | ruby                   |
-      | from       | centos/ruby-25-centos7 |
+      | from       | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
       | confirm    | true                   |
     Then the step should succeed
     When I get project is named "ruby" as YAML
@@ -49,7 +49,7 @@ Feature: buildconfig.feature
       | resource | build     |
       | name     | ruby-ex-2 |
     Then the step should succeed
-    And the output should match "DockerImage\s+centos/ruby-25-centos7@<%= cb.imagesha %>"
+    And the output should match "DockerImage\s+ruby-25-centos7@<%= cb.imagesha %>"
     #And the output should match:
     #  | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
