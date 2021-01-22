@@ -38,15 +38,15 @@ Feature: This is for cluster machine pools testing
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-default |
+      | cluster_name | sdqe-ui-gcp |
     When I run the :switch_to_machine_pools_tab web action
     Then the step should succeed
     When I perform the :check_specified_machine_pool web action with:
-      | machine_pool_name  | Default    |
-      | instance_type      | m5.xlarge  |
-      | node_count         | 4          |
-      | row_number         | 1          |
-      | availability_zones | us-east-1a |
+      | machine_pool_name  | Default                            |
+      | instance_type      | custom-4-32768-ext                 |
+      | node_count         | 9                                  |
+      | row_number         | 1                                  |
+      | availability_zones | us-east1-b, us-east1-c, us-east1-d |
     Then the step should succeed
     When I perform the :delete_machine_pool web action with:
       | machine_pool_name  | Default |
@@ -54,30 +54,48 @@ Feature: This is for cluster machine pools testing
     When I run the :click_add_machine_pool_button web action
     Then the step should succeed
     When I perform the :check_machine_pool_dialog web action with:
-      | row_number          | 2       |
-      | label_key           | tlabelk |
-      | label_value         | tlabelv |
-      | compute_node_number | 1       |
+      | row_number          | 1         |
+      | label_key           | tlabelk   |
+      | label_value         | tlabelv   |
+      | compute_node_number | 1         |
+      | taint_row_number    | 1         |
+      | taint_key           | taint_k   |
+      | taint_value         | taint_v   |
+      | taint_effect        | NoExecute |
     Then the step should succeed
     When I perform the :click_delete_node_label_button web action with:
-      | row_number | 2 |
+      | row_number | 1 |
+    Then the step should succeed
+    When I perform the :click_delete_taint_button web action with:
+      | taint_row_number | 1 |
     Then the step should succeed
     When I perform the :input_label web action with:
-      | row_number  | 2       |
+      | row_number  | 1       |
       | label_key   | tlabelk |
       | label_value | tlabelv |
+    Then the step should fail
+    When I perform the :set_taint web action with:
+      | taint_row_number    | 1        |
+      | taint_key           | taint_k  |
+      | taint_value         | taint_v  |
+      | taint_effect        | NoExcute |
     Then the step should fail
     When I perform the :check_existed_label web action with:
       | label_key   | tlabelk |
       | label_value | tlabelv |
     Then the step should fail
+    When I perform the :check_existed_taint web action with:
+      | taint_row_number    | 0        |
+      | taint_key           | taint_k  |
+      | taint_value         | taint_v  |
+    Then the step should fail
     When I perform the :add_new_label web action with:
-      | row_number  | 2       |
+      | row_number  | 1       |
       | label_key   | tlabelk |
       | label_value | tlabelv |
     Then the step should succeed
     When I perform the :click_delete_node_label_button web action with:
-      | row_number | 1 |
+      | row_number | 0 |
     Then the step should succeed
     When I perform the :check_existed_label web action with:
       | label_key   | tlabelk |

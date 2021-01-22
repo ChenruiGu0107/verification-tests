@@ -658,6 +658,7 @@ Feature: only about page related to cluster login page
       | cluster_name   | sdqe-adminosd |
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
+      | wait_time      | 7200  |
     Then the step should succeed
     When I run the :check_install_successfully_message_loaded web action
     Then the step should succeed
@@ -673,6 +674,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
+      | wait_time      | 7200  |
     Then the step should succeed
 
   # @author xueli@redhat.com
@@ -698,6 +700,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
+      | wait_time      | 7200  |
     Then the step should succeed
     When I run the :refresh_detail_page web action
     Then the step should succeed
@@ -718,7 +721,7 @@ Feature: only about page related to cluster login page
     When I perform the :create_osd_cluster web action with:
       | product_id     | osd                |
       | cloud_provider | gcp                |
-      | cluster_name   | sdqe-ui-gcp-1      |
+      | cluster_name   | sdqe-ui-gcp        |
       | multi_az       | true               |
       | machine_type   | custom-4-32768-ext |
       | node_number    | 4                  |
@@ -731,6 +734,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | ready |
+      | wait_time      | 7200  |
     Then the step should succeed
 
   # @author tzhou@redhat.com
