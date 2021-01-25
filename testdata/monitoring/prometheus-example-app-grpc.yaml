@@ -4,7 +4,6 @@ metadata:
   labels:
     app: prometheus-example-app
   name: prometheus-example-app
-  namespace: test-grpc-tls-rotation
 spec:
   replicas: 1
   selector:
@@ -26,7 +25,6 @@ metadata:
   labels:
     app: prometheus-example-app
   name: prometheus-example-app
-  namespace: test-grpc-tls-rotation
 spec:
   ports:
   - port: 8080
@@ -43,7 +41,6 @@ metadata:
   labels:
     k8s-app: prometheus-example-monitor
   name: prometheus-example-monitor
-  namespace: test-grpc-tls-rotation
 spec:
   endpoints:
   - interval: 30s
@@ -57,7 +54,6 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: example-alert
-  namespace: test-grpc-tls-rotation
 spec:
   groups:
   - name: example

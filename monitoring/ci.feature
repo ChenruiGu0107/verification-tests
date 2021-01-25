@@ -265,6 +265,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                           |
     Then the step should succeed
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #Deploy prometheus rules under user's namespace
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
@@ -325,6 +331,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #Deploy prometheus rules under user's namespace
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
@@ -407,7 +419,7 @@ Feature: Install and configuration related scenarios
     And I switch to cluster admin pseudo user
     And I use the "openshift-user-workload-monitoring" project
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
-   #enable UserWorkload
+    #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
       | f         | config_map_enableUserWorkload.yaml |
@@ -585,7 +597,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                           |
     Then the step should succeed
-
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #Deploy prometheus rules under proj1
     When I use the "<%= cb.project_name1 %>" project
     Given I obtain test data file "monitoring/prometheus_rules-OCP-28957.yaml"
@@ -695,7 +712,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
-
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #Deploy prometheus rules under proj1
     When I use the "<%= cb.project_name1 %>" project
     Given I obtain test data file "monitoring/prometheus_rules-OCP-28957.yaml"
@@ -804,14 +826,10 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     #ThanosRuler related resouces are created
     When I use the "openshift-user-workload-monitoring" project
-    And I wait up to 240 seconds for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | statefulset |
-    Then the step should succeed
-    And the output should contain:
-      | prometheus-user-workload   |
-      | thanos-ruler-user-workload |
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
     When I run the :get client command with:
       | resource | ThanosRuler |
@@ -967,14 +985,10 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     #ThanosRuler related resouces are created
     When I use the "openshift-user-workload-monitoring" project
-    And I wait up to 240 seconds for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | statefulset |
-    Then the step should succeed
-    And the output should contain:
-      | prometheus-user-workload   |
-      | thanos-ruler-user-workload |
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
     When I run the :get client command with:
       | resource | ThanosRuler |
@@ -1130,7 +1144,11 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
-    And I wait up to 120 seconds for the steps to pass:
+    When I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
     When I run the :get client command with:
       | resource | all                                |
@@ -1145,7 +1163,7 @@ Feature: Install and configuration related scenarios
       | deployment.apps/prometheus-operator       |
       | replicaset.apps/prometheus-operator       |
       | statefulset.apps/prometheus-user-workload |
-    """
+      
     #Create one namespace, create resources in the namespace
     When I run the :new_project client command with:
       | project_name | ocp-25925-proj |
@@ -1217,7 +1235,11 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
-    And I wait up to 120 seconds for the steps to pass:
+    When I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
     When I run the :get client command with:
       | resource | all                                |
@@ -1232,7 +1254,6 @@ Feature: Install and configuration related scenarios
       | deployment.apps/prometheus-operator       |
       | replicaset.apps/prometheus-operator       |
       | statefulset.apps/prometheus-user-workload |
-    """
     #Create one namespace, create resources in the namespace
     When I run the :new_project client command with:
       | project_name | ocp-25925-proj |
@@ -1348,8 +1369,7 @@ Feature: Install and configuration related scenarios
   @destructive
   Scenario: Replace atomic roll out of gRPC TLS secrets with an overlapping scheme
     Given the master version >= "4.6"
-    And I switch to cluster admin pseudo user
-    Given admin ensures "test-grpc-tls-rotation" project is deleted after scenario
+    And the first user is cluster-admin
 
     #enable UserWorkload
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
@@ -1365,6 +1385,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
+    Given I use the "openshift-user-workload-monitoring" project
     And I wait up to 360 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -1374,19 +1395,21 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | pod/prometheus-operator-                  |
       | pod/prometheus-user-workload-             |
+    And the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
+    
     #Create one namespace, create resources in the namespace
-    When I run the :new_project client command with:
-      | project_name | test-grpc-tls-rotation |
-    Then the step should succeed
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_name clipboard
     Given I obtain test data file "monitoring/prometheus-example-app-grpc.yaml"
     When I run the :apply client command with:
       | f         | prometheus-example-app-grpc.yaml |
       | overwrite | true                             |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | pod                    |
-      | n        | test-grpc-tls-rotation |
+      | resource | pod                 |
+      | n        | <%= cb.proj_name %> |
     Then the step should succeed
     Then the output should match 1 times:
       | prometheus-example-app |
@@ -1416,7 +1439,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #check thanos querier can access prometheus in stack
-    And I wait up to 240 seconds for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                                                                                                 |
@@ -1444,7 +1467,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | prometheus-example-app |
-      | test-grpc-tls-rotation |
+      | <%= cb.proj_name %>    |
     """
     #check thanos querier can access thanos ruler
     And I wait up to 120 seconds for the steps to pass:
@@ -2104,7 +2127,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                           |
     Then the step should succeed
-
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    when the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #create project and deploy pod
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
@@ -2179,7 +2207,12 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
-
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    when the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     #create project and deploy pod
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
@@ -2257,7 +2290,11 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait for the "user-workload" prometheus to appear up to 120 seconds
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     And evaluation of `deployment('prometheus-operator').container_spec(name: 'prometheus-operator').args.map{|n| n[/deny-namespaces=(.*)/]}.compact![0].split('=')[1].split(',')` is stored in the :deny_namespaces clipboard
 
     When I run the :get client command with:
@@ -2330,7 +2367,11 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait for the "user-workload" prometheus to appear up to 180 seconds
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
     And evaluation of `deployment('prometheus-operator').container_spec(name: 'prometheus-operator').args.map{|n| n[/deny-namespaces=(.*)/]}.compact![0].split('=')[1].split(',')` is stored in the :deny_namespaces clipboard
 
     When I run the :get client command with:
@@ -2445,7 +2486,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
-    Then expression should be true> hpa('hpa-example').current_replicas(cached: false) == 2
+    Then expression should be true> hpa('hpa-example').current_replicas(cached: false) >= 2
     """
 
   # @author hongyli@redhat.com
@@ -2480,7 +2521,7 @@ Feature: Install and configuration related scenarios
       | prometheus-k8s |
     """
 
-    And I wait up to 240 seconds for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | n             | openshift-monitoring |
