@@ -1,5 +1,5 @@
 Feature: Only for case related to disconnected cluster register page
-  # @author xueli@redhat.com
+  # @author tzhou@redhat.com
   # @case_id OCP-25189
   Scenario: Check the "Register disconnected clusters" page UI
     Given I open ocm portal as an regularUser user
@@ -12,7 +12,7 @@ Feature: Only for case related to disconnected cluster register page
     When I run the :check_optional_items_invalid_input_error_messages web action
     Then the step should succeed
 
-  # @author xueli@redhat.com
+  # @author tzhou@redhat.com
   # @case_id OCP-24973
   Scenario: The Registered disconnected clusters can display correctly on UI page
     Given I open ocm portal as an regularUser user
