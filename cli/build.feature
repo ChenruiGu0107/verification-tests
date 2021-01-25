@@ -1053,8 +1053,9 @@ Feature: build 'apps' with CLI
       | invalid characters in filename |
     #Add a configmap with an unexisted cm - failed
     When I run the :new_build client command with:
-      | app_repo       | https://github.com/openshift/ruby-hello-world |
-      | build_config_map| unexisted:newtest                            |
+      | app_repo        | ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | build_config_map| unexisted:newtest                                         |
+      | strategy        | docker                                                    |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | build               |

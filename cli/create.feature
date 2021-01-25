@@ -170,11 +170,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-12240
   Scenario: Create resources with multiple approach via cli
     Given I have a project
-    And I create the "hello-openshift" directory
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" into the "hello-openshift" dir
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/Dockerfile" into the "hello-openshift" dir
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello_openshift.go" into the "hello-openshift" dir
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/README.md" into the "hello-openshift" dir
+    Given I obtain test data dir "cli/hello-openshift"
     When I run the :create client command with:
       | f | hello-openshift/ |
     Then the step should succeed
@@ -240,7 +236,7 @@ Feature: creating 'apps' with CLI
     Given all existing pods die with labels:
       | name=hello-openshift |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f | https://raw.githubusercontent.com/openshift/cucushift/master/testdata/cli/hello-openshift/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
     When I run the :delete client command with:
