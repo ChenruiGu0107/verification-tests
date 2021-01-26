@@ -25,8 +25,11 @@ Feature: User management related
       | resource_name | <%= user(0, switch: false).name %> |
     Then the step should succeed
     # first user has no permission to access /user page
+    Given I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :check_users_secondary_menu_missing web action
     Then the step should succeed
+    """
     When I perform the :check_impersonate_notifications web action with:
       | username |  <%= user(0, switch: false).name %> |
     Then the step should succeed
@@ -35,14 +38,20 @@ Feature: User management related
     When I run the :click_stop_impersonation web action
     Then the step should succeed
     """
+    Given I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :check_users_secondary_menu web action
     Then the step should succeed
+    """
     Given the first user is cluster-admin
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
     Then the step should succeed
+    Given I wait up to 40 seconds for the steps to pass:
+    """
     When I run the :check_users_secondary_menu web action
     Then the step should succeed
+    """
     When I perform the :check_rolebinding_of_user web action with:
       | username    | <%= user(0, switch: false).name %> |
       | rolebinding | cluster-admin |

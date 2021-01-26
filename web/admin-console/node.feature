@@ -131,16 +131,27 @@ Feature: Node related
   Scenario: Check nodes list columns and terminal tab
     Given the master version >= "4.3"
     Given the first user is cluster-admin
+    Given I store the schedulable workers in the :schedule_workers clipboard
     Given I open admin console in a browser
     When I run the :browse_to_nodes_page web action
     Then the step should succeed
     When I run the :check_node_list_column_headers web action
     Then the step should succeed
 
-    # check pod has terminal tab page
-    When I run the :click_first_item_in_grid_cell_list web action
+    # check node has terminal tab page
+    When I perform the :click_link_with_text_only web action with:
+      | text | <%= cb.schedule_workers[0].name %> |
     Then the step should succeed
-    # below check points only for cluster >= 4.5
-    When I run the :check_terminal_tab_on_node_page web action
+    When I run the :click_terminal_tab web action
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource       | pods |
+      | all_namespaces | true |
+    Then the step should succeed
+    And the output should match "<%= cb.schedule_workers[0].name %>.*debug.*Running"
+    """
+    When I run the :check_messages_on_terminal_page web action
     Then the step should succeed
 
