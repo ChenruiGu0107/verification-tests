@@ -89,6 +89,23 @@ Feature: Testing openshift-controller-manager-operator
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Degraded')['status'] == "Unknown"
 
   # @author wewang@redhat.com
+  # @case_id OCP-33955
+  @admin
+  @destructive
+  Scenario: pods should be running when setting cluster-openshift-controller-manager-operator Unmanaged
+    Given I switch to cluster admin pseudo user
+    When admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Unmanaged
+    And I register clean-up steps:
+    """
+    admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
+    """
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "True"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Degraded')['status'] == "False"
+    Given I use the "openshift-controller-manager" project
+    And 3 pods become ready with labels:
+      | app=openshift-controller-manager |
+
   # @case_id OCP-34642
   @admin
   Scenario: ocm-o properly handles intermittent issues retrieving deployments from api server
