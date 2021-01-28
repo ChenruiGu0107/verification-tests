@@ -39,6 +39,8 @@ Feature: auth prometheus metrics feature
 
     Given the first user is cluster-admin
     # do prometheus query with method other than web UI
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the GET prometheus rest client with:
       | path  | /api/v1/query?                             |
       | query | openshift_auth_basic_password_count_result |
@@ -47,6 +49,7 @@ Feature: auth prometheus metrics feature
       | "result":"success" |
       | "result":"failure" |
       | "result":"error"   |
+    """
 
     # metrics for web login
     When I perform the GET prometheus rest client with:
