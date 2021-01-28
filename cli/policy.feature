@@ -7,8 +7,9 @@ Feature: change the policy of user/service account
     When I run the :new_project client command with:
       | project_name  | <%= cb.proj1 %>      |
     Then the step should succeed
+    Given I obtain test data file "image-streams/image-streams-rhel7.json"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+      | f | image-streams-rhel7.json |
     Then the step should succeed
     When I run the :policy_who_can client command with:
       | verb     |  get                        |
@@ -25,8 +26,9 @@ Feature: change the policy of user/service account
       | system:serviceaccount:<%= cb.proj1 %>:builder  |
     When I create a new project
     Then the step should succeed
+    Given I obtain test data file "image-streams/image-streams-rhel7.json"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+      | f | image-streams-rhel7.json |
     Then the step should succeed
     When I run the :policy_who_can client command with:
       | verb     |  get                        |
@@ -118,8 +120,9 @@ Feature: change the policy of user/service account
       | resource     | imagestreams/layers |
     Then the output should contain:
       | <%= user(1).name %> |
+    Given I obtain test data file "image-streams/image-streams-rhel7.json"
     When I run the :create client command with:
-      | f |https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json|
+      | f | image-streams-rhel7.json |
     Then the step should fail
     When I run the :policy_add_role_to_user client command with:
       | role        | registry-viewer      |
