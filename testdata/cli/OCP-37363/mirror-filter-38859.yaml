@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mirrorfilter
+  labels:
+    name: mirrorfilter
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: cli
+    image: quay.io/openshifttest/oc-cli:tagname
+    command: [ "oc" ]
+    args: 
+      - "image"
+      - "mirror"
+      - "quay.io/openshifttest/busybox:multiarch"
+      - "serviceip:5000/busybox"
+      - "--insecure"
+      - "--filter-by-os=.*"
