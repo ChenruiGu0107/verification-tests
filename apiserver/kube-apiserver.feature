@@ -301,3 +301,52 @@ Feature: KUBE API server related features
       | <%= File.read("snippet_write") %> |
     Then the step should succeed
     And the expression should be true> @result[:response].split("\n")[0].to_i > 0
+
+  # @author kewang@redhat.com
+  # @case_id OCP-33830
+  @admin
+  Scenario: customize audit config of apiservers negative test
+    # Set invalid profile for audit log
+    Given I switch to cluster admin pseudo user
+
+    When I use the "openshift-kube-apiserver" project
+    And a pod becomes ready with labels:
+      | app=openshift-kube-apiserver |
+    # Get the revision of kube-apiserver before test
+    When I run the :get admin command with:
+      | resource      | pod                                    |
+      | resource_name | <%= pod.name %>                        |
+      | o             | jsonpath='{.metadata.labels.revision}' |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :before_change clipboard
+
+    When I run the :patch admin command with:
+      | resource | apiserver/cluster                             |
+      | type     | merge                                         |
+      | p        | {"spec": {"audit": {"profile": "myprofile"}}} |
+    Then the step should fail
+    And the output should contain:
+      | Unsupported value: "myprofile" |
+    When I run the :patch admin command with:
+      | resource | apiserver/cluster |
+      | type     | merge             |
+      | p        | {"spec": {}}      |
+    Then the step should succeed
+    And the output should contain:
+      | cluster patched (no change) |
+    When I run the :delete admin command with:
+      | object_type       | apiserver |
+      | object_name_or_id | cluster   |
+    Then the step should fail
+
+    # After above test, the revision shouldn't be changed 
+    Given I repeat the steps up to 90 seconds:
+    """
+    When I run the :get admin command with:
+      | resource      | pod                                    |
+      | resource_name | <%= pod.name %>                        |
+      | o             | jsonpath='{.metadata.labels.revision}' |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :after_change clipboard
+    Then the expression should be true> cb.after_change.to_i == cb.before_change.to_i
+    """
