@@ -463,10 +463,11 @@ Feature: cluster-logging-operator related cases
     Given a pod becomes ready with labels:
       | name=cluster-logging-operator |
     Given I wait for the "master-certs" secrets to appear up to 300 seconds
+    # seems with the new structure of the secret/master-certs, the masterca and masterkey won't change
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given the expression should be true> cb.master_certs_before['data']['masterca'] !=  secret('master-certs').raw_value_of('masterca')
-    And the expression should be true> cb.master_certs_before['data']['masterkey'] !=  secret('master-certs').raw_value_of('masterkey')
+    # Given the expression should be true> cb.master_certs_before['data']['masterca'] !=  secret('master-certs').raw_value_of('masterca')
+    # And the expression should be true> cb.master_certs_before['data']['masterkey'] !=  secret('master-certs').raw_value_of('masterkey')
     And the expression should be true> cb.elasticsearch_before['data']['logging-es.crt'] != secret('elasticsearch').raw_value_of('logging-es.crt', cached: false)
     And the expression should be true> cb.elasticsearch_before['data']['logging-es.key'] != secret('elasticsearch').raw_value_of('logging-es.key')
     And the expression should be true> cb.elasticsearch_before['data']['elasticsearch.key'] != secret('elasticsearch').raw_value_of('elasticsearch.key')
