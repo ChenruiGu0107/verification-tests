@@ -707,10 +707,12 @@ Feature: only about page related to cluster login page
     When I perform the :change_additional_router web action with:
       | trimed_cluster_name      | sdqe-ui-advance |
       | enable_additional_router |                 |
+      | timeout                  | 120             |
     Then the step should succeed
     When I perform the :install_addon web action with:
-      | addon_name  | DBA Operator |
-      | wait_status | Installed    |
+      | addon_name    | Prow Operator |
+      | wait_status   | Add-on failed |
+      | check_support |               |
     Then the step should succeed
 
   # @author xueli@redhat.com

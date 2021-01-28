@@ -13,16 +13,25 @@ Feature: This is for cluster machine pools testing
       | machine_pool_name | ocp-35970          |
       | machine_type      | m5.2xlarge         |
       | compute_node      | 1                  |
-      | row_number        | 1                  |
+      | row_number        | 0                  |
       | label_key         | openshift.com/test |
       | label_value       | labelvalue1        |
+      | taint_row_number  | 0                  |
+      | taint_key         | taint_k            |
+      | taint_value       | taint_v            |
+      | taint_effect      | NoExecute          |
     Then the step should succeed
     When I perform the :check_specified_machine_pool web action with:
-      | machine_pool_name  | ocp-35970   |
-      | instance_type      | m5.2xlarge  |
-      | node_count         | 1           |
-      | row_number         | 2           |
-      | availability_zones | us-east-1a  |
+      | machine_pool_name  | ocp-35970          |
+      | instance_type      | m5.2xlarge         |
+      | node_count         | 1                  |
+      | row_number         | 2                  |
+      | availability_zones | us-east-1a         |
+      | taint_key          | taint_k            |
+      | taint_value        | taint_v            |
+      | taint_effect       | NoExecute          |
+      | label_key          | openshift.com/test |
+      | label_value        | labelvalue1        |
     Then the step should succeed
     When I perform the :delete_machine_pool web action with:
       | machine_pool_name  | ocp-35970 |
@@ -75,19 +84,19 @@ Feature: This is for cluster machine pools testing
       | label_value | tlabelv |
     Then the step should fail
     When I perform the :set_taint web action with:
-      | taint_row_number    | 1        |
-      | taint_key           | taint_k  |
-      | taint_value         | taint_v  |
-      | taint_effect        | NoExcute |
+      | taint_row_number | 1         |
+      | taint_key        | taint_k   |
+      | taint_value      | taint_v   |
+      | taint_effect     | NoExecute |
     Then the step should fail
     When I perform the :check_existed_label web action with:
       | label_key   | tlabelk |
       | label_value | tlabelv |
     Then the step should fail
     When I perform the :check_existed_taint web action with:
-      | taint_row_number    | 0        |
-      | taint_key           | taint_k  |
-      | taint_value         | taint_v  |
+      | taint_row_number | 0       |
+      | taint_key        | taint_k |
+      | taint_value      | taint_v |
     Then the step should fail
     When I perform the :add_new_label web action with:
       | row_number  | 1       |
