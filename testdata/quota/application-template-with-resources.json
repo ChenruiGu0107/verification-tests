@@ -77,7 +77,7 @@
         "creationTimestamp": null
       },
       "spec": {
-        "dockerImageRepository": "openshift/ruby-22-centos7"
+        "dockerImageRepository": "registry.access.redhat.com/rhscl/ruby-22-rhel7"
       },
       "status": {
         "dockerImageRepository": ""
@@ -114,7 +114,7 @@
           {
             "type": "imageChange",
             "imageChange": {
-              "lastTriggeredImageID": "openshift/ruby-22-centos7:latest"
+              "lastTriggeredImageID": "registry.access.redhat.com/rhscl/ruby-22-rhel7:latest"
             }
           }
         ],
