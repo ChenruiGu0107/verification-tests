@@ -320,9 +320,9 @@ Feature: overview cases
     When I run the :goto_all_machine_sets_page web action
     Then the step should succeed
     When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
-      | layer_number | 1                         |
+      | layer_number | 1                                        |
       | link         | /machine.openshift.io~v1beta1~MachineSet |
-      | text         | MachineSets               |
+      | text         | MachineSet                               |
     Then the step should succeed
     When I run the :check_machinesetdetails_text_in_breadcrumb web action
     Then the step should succeed
