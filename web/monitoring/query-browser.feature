@@ -4,6 +4,7 @@ Feature: query browser
   # @case_id OCP-24343
   @admin
   Scenario: navigate to the query browser via the left side OpenShift console menu
+    #<=4.6
     Given the master version >= "4.2"
     And the first user is cluster-admin
     Given I open admin console in a browser
@@ -23,6 +24,31 @@ Feature: query browser
     When I click the following "a" element:
       | text  | Prometheus UI    |
       | class | co-external-link |
+    Then the step should succeed
+
+  # @author juzhao@redhat.com
+  # @case_id OCP-38879
+  @admin
+  Scenario: 4.7 and above-navigate to the query browser via the left side OpenShift console menu
+    Given the master version >= "4.7"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+    #perform example query
+    When I run the :click_button_example_query web action
+    Then I run the :check_sample_query_area web action
+    And the step should succeed
+    #clear query
+    When I run the :click_clear_query_button web action
+    And I run the :click_run_queries_button web action
+    When I run the :check_button_example_query web action
+    Then the step should succeed
+    #check Prometheus UI link
+    When I click the following "a" element:
+      | text  | Platform Prometheus UI |
+      | class | co-external-link       |
     Then the step should succeed
 
   # @author hongyli@redhat.com
