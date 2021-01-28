@@ -129,7 +129,7 @@ Feature: Node related
   # @case_id OCP-19722
   @admin
   Scenario: Check nodes list columns and terminal tab
-    Given the master version >= "4.3"
+    Given the master version >= "4.5"
     Given the first user is cluster-admin
     Given I store the schedulable workers in the :schedule_workers clipboard
     Given I open admin console in a browser

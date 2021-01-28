@@ -135,11 +135,13 @@ Feature: dashboards related cases
       | f | pod-invalid.yaml    |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given 10 seconds have passed
     When I perform the :check_event_message_on_dashboard_page web action with:
       | event_message | Pulling image "wrong" |
     Then the step should fail
     When I run the :click_events_resume_button web action
     Then the step should succeed
+    Given 10 seconds have passed
     When I perform the :check_event_message_on_dashboard_page web action with:
       | event_message | Pulling image "wrong" |
     Then the step should succeed
@@ -148,6 +150,7 @@ Feature: dashboards related cases
     When I run oc create over "failed-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"] | uitest/hello-openshift |
     Then the step should succeed
+    Given 10 seconds have passed
     When I perform the :check_event_message_on_dashboard_page web action with:
       | event_message | Pulling image "uitest/hello-openshift" |
     Then the step should succeed

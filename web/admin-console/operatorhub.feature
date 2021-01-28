@@ -364,9 +364,6 @@ Feature: operatorhub feature related
     When I perform the :click_checkbox_from_capability_level web action with:
       | text | Full Lifecycle |
     Then the step should succeed
-    When I perform the :filter_by_keyword web action with:
-      | keyword | local storage |
-    Then the step should succeed
     When I run the :open_first_card_in_overlay web action
     Then the step should succeed
     When I run the :check_basic_install_capability web action
@@ -382,9 +379,6 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I perform the :click_checkbox_from_capability_level web action with:
       | text | Seamless Upgrades |
-    Then the step should succeed
-    When I perform the :filter_by_keyword web action with:
-      | keyword | elastic |
     Then the step should succeed
     When I run the :open_first_card_in_overlay web action
     Then the step should succeed

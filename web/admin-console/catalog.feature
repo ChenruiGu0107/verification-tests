@@ -15,11 +15,11 @@ Feature: tests on catalog page
       | resource | all         |
       | selector | testapp=one |
     And the output should match:
-      | service.*ruby-ex          |
-      | deploymentconfig.*ruby-ex |
-      | buildconfig.*ruby-ex      |
-      | imagestream.*ruby-ex      |
-      | route.*ruby-ex            |
+      | service.*ruby          |
+      | deploymentconfig.*ruby |
+      | buildconfig.*ruby      |
+      | imagestream.*ruby      |
+      | route.*ruby            |
 
     When I perform the :create_app_from_deploy_image web action with:
       | project_name   | <%= project.name %>   |
