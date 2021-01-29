@@ -23,7 +23,7 @@ Feature: NFD related scenarios
     And I use the "openshift-operators" project
     And a pod becomes ready with labels:
       | name=nfd-operator |
-    And I run oc create over ERB test file: nfd/nfd_master.yaml
+    And I run oc create over ERB test file: nfd/<%= cb.channel %>/nfd_master.yaml
     Then the step should succeed
     And all the pods in the project reach a successful state
     And I store all worker nodes to the :worker_nodes clipboard
