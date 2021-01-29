@@ -287,8 +287,8 @@ Feature: secrets related scenarios
   Scenario: Use well-formed pull secret with incorrect credentials will fail to build and deploy
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
-      | name     | test |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7:build~https://github.com/openshift/ruby-hello-world |
+      | name     | test                                                                                      |
     Then the step should succeed
 
     Given the "test-1" build completed
