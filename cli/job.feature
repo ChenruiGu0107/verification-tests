@@ -142,7 +142,7 @@ Feature: job.feature
       | f | pod-quota.yaml      |
       | n | <%= project.name %> |
     Then the step should succeed
-    Given I obtain test data file "job/job_with_long_activeDeadlineSeconds.yaml" replacing paths:
+    Given I obtain test data file "job/job_with_long_activeDeadlineSeconds.yaml"
     When I run oc create over "job_with_long_activeDeadlineSeconds.yaml" replacing paths:
       | ["spec"]["parallelism"] | 15 |
       | ["spec"]["completions"] | 15 |
