@@ -10,6 +10,7 @@ data:
       transport tls
       tls_verify_hostname false           # Set false to ignore server cert hostname.
 
+      tls_version 'TLSv1_2'
       tls_cert_path '/etc/ocp-forward/ca-bundle.crt'
       <buffer>
         @type file
