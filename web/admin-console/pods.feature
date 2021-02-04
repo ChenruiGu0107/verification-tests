@@ -86,19 +86,13 @@ Feature: pods related feature
     When I perform the :click_primary_menu web action with:
       | primary_menu | Workloads |
     Then the step should succeed
-    When I perform the :check_secondary_menu_link web action with:
-      | secondary_menu | Deployment Configs               |
-      | text           | Deployment Configs               |
+    When I perform the :check_deploymentconfig_secondary_menu_link web action with:
       | link_url       | all-namespaces/deploymentconfigs |
     Then the step should succeed
-    When I perform the :check_secondary_menu_link web action with:
-      | secondary_menu | Replica Sets               |
-      | text           | Replica Sets               |
+    When I perform the :check_replicaset_secondary_menu_link web action with:
       | link_url       | all-namespaces/replicasets |
     Then the step should succeed
-    When I perform the :check_secondary_menu_link web action with:
-      | secondary_menu | Replication Controllers               |
-      | text           | Replication Controllers               |
+    When I perform the :check_replicationcontroller_secondary_menu_link web action with:
       | link_url       | all-namespaces/replicationcontrollers |
     Then the step should succeed
 
