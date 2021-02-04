@@ -14,15 +14,31 @@ Feature: User management related
     Given I switch to the second user
     And I open admin console in a browser
     And the second user is cluster-admin
-    When I run the :navigate_to_admin_console web action
-    Then the step should succeed
     When I perform the :check_user_in_users_page web action with:
       | text     | <%= user(0, switch: false).name %> |
       | link_url | k8s/cluster/user.openshift.io~v1~User/<%= user(0, switch: false).name %> |
     Then the step should succeed
     # impersonate the first user
+    Given the first user is cluster-admin
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :check_users_secondary_menu web action
+    Then the step should succeed
+    """
+    When I perform the :check_rolebinding_of_user web action with:
+      | username    | <%= user(0, switch: false).name %> |
+      | rolebinding | cluster-admin |
+      | link_url    | /k8s/cluster/clusterrolebindings/cluster-admin |
+    Then the step should succeed
+
+    And cluster role "cluster-admin" is removed from the "first" user
+    When I perform the :impersonate_one_user web action with:
+      | resource_name | <%= user(0, switch: false).name %> |
+    Then the step should succeed
+    When I run the :navigate_to_admin_console web action
     Then the step should succeed
     # first user has no permission to access /user page
     Given I wait up to 20 seconds for the steps to pass:
@@ -43,20 +59,6 @@ Feature: User management related
     When I run the :check_users_secondary_menu web action
     Then the step should succeed
     """
-    Given the first user is cluster-admin
-    When I perform the :impersonate_one_user web action with:
-      | resource_name | <%= user(0, switch: false).name %> |
-    Then the step should succeed
-    Given I wait up to 40 seconds for the steps to pass:
-    """
-    When I run the :check_users_secondary_menu web action
-    Then the step should succeed
-    """
-    When I perform the :check_rolebinding_of_user web action with:
-      | username    | <%= user(0, switch: false).name %> |
-      | rolebinding | cluster-admin |
-      | link_url    | /k8s/cluster/clusterrolebindings/cluster-admin |
-    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-25762
