@@ -214,9 +214,8 @@ Feature: Descheduler related scenarios
      When I run the :logs admin command with:
        | resource_name | pod/<%= cb.pod_name %>              |
        | n             | openshift-kube-descheduler-operator |
-     And the output should contain:
-       | Evicted 1 pods                                                           |
-       | Evicted pod: "<%= cb.testpod_name %>" in namespace "<%= cb.proj_name %>" |
+     And the output should match:
+       | Evict.* <%= cb.testpod_name %>\|"<%= cb.testpod_name %>" |
 
    # @author knarra@redhat.com
    # @case_id OCP-34944
