@@ -187,20 +187,12 @@ Feature: KUBE API server related features
     """
     Given as admin I successfully merge patch resource "apiserver/cluster" with:
       | {"spec": {"audit": {"profile": "Default"}}} |
-    Given I wait up to 100 seconds for the steps to pass:
-      | the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True" |
-    Given I wait up to 1200 seconds for the steps to pass:
-      | the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False" |
+    Given operator "kube-apiserver" becomes progressing within 100 seconds
+    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
     """
 
-    Given I wait up to 100 seconds for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
-    """
-    Given I wait up to 1200 seconds for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
-    """
+    Given operator "kube-apiserver" becomes progressing within 100 seconds
+    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
 
     # Validation for WriteRequestBodies profile setting
     When I use the "openshift-apiserver" project
@@ -249,14 +241,8 @@ Feature: KUBE API server related features
     # Set AllRequestBodies profile for audit log
     Given as admin I successfully merge patch resource "apiserver/cluster" with:
       | {"spec": {"audit": {"profile": "AllRequestBodies"}}} |
-    Given I wait up to 100 seconds for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "True"
-    """
-    Given I wait up to 1200 seconds for the steps to pass:
-    """
-    Then the expression should be true> cluster_operator("kube-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
-    """
+    Given operator "kube-apiserver" becomes progressing within 100 seconds
+    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
 
     # Validation for AllRequestBodies profile setting
     When I use the "openshift-apiserver" project
