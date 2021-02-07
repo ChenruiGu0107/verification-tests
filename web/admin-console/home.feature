@@ -63,7 +63,6 @@ Feature: Home related pages via admin console
     When I run the :check_getting_started web action
     Then the step should succeed
     When I perform the :check_dim_resource_list web action with:
-      | resource_url_name | <%= cb.resource.downcase.to_s.delete(" ")+"s" %>  |
       | resource_singular | <%= cb.resource %>  |
     Then the step should succeed
     """
