@@ -836,5 +836,5 @@ Feature: customize console related
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
-      | CustomRouteSyncDegraded.*FailedCustomRouteApply.*must conform to DNS 952 subdomain convention |
+      | CustomRouteSyncDegraded.*FailedCustomRouteApply.*invalid.*conform.*convention |
     """
