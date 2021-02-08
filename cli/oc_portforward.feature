@@ -79,15 +79,16 @@ Feature: oc_portforward.feature
   # @case_id OCP-12387
   Scenario: Check race condition in port forward connection handling logic
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Given I obtain test data file "pods/hello-pod.json"
+    And I run the :create client command with:
+      | f | hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
     And evaluation of `rand(5000..7999)` is stored in the :port clipboard
     And I run the :port_forward background client command with:
-      | pod       | hello-openshift        |
-      | port_spec | <%= cb[:port] %>:8080  |
-      | _timeout  | 100                    |
+      | pod       | hello-openshift       |
+      | port_spec | <%= cb[:port] %>:8081 |
+      | _timeout  | 100                   |
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:
     """

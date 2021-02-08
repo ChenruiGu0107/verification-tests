@@ -171,8 +171,9 @@ Feature: oc patch/apply related scenarios
       | f | limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
 
     Given the pod named "hello-openshift" status becomes :running
@@ -186,7 +187,7 @@ Feature: oc patch/apply related scenarios
       | name       | hello-openshift    |
     Then the step should succeed
     And the output should match:
-      | [Ii]mage.*openshift/hello-openshift |
+      | [Ii]mage.*openshifttest/hello-openshift |
     And I wait for the steps to pass:
     """
     When I get project pods
