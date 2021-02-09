@@ -351,6 +351,9 @@ Feature: Only for case related to cluster detail page
     When I perform the :go_to_archived_clusters_from_archived_cluster_detail_page web action with:
       | from_page | archived_cluster_detail |
     Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-archive |
+    Then the step should succeed
     When I perform the :unarchive_cluster_from_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
@@ -615,10 +618,10 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-disconnected |
+      | filter_keyword | sdqe-ui-default |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-disconnected |
+      | cluster_name   | sdqe-ui-default |
     Then the step should succeed
     When I run the :click_support_tab web action
     Then the step should succeed
@@ -638,10 +641,10 @@ Feature: Only for case related to cluster detail page
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-disconnected |
+      | filter_keyword | sdqe-ui-default |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-disconnected |
+      | cluster_name   | sdqe-ui-default |
     Then the step should succeed
     When I run the :click_support_tab web action
     Then the step should succeed
