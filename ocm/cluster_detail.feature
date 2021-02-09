@@ -267,28 +267,6 @@ Feature: Only for case related to cluster detail page
   # @case_id OCP-25348
   Scenario: Monitoring tab should show correct message for cluster in installing/disconnected status and no metrics data from telemetry
     Given I open ocm portal as a regularUser user
-    When  I perform the :create_osd_cluster web action with:
-      | cluster_name   | sdqe-ui-metric |
-      | product_id     | osd            |
-      | cloud_provider | aws            |
-    Then the step should succeed
-    Then I wait up to 600 seconds for the steps to pass:
-    """
-    When I perform the :wait_cluster_status_on_detail_page web action with:
-        | cluster_status | installing |
-    Then the step should succeed
-    """
-    When I run the :click_monitoring_tab web action
-    Then the step should succeed
-    When I run the :check_installing_cluster_monitoring_tab web action
-    Then the step should succeed
-    When I run the :last_checkin_loaded web action
-    Then the step should fail
-    # Delete the cluster to clean the env
-    When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | sdqe-ui-metric |
-      | input_text   | sdqe-ui-metric |
-    Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-disconnected |
     Then the step should succeed

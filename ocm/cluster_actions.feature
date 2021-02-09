@@ -274,6 +274,7 @@ Feature: only about page related to cluster actions
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | uninstalling |
+      | wait_time      | 10           |
     Then the step should succeed
     When I perform the :uninstall_succ_prompt_message_displayed web action with:
       | cluster_name   | sdqe-ui-advance |
