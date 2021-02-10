@@ -271,3 +271,25 @@ Feature: etcd related features
      | etcd-serving-ca.*               |
      | restore-etcd-pod                |
    """
+  
+  # @author knarra@redhat.com
+  # @case_id OCP-38898
+  @admin
+  Scenario: Validate the functionality of the etcdctl container
+  Given I switch to cluster admin pseudo user
+  When I use the "openshift-etcd" project
+  And status becomes :running of 3 pods labeled:
+    | app=etcd |
+  When I execute on the pod:
+    | bash | -c | etcdctl version |
+  Then the output should contain:
+    | etcdctl version |
+    | API version     |
+  When I execute on the pod:
+    | bash | -c | etcdctl endpoint status -w table |
+  Then the output should match:
+    | ENDPOINT.*ID.*IS LEADER |
+  When I execute on the pod:
+    | bash | -c | etcdctl endpoint health |
+  Then the output should contain 3 times:
+    | is healthy: successfully committed proposal |
