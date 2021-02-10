@@ -225,3 +225,49 @@ Feature: etcd related features
       | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=etcd_debugging_mvcc_db_total_size_in_bytes |
     Then the step should succeed
     And the expression should be true> YAML.load(@result[:stdout])["data"]["result"][0]["value"][1] != nil
+
+  # @author knarra@redhat.com
+  # @case_id OCP-38722
+  @admin
+  @destructive
+  Scenario: Cluster will gracefully recover if openshift-etcd namespace is removed
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    And status becomes :running of 3 pods labeled:
+      | name=etcd-quorum-guard |
+    When I run the :get admin command with:
+      | resource | cm |
+    Then the step should succeed
+    And the output should match:
+      | etcd-ca-bundle                  |
+      | etcd-endpoints                  |
+      | etcd-metrics-proxy-client-ca.*  |
+      | etcd-metrics-proxy-serving-ca.* |
+      | etcd-peer-client-ca.*           |
+      | etcd-pod.*                      |
+      | etcd-scripts                    |
+      | etcd-serving-ca.*               |
+      | restore-etcd-pod                |
+   Given admin ensures "openshift-etcd" project is deleted
+   And I wait up to 60 seconds for the steps to pass:
+   """
+   Given status becomes :running of 3 pods labeled:
+     | app=etcd |
+   Given  status becomes :running of 3 pods labeled:
+     | name=etcd-quorum-guard |
+   When I run the :get admin command with:
+     | resource | cm |
+   Then the step should succeed
+   And the output should match:
+     | etcd-ca-bundle                  |
+     | etcd-endpoints                  |
+     | etcd-metrics-proxy-client-ca.*  |
+     | etcd-metrics-proxy-serving-ca.* |
+     | etcd-peer-client-ca.*           |
+     | etcd-pod.*                      |
+     | etcd-scripts                    |
+     | etcd-serving-ca.*               |
+     | restore-etcd-pod                |
+   """
