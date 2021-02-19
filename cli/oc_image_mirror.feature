@@ -32,7 +32,7 @@ Feature: oc image mirror related scenarios
 
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-38660
+  # @case_id OCP-38860
   @admin
   Scenario: Check `oc image mirror` with multi-arch images --filter-by-os=not/wildcard
     And evaluation of `image_stream("cli", project("openshift")).tags.first.from.name` is stored in the :oc_cli clipboard
