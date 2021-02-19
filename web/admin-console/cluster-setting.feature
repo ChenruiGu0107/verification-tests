@@ -33,5 +33,30 @@ Feature: about cluster setting page
       | product_version | <%= cb.master_version %> |
     Then the step should succeed
 
+  # @author yapei@rehdat.com
+  # @case_id OCP-33402
+  @admin
+  Scenario: Check related objects of cluster operator
+    Given the master version >= "4.6"
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    
+    When I perform the :goto_co_relatedobjects_page web action with:
+      | clusteroperator_name | openshift-apiserver |
+    Then the step should succeed
+    Given I check all relatedObjects of clusteroperator "openshift-apiserver" are shown
+    
+    When I perform the :goto_co_relatedobjects_page web action with:
+      | clusteroperator_name | openshift-controller-manager |
+    Then the step should succeed
+    Given I check all relatedObjects of clusteroperator "openshift-controller-manager" are shown
+    
+    When I perform the :goto_co_relatedobjects_page web action with:
+      | clusteroperator_name | authentication |
+    Then the step should succeed
+    Given I check all relatedObjects of clusteroperator "authentication" are shown
 
-
+    When I perform the :goto_co_relatedobjects_page web action with:
+      | clusteroperator_name | console |
+    Then the step should succeed
+    Given I check all relatedObjects of clusteroperator "console" are shown
