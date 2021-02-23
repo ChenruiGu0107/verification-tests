@@ -750,7 +750,6 @@ Feature: Install and configuration related scenarios
     And evaluation of `route('alertmanager-main').spec.host` is stored in the :alertmanager_route clipboard
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
-
     #Check thanos querier from svc to wait for some time
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -2130,7 +2129,7 @@ Feature: Install and configuration related scenarios
     Given I use the "openshift-user-workload-monitoring" project
     And I wait up to 300 seconds for the steps to pass:
     """
-    when the pod named "prometheus-user-workload-1" status becomes :running
+    When the pod named "prometheus-user-workload-1" status becomes :running
     And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
     #create project and deploy pod
@@ -3076,3 +3075,95 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | ThanosSidecarPrometheusDown |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-38418
+  @admin
+  @destructive
+  Scenario: prometheus-user-workload API allows requests to the metrics endpoint only
+    Given the master version >= "4.7"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When the pod named "prometheus-user-workload-1" status becomes :running
+    And the pod named "thanos-ruler-user-workload-1" status becomes :running
+    """
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/prometheus-example-app-record.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus-example-app-record.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+
+    Given I switch to the second user
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                      |
+      | pod              | prometheus-k8s-0                                                                                                                                          |
+      | c                | prometheus                                                                                                                                                |
+      | oc_opts_end      |                                                                                                                                                           |
+      | exec_command     | sh                                                                                                                                                        |
+      | exec_command_arg | -c                                                                                                                                                        |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://prometheus-user-workload.openshift-user-workload-monitoring.svc:9091/metrics' |
+    Then the step should succeed
+    And the output should contain:
+      | Forbidden |
+    """
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                                                                       |
+      | pod              | prometheus-k8s-0                                                                                                                                                                                           |
+      | c                | prometheus                                                                                                                                                                                                 |
+      | oc_opts_end      |                                                                                                                                                                                                            |
+      | exec_command     | sh                                                                                                                                                                                                         |
+      | exec_command_arg | -c                                                                                                                                                                                                         |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://prometheus-user-workload.openshift-user-workload-monitoring.svc:9091/api/v1/query?query=version&namespace=<%= cb.proj_name %>' |
+    Then the step should succeed
+    And the output should contain:
+      | 404 page not found |
+    """
+    #assign metric view access
+    Given cluster role "cluster-monitoring-operator" is added to the "second" user
+    And I wait up to 240 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                      |
+      | pod              | prometheus-k8s-0                                                                                                                                          |
+      | c                | prometheus                                                                                                                                                |
+      | oc_opts_end      |                                                                                                                                                           |
+      | exec_command     | sh                                                                                                                                                        |
+      | exec_command_arg | -c                                                                                                                                                        |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://prometheus-user-workload.openshift-user-workload-monitoring.svc:9091/metrics' |
+    Then the step should succeed
+    And the output should contain:
+      | promhttp_metric_handler_requests_total |
+    """
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                                                                       |
+      | pod              | prometheus-k8s-0                                                                                                                                                                                           |
+      | c                | prometheus                                                                                                                                                                                                 |
+      | oc_opts_end      |                                                                                                                                                                                                            |
+      | exec_command     | sh                                                                                                                                                                                                         |
+      | exec_command_arg | -c                                                                                                                                                                                                         |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" 'https://prometheus-user-workload.openshift-user-workload-monitoring.svc:9091/api/v1/query?query=version&namespace=<%= cb.proj_name %>' |
+    Then the step should succeed
+    And the output should contain:
+      | 404 page not found |
+    """
