@@ -175,3 +175,73 @@ Feature: pods related feature
     # column management on All Projects list page - cluster-admin
     When I run the :check_changed_columns_in_all_projects_list_table web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-37526
+  Scenario: Add status popover on Pods list
+    Given the master version >= "4.7"
+    Given I have a project
+    Given I open admin console in a browser
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    # check ErrImagePull/ImagePullBackOff status popover
+    Given I obtain test data file "pods/pod-invalid.yaml"
+    When I run the :create client command with:
+      | f | pod-invalid.yaml    |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I wait for the container named "hello-openshift-invalid" of the "hello-openshift-invalid" pod to reach waiting "ErrImagePull" state
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the :check_status_popover web action with:
+      | status  | ErrImagePull                 |
+      | message | <%= cb.container_state_msg %>|
+    Then the step should succeed
+    """
+
+    Given I wait for the container named "hello-openshift-invalid" of the "hello-openshift-invalid" pod to reach waiting "ImagePullBackOff" state
+
+    Given I wait up to 60 seconds for the steps to pass:
+    """    
+    When I perform the :check_status_popover web action with:
+      | status  | ImagePullBackOff              |
+      | message | <%= cb.container_state_msg %> |
+    Then the step should succeed
+    """
+
+    # check CrashLoopBackOff status popover
+    Given I obtain test data file "pods/crash-pod.yaml"
+    When I run the :create client command with:
+      | f | crash-pod.yaml      |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I wait for the container named "crash-app" of the "crash-pod" pod to reach waiting "CrashLoopBackOff" state
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the :check_status_popover web action with:
+      | status  | CrashLoopBackOff              |
+      | message | <%= cb.container_state_msg %> |
+    Then the step should succeed
+    """
+
+    # check Pending status popover
+    Given I obtain test data file "pods/pending-pod.yaml"
+    When I run the :create client command with:
+      | f | pending-pod.yaml |
+    Then the step should succeed
+    Given the pod named "dummy-pod" status becomes :pending within 300 seconds
+    When I perform the :check_status_popover web action with:
+      | status  | Pending |
+      | message | <%= pod("dummy-pod").status_raw["conditions"][0]["message"].slice(1, 15) %>|
+    Then the step should succeed
+
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_name | dummy-pod            |
+    Then the step should succeed
+    When I perform the :check_status_popover web action with:
+      | status  | Pending |
+      | message | <%= pod("dummy-pod").status_raw["conditions"][0]["message"].slice(1, 15) %>|
+    Then the step should succeed
