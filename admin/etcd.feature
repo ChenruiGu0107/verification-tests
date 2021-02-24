@@ -276,20 +276,73 @@ Feature: etcd related features
   # @case_id OCP-38898
   @admin
   Scenario: Validate the functionality of the etcdctl container
-  Given I switch to cluster admin pseudo user
-  When I use the "openshift-etcd" project
-  And status becomes :running of 3 pods labeled:
-    | app=etcd |
-  When I execute on the pod:
-    | bash | -c | etcdctl version |
-  Then the output should contain:
-    | etcdctl version |
-    | API version     |
-  When I execute on the pod:
-    | bash | -c | etcdctl endpoint status -w table |
-  Then the output should match:
-    | ENDPOINT.*ID.*IS LEADER |
-  When I execute on the pod:
-    | bash | -c | etcdctl endpoint health |
-  Then the output should contain 3 times:
-    | is healthy: successfully committed proposal |
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    When I execute on the pod:
+      | bash | -c | etcdctl version |
+    Then the output should contain:
+      | etcdctl version |
+      | API version     |
+    When I execute on the pod:
+      | bash | -c | etcdctl endpoint status -w table |
+    Then the output should match:
+      | ENDPOINT.*ID.*IS LEADER |
+    When I execute on the pod:
+      | bash | -c | etcdctl endpoint health |
+    Then the output should contain 3 times:
+      | is healthy: successfully committed proposal |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-38959
+  @admin
+  Scenario: Provide an ability to turn off rollbackcopier
+    Given I store the schedulable masters in the :masters clipboard
+    Given I run commands on the nodes in the :masters clipboard after scenario:
+      | sudo chattr -i /etc/kubernetes/rollbackcopy/tmp |
+      | sudo rmdir /etc/kubernetes/rollbackcopy/tmp     |
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    When I execute on the pod:
+      | bash | -c | etcdctl endpoint status -w json |
+    And evaluation of `YAML.load(@result[:stdout]).find{ |e| e.dig("Status", "header", "leader") == e.dig("Status", "header", "memeber_id")}.values[0].split(":")[1].split("//")[1]` is stored in the :etcd_leader clipboard
+    When I run the :get admin command with:
+      | resource | node |
+      | o        | custom-columns=:.metadata.name |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("\n").find {|e| e.match("<%= cb.etcd_leader %>")}` is stored in the :leader_nodename clipboard
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.leader_nodename %>     |
+      | oc_opts_end      |                                    |
+      | exec_command     | chroot                             |
+      | exec_command_arg | /host                              |
+      | exec_command     | ls                                 |
+      | exec_command     | -l              |
+      | exec_command_arg | /etc/kubernetes |
+    Then the step should succeed
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.leader_nodename %>                                    |
+      | oc_opts_end      |                                                                   |
+      | exec_command     | chroot                                                            |
+      | exec_command_arg | /host                                                             |
+      | exec_command     | cat                                                               |
+      | exec_command_arg | /etc/kubernetes/rollbackcopy/currentVersion.latest/backupenv.json |
+    And evaluation of `@result[:stdout]` is stored in the :snapshot_data clipboard
+    Given I store the schedulable masters in the :masters clipboard
+    Given I run commands on the nodes in the :masters clipboard:
+      | sudo mkdir /etc/kubernetes/rollbackcopy/tmp     |
+      | sudo chattr +i /etc/kubernetes/rollbackcopy/tmp |
+    Then the step should succeed
+    Given 3600 seconds have passed
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.leader_nodename %>                                    |
+      | oc_opts_end      |                                                                   |
+      | exec_command     | chroot                                                            |
+      | exec_command_arg | /host                                                             |
+      | exec_command     | cat                                                               |
+      | exec_command_arg | /etc/kubernetes/rollbackcopy/currentVersion.latest/backupenv.json |
+    And evaluation of `@result[:stdout]` is stored in the :snapshot_data_later clipboard
+    And the expression should be true> cb.snapshot_data == cb.snapshot_data_later
