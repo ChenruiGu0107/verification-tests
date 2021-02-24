@@ -49,6 +49,7 @@ Feature: only about page related to cluster archive
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
       | cluster_status | disconnected |
+      | wait_time      | 120          |
     Then the step should succeed
 
   # @author xueli@redhat.com
@@ -58,7 +59,7 @@ Feature: only about page related to cluster archive
     When I run the :go_to_archived_cluster_page web action
     Then the step should succeed
     When I perform the :check_archived_cluster_list_page web action with:
-      | empty_list | true |
+      | archived_list | true |
     Then the step should succeed
     When I run the :click_show_active_clusters_link web action
     Then the step should succeed
@@ -195,11 +196,11 @@ Feature: only about page related to cluster archive
     Then the step should succeed
     When I run the :go_to_archived_cluster_page web action
     Then the step should succeed
-    When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-default |
-    Then the step should succeed
-    When I run the :empty_table_loaded web action
-    Then the step should succeed
+    # When I perform the :filter_name_or_id web action with:
+    #   | filter_keyword | sdqe-ui-default |
+    # Then the step should succeed
+    # When I run the :empty_table_loaded web action
+    # Then the step should succeed
     When I perform the :filter_name_or_id web action with:
       | filter_keyword | sdqe-ui-adminowned-disconnected |
     Then the step should succeed

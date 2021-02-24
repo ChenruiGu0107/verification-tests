@@ -712,6 +712,7 @@ Feature: only about page related to cluster login page
     When I perform the :install_addon web action with:
       | addon_name    | Prow Operator |
       | wait_status   | Add-on failed |
+      | timeout       | 1200          |
       | check_support |               |
     Then the step should succeed
 
