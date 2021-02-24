@@ -305,6 +305,10 @@ Feature: Only for case related to cluster detail page
       | cluster_name   | sdqe-ui-default |
       | ready          |                 |
     Then the step should succeed
+    When I perform the :check_osd_location_in_detail_page web action with:
+      | provider | AWS       |
+      | location | us-east-1 |
+    Then the step should succeed
 
   # @author tzhou@redhat.com
   # @case_id OCP-28142

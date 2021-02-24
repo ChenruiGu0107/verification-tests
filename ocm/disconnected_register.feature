@@ -24,6 +24,8 @@ Feature: Only for case related to disconnected cluster register page
       | operating_system | N/A                           |
       | sockets_type     ||
     Then the step should succeed
+    When I run the :check_disconnected_cluster_without_items web action
+    Then the step should fail
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
@@ -34,3 +36,5 @@ Feature: Only for case related to disconnected cluster register page
       | operating_system | N/A                       |
       | vcpu_type        ||
     Then the step should succeed
+    When I run the :check_disconnected_cluster_without_items web action
+    Then the step should fail

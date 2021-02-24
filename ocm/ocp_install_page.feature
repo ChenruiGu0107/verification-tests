@@ -314,9 +314,6 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :check_codeready_install_page web action
     Then the step should succeed
-    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
-      | provider_name | Code Ready Containers |
-    Then the step should succeed
 
   # @author tzhou@redhat.com
   # @case_id OCP-26380
@@ -349,4 +346,24 @@ Feature: Only about install page
     When I run the :go_to_pull_secret_page web action
     Then the step should succeed
     When I run the :check_pull_secret_page web action
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-38887
+  Scenario: Check elements on the Datacenter tab on create page - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_creation_page_datacenter_tab web action
+    Then the step should succeed
+    When I run the :check_creation_page_datacenter_tab web action
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-38888
+  Scenario: Check elements on the Cloud tab on create page with quota - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_creation_page_cloud_tab web action
+    Then the step should succeed
+    When I run the :check_creation_page_cloud_tab_with_quota web action
     Then the step should succeed
