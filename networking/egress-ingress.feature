@@ -280,11 +280,12 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: Set EgressNetworkPolicy to limit the pod connection to specific CIDR ranges in different namespaces
-    And I have a project
+    Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     Given I have a pod-for-ping in the project
     And evaluation of `BushSlicer::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("www.test.com")` is stored in the :test_ip clipboard
     Given I save egress data file directory to the clipboard
     When I obtain test data file "networking/<%= cb.cb_egress_directory %>/limit_policy.json"
     And I replace lines in "limit_policy.json":
@@ -300,7 +301,7 @@ Feature: Egress-ingress related networking scenarios
 
     When I obtain test data file "networking/<%= cb.cb_egress_directory %>/limit_policy.json"
     And I replace lines in "limit_policy.json":
-      | 0.0.0.0/0 | 8.8.8.8/32 |
+      | 0.0.0.0/0 | <%= cb.test_ip %>/32 |
     And I run the :create admin command with:
       | f | limit_policy.json |
       | n | <%= cb.proj2 %>   |
@@ -324,10 +325,7 @@ Feature: Egress-ingress related networking scenarios
       | 5 |
     Then the step should fail
     When I execute on the "hello-pod" pod:
-      | ping |
-      | -c1 |
-      | -W2 |
-      | 8.8.8.8 |
+      | curl | -I | --connect-timeout | 5 | <%= cb.test_ip %> |
     Then the step should succeed
     When I execute on the "new-hello-pod" pod:
       | curl |
@@ -355,10 +353,7 @@ Feature: Egress-ingress related networking scenarios
     Given a pod becomes ready with labels:
       | name=new-hello-pod |
     When I execute on the "hello-pod" pod:
-      | ping |
-      | -c1 |
-      | -W2 |
-      | 8.8.8.8 |
+      | curl | -I | --connect-timeout | 5 | <%= cb.test_ip %> |
     Then the step should fail
     When I execute on the "hello-pod" pod:
       | curl |
@@ -370,10 +365,7 @@ Feature: Egress-ingress related networking scenarios
       | 5 |
     Then the step should succeed
     When I execute on the "new-hello-pod" pod:
-      | ping |
-      | -c1 |
-      | -W2 |
-      | 8.8.8.8 |
+      | curl | -I | --connect-timeout | 5 | <%= cb.test_ip %> |
     Then the step should fail
     When I execute on the "new-hello-pod" pod:
       | curl |
