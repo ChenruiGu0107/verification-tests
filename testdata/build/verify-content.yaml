@@ -1,0 +1,16 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: verify-run-fs
+spec:
+  runPolicy: Serial
+  source:
+    dockerfile: "FROM quay.io/openshifttest/centos:7\nRUN ls -R /run\nUSER 1001"
+    type: Dockerfile
+  strategy:
+    dockerStrategy:
+      env:
+      - name: BUILD_LOGLEVEL
+        value: "10"
+      imageOptimizationPolicy: SkipLayers
+    type: Docker
