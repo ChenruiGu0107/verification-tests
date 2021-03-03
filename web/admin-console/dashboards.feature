@@ -305,3 +305,36 @@ Feature: dashboards related cases
     When I perform the :check_on_dev_monitoring_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-36912
+  @admin
+  @destructive
+  Scenario: Display insights status on console
+    Given the master version >= "4.7"
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    When I perform the :check_insights_status_when_available web action with:
+      | cluster_id | <%= cluster_version("version").cluster_id %> |
+    Then the step should succeed
+
+    Given I register clean-up steps:
+    """
+    When I run the :scale admin command with:
+      | resource | deployment         |
+      | name     | insights-operator  |
+      | replicas | 1                  |
+      | n        | openshift-insights |
+    Then the step should succeed
+    """
+
+    # scale insights operator down to 0
+    When I run the :scale admin command with:
+      | resource | deployment         |
+      | name     | insights-operator  |
+      | replicas | 0                  |
+      | n        | openshift-insights |
+    Then the step should succeed
+    Given 120 seconds have passed
+    When I run the :check_insights_status_when_unavailable web action
+    Then the step should succeed
