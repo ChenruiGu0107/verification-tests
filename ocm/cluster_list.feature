@@ -46,11 +46,11 @@ Feature: About cluster list page
       | cluster_type   | OCP                              |
     Then the step should succeed
     When I perform the :check_clusters_list_info_include_provider web action with:
-      | cluster_name   | sdqe-ui-default      |
-      | cluster_status | ready                |
-      | cluster_type   | OSD                  |
-      | provider       | AWS                  |
-      | location       | US East, N. Virginia |
+      | cluster_name   | sdqe-ui-default |
+      | cluster_status | ready           |
+      | cluster_type   | OSD             |
+      | provider       | AWS             |
+      | location       | us-east-1       |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-adminosd |
@@ -58,11 +58,11 @@ Feature: About cluster list page
       | cluster_type   | OSD           |
     Then the step should succeed
     When I perform the :check_clusters_list_info_include_provider web action with:
-      | cluster_name   | sdqe-ui-gcp                        |
-      | cluster_status | ready                              |
-      | cluster_type   | OSD                                |
-      | provider       | GCP                                |
-      | location       | Moncks Corner, South Carolina, USA |
+      | cluster_name   | sdqe-ui-gcp |
+      | cluster_status | ready       |
+      | cluster_type   | OSD         |
+      | provider       | GCP         |
+      | location       | us-east1    |
     Then the step should succeed
     When I run the :check_hover_in_cluster_list web action
     Then the step should succeed

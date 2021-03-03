@@ -448,3 +448,40 @@ Feature: only about page related to cluster actions
     When I run the :click_cancel_button web action
     Then the step should succeed
 
+  # @author tzhou@redhat.com
+  # @case_id OCP-35327
+  Scenario: Transfer the 'Disconnected' OCP cluster ownership to another organization from ui
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-disconn-vcpu-type |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-disconn-vcpu-type |
+    Then the step should succeed
+    When I run the :transfer_disconnected_cluster_ownership web action
+    Then the step should succeed
+    Given I open ocm portal as an srepUser user
+    Then the step should succeed
+    When I run the :go_to_disconnected_cluster_register_page web action
+    Then the step should succeed
+    When I perform the :register_disconnect_cluster web action with:
+      | cluster_uuid   | 762e6691-b4fd-4418-ae2a-81d37331721d |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | Cluster was successfully transferred |
+      | result_keyword | Cluster was successfully transferred |
+    Then the step should succeed
+    When I run the :transfer_disconnected_cluster_ownership web action
+    Then the step should succeed
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_disconnected_cluster_register_page web action
+    Then the step should succeed
+    When I perform the :register_disconnect_cluster web action with:
+      | cluster_uuid   | 762e6691-b4fd-4418-ae2a-81d37331721d |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | Cluster was successfully transferred |
+      | result_keyword | Cluster was successfully transferred |
+    Then the step should succeed

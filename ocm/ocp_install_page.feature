@@ -367,3 +367,15 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :check_creation_page_cloud_tab_with_quota web action
     Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-38889
+  Scenario: Check elements on the Cloud tab on create page without quota - UI
+    Given I open ocm portal as an noAnyQuotaUser user
+    Then the step should succeed
+    When I run the :go_to_creation_page_cloud_tab web action
+    Then the step should succeed
+    When I run the :check_creation_page_cloud_tab_without_quota web action
+    Then the step should succeed
+    When I run the :check_creation_page_cloud_tab_specific_part_with_quota web action
+    Then the step should fail
