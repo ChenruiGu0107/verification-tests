@@ -26,15 +26,15 @@ Feature: Testing abrouting
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-edge            |
-      | service   | service-unsecure=20   |
-      | service   | service-unsecure-2=80 |
+      | service   | service-unsecure=60   |
+      | service   | service-unsecure-2=40 |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-edge            |
     Then the step should succeed
     Then the output should contain:
-      | (20%) |
-      | (80%) |
+      | (60%) |
+      | (40%) |
     Given I have a pod-for-ping in the project
     # access the route without cookies
     Given I wait for the steps to pass:
