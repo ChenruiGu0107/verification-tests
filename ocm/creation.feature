@@ -478,7 +478,7 @@ Feature: only about page related to cluster login page
       | us-east-2, US East, Ohio                ||
       | us-west-1, US West, N. California       ||
       | us-west-2, US West, Oregon              ||
-      # | me-south-1, Middle East, Bahrain        |     |
+      | me-south-1, Middle East, Bahrain        ||
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :select_region_by_text web action with:
@@ -486,7 +486,7 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     """
     Given I saved following keys to list in :regions clipboard:
-      | me-south-1, Middle East, Bahrain ||
+      | no regions for now ||
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :select_region_by_text web action with:
@@ -527,18 +527,21 @@ Feature: only about page related to cluster login page
       | cloud_provider | gcp |
     Then the step should succeed
     Given I saved following keys to list in :regions clipboard:
-      | asia-east1, Changhua County, Taiwan          ||
-      | asia-east2, Hong Kong                        ||
-      | asia-northeast1, Tokyo, Japan                ||
-      | asia-southeast1, Jurong West, Singapore      ||
-      | europe-west1, St. Ghislain, Belgium          ||
-      | europe-west2, London, England, UK            ||
-      | europe-west4, Eemshaven, Netherlands         ||
-      | us-central1, Council Bluffs, Iowa, USA       ||
-      | us-east1, Moncks Corner, South Carolina, USA ||
-      | us-east4, Ashburn, Northern Virginia, USA    ||
-      | us-west1, The Dalles, Oregon, USA            ||
-      | us-west2, Los Angeles, California, USA       ||
+      | asia-east1, Changhua County, Taiwan               ||
+      | asia-east2, Hong Kong                             ||
+      | asia-northeast1, Tokyo, Japan                     ||
+      | asia-southeast1, Jurong West, Singapore           ||
+      | europe-west1, St. Ghislain, Belgium               ||
+      | europe-west2, London, England, UK                 ||
+      | europe-west4, Eemshaven, Netherlands              ||
+      | us-central1, Council Bluffs, Iowa, USA            ||
+      | us-east1, Moncks Corner, South Carolina, USA      ||
+      | us-east4, Ashburn, Northern Virginia, USA         ||
+      | us-west1, The Dalles, Oregon, USA                 ||
+      | us-west2, Los Angeles, California, USA            ||
+      | australia-southeast1, Sydney, Australia           ||
+      | northamerica-northeast1, Montréal, Québec, Canada ||
+      | southamerica-east1, Osasco (São Paulo), Brazil    ||
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :select_region_by_text web action with:
@@ -546,18 +549,15 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     """
     Given I saved following keys to list in :regions clipboard:
-      | asia-northeast2, Osaka, Japan                     ||
-      | asia-northeast3, Seoul, Korea                     ||
-      | asia-south1, Mumbai, India                        ||
-      | asia-southeast2, Jakarta, Indonesia               ||
-      | australia-southeast1, Sydney, Australia           ||
-      | europe-north1, Hamina, Finland                    ||
-      | europe-west3, Frankfurt, Germany                  ||
-      | europe-west6, Zürich, Switzerland                 ||
-      | northamerica-northeast1, Montréal, Québec, Canada ||
-      | southamerica-east1, Osasco (São Paulo), Brazil    ||
-      | us-west3, Salt Lake City, Utah, USA               ||
-      | us-west4, Las Vegas, Nevada, USA                  ||
+      | asia-northeast2, Osaka, Japan       ||
+      | asia-northeast3, Seoul, Korea       ||
+      | asia-south1, Mumbai, India          ||
+      | asia-southeast2, Jakarta, Indonesia ||
+      | europe-north1, Hamina, Finland      ||
+      | europe-west3, Frankfurt, Germany    ||
+      | europe-west6, Zürich, Switzerland   ||
+      | us-west3, Salt Lake City, Utah, USA ||
+      | us-west4, Las Vegas, Nevada, USA    ||
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :select_region_by_text web action with:
