@@ -92,3 +92,61 @@ Feature: genericbuild.feature
     And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-39745
+  Scenario: /run filesystem contents are writable 
+    Given I have a project
+    Given I obtain test data file "build/content-mirror.yaml"
+    When I run the :tag client command with:
+      | source | is                    |
+      | dest   | content-mirror:latest |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | content-mirror.yaml |
+    Then the step should succeed
+    And the "content-mirror-1" build was created
+    And the "content-mirror-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/content-mirror-1 |
+    And the output should not contain "Read-only"
+    And the output should contain "/run"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-39746
+  Scenario: Verify /run filesystem contents do not have unexpected content 
+    Given I have a project
+    Given I obtain test data file "build/verify-content.yaml"
+    When I run the :create client command with:
+      | f | verify-content.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | verify-run-fs |
+    Then the step should succeed
+    And the "verify-run-fs-1" build was created
+    And the "verify-run-fs-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/verify-run-fs-1 |
+    And the output should contain:
+      | /run/lock:    |
+      | /run/secrets: |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-39749
+  Scenario: Build container can't access dev info on node 
+    Given I have a project
+    When I run the :new_build client command with:
+      | D    | FROM quay.io/openshifttest/ruby-25-centos7:build\nRUN ls -lah /dev/ |
+      | name | devcheck                                                            | 
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | devcheck |
+    Then the step should succeed
+    And the "devcheck-1" build was created
+    And the "devcheck-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/devcheck-1 |
+    And the output should not contain:
+      | disk |
+      | sda  |
+      | vda  |

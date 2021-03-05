@@ -1,0 +1,33 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: content-mirror
+spec:
+  failedBuildsHistoryLimit: 2
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: content-mirror:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/openshift-qe/content-mirror.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: quay.io/openshifttest/centos:7
+      imageOptimizationPolicy: SkipLayers
+    type: Docker
+  successfulBuildsHistoryLimit: 2
+  triggers:
+  - type: ConfigChange
+  - github:
+      secretReference:
+        name: github-deploymentconfig-trigger
+    type: GitHub
