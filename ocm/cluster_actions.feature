@@ -146,9 +146,10 @@ Feature: only about page related to cluster actions
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
     When I perform the :check_enabled_actions_in_dropdown web action with:
-      | edit_cluster_registration_button ||
-      | edit_display_name_button         ||
-      | archive_button                   ||
+      | edit_cluster_registration_button  ||
+      | edit_display_name_button          ||
+      | archive_button                    ||
+      | edit_subscription_settings_button ||
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-archive |
@@ -156,9 +157,10 @@ Feature: only about page related to cluster actions
     When I run the :expand_actions_on_cluster_detail_page web action
     Then the step should succeed
     When I perform the :check_enabled_actions_in_dropdown web action with:
-      | edit_cluster_registration_button ||
-      | edit_display_name_button         ||
-      | archive_button                   ||
+      | edit_cluster_registration_button  ||
+      | edit_display_name_button          ||
+      | archive_button                    ||
+      | edit_subscription_settings_button ||
     Then the step should succeed
     Given I close the current browser
     Then the step should succeed
