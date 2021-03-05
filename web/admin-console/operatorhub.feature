@@ -881,7 +881,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
-    Given admin checks that the "example" pgcluster exists in the "<%= project.name %>" project
+    Given admin checks that the "hippo" pgcluster exists in the "<%= project.name %>" project
 
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | kiali                 |
@@ -928,7 +928,7 @@ Feature: operatorhub feature related
     #check state status
     When I run the :get admin command with:
       | resource      | pgcluster           |
-      | resource_name | example             |
+      | resource_name | hippo               |
       | n             | <%= project.name %> |
       | output        | yaml                |
     Then the step should succeed
