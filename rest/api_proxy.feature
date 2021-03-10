@@ -3,10 +3,8 @@ Feature: Api proxy related cases
   # @author wjiang@redhat.com
   # @case_id OCP-11531
   # @bug_id 1346167
-  @admin
-  Scenario: Cluster-admin can access both http and https pods and services via the API proxy
+  Scenario: Can access both http and https pods and services via the API proxy
     Given I have a project
-    Given the first user is cluster-admin
     When I run the :new_app client command with:
       |app_repo | openshift/hello-openshift:latest |
     Then the step should succeed
@@ -36,10 +34,10 @@ Feature: Api proxy related cases
 
 
     When I run the :new_app client command with:
-      | app_repo | liggitt/client-cert:latest |
+      | app_repo | quay.io/openshifttest/nginx-alpine:latest |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | deployment=client-cert |
+      | deployment=nginx-alpine |
     # check https service proxy
     # there need slowdown the network
     And I wait up to 60 seconds for the steps to pass:
@@ -48,8 +46,8 @@ Feature: Api proxy related cases
       | project_name  | <%= project.name %> |
       | protocol_type | https               |
       | resource_type | services            |
-      | resource_name | client-cert         |
-      | port_name     | 9443-tcp            |
+      | resource_name | nginx-alpine        |
+      | port_name     | 8443-tcp            |
     Then the step should succeed
     """
     # check https pod proxy
@@ -58,5 +56,5 @@ Feature: Api proxy related cases
       | protocol_type | https               |
       | resource_type | pods                |
       | resource_name | <%= pod.name  %>    |
-      | port_name     | 9443                |
+      | port_name     | 8443                |
     Then the step should succeed
