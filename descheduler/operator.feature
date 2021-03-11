@@ -215,7 +215,7 @@ Feature: Descheduler related scenarios
        | resource_name | pod/<%= cb.pod_name %>              |
        | n             | openshift-kube-descheduler-operator |
      And the output should match:
-       | Evict.* <%= cb.testpod_name %>\|"<%= cb.testpod_name %>" |
+       | Evict.*<%= cb.testpod_name %>\|"<%= cb.testpod_name %>" |
 
    # @author knarra@redhat.com
    # @case_id OCP-34944
@@ -448,3 +448,76 @@ Feature: Descheduler related scenarios
      Then the step should succeed
      And the output should not contain "<%= cb.nodename %>"
      """
+
+   # @author knarra@redhat.com
+   # @case_id OCP-37441
+   @admin
+   @destructive
+   Scenario: Validate TopologyAndDuplicates descheduler profile
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given I store the schedulable workers in the :nodes clipboard
+     Given node schedulable status should be restored after scenario
+     When I run the :oadm_cordon_node admin command with:
+       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+     Then the step should succeed
+     When I run the :oadm_uncordon_node admin command with:
+       | node_name | <%= cb.nodes[0].name %> |
+     Then the step should succeed
+     When I run the :oadm_uncordon_node admin command with:
+       | node_name | <%= cb.nodes[1].name %> |
+     Then the step should succeed
+     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
+     And label "ocp37441-zone=ocp37441zoneA" is added to the "<%= cb.nodes[0].name %>" node
+     And label "ocp37441-zone=ocp37441zoneB" is added to the "<%= cb.nodes[1].name %>" node
+     When I run the :oadm_cordon_node admin command with:
+       | node_name | <%= cb.nodes[1].name %> |
+     Then the step should succeed
+     Given I obtain test data file "descheduler/ocp37441.yaml"
+     Given I switch to first user
+     Given I have a project
+     And evaluation of `project.name` is stored in the :proj_name clipboard
+     When I run the :create client command with:
+       | f | ocp37441.yaml |
+     Then the step should succeed
+     Given I obtain test data file "descheduler/ocp37441one.yaml"
+     When I run the :create client command with:
+       | f | ocp37441one.yaml |
+     Then the step should succeed
+     When I run the :create client command with:
+       | f | ocp37441one.yaml |
+     Then the step should succeed
+     When I run the :oadm_cordon_node admin command with:
+       | node_name | <%= cb.nodes[0].name %> |
+     Then the step should succeed
+     When I run the :oadm_uncordon_node admin command with:
+       | node_name | <%= cb.nodes[1].name %> |
+     Then the step should succeed
+     When I run the :create client command with:
+       | f | ocp37441one.yaml |
+     Then the step should succeed
+     Given 4 pod becomes ready with labels:
+       | ocp37441=ocp37441 |
+     When I run the :oadm_uncordon_node admin command with:
+       | node_name | <%= cb.nodes[0].name %> |
+     Then the step should succeed
+     Given I switch to cluster admin pseudo user
+     And I use the "openshift-kube-descheduler-operator" project
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     When I run the :patch admin command with:
+       | resource      | kubedescheduler                                                               |
+       | resource_name | cluster                                                                       |
+       | p             | [{"op": "replace", "path": "/spec/deschedulingIntervalSeconds", "value": 60}] |
+       | type          | json                                                                          |
+     Then the step should succeed
+     Given I wait for the resource "pod" named "<%= pod.name %>" to disappear
+     Given a pod becomes ready with labels:
+       | app=descheduler |
+     And evaluation of `pod.name` is stored in the :pod_name clipboard
+     When I run the :logs admin command with:
+       | resource_name | pod/<%= cb.pod_name %>              |
+       | n             | openshift-kube-descheduler-operator |
+     Then the step should succeed
+     And the output should match:
+       | \"Evicted pod\" pod\=\"<%= cb.proj_name %>.*\" reason\=\" \(PodTopologySpread\)\" |
