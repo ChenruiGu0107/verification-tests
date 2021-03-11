@@ -6,7 +6,7 @@ Feature: Api proxy related cases
   Scenario: Can access both http and https pods and services via the API proxy
     Given I have a project
     When I run the :new_app client command with:
-      |app_repo | openshift/hello-openshift:latest |
+      | docker_image | quay.io/openshifttest/hello-openshift:openshift |
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=hello-openshift |
