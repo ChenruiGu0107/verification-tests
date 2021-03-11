@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ocp-34268-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ocp-34268-sc
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+

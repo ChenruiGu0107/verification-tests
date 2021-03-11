@@ -1,0 +1,6 @@
+apiVersion: snapshot.storage.k8s.io/v1beta1
+kind: VolumeSnapshotClass
+metadata:
+  name: ocp-34268-vsc
+driver: ebs.csi.aws.com
+deletionPolicy: Delete

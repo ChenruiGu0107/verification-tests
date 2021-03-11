@@ -344,3 +344,70 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
     Given the expression should be true> storage_class('testsc-20964').provisioner == "kubernetes.io/no-provisioner"
     Given the expression should be true> storage_class('testsc-20964').reclaim_policy == "Delete"
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-34268
+  @admin
+  @destructive
+  Scenario: Check Volume Snapshots related page from console
+    Given the master version >= "4.6"
+    Given I have a project
+    Given the first user is cluster-admin
+    Given admin ensures "ocp-34268-sc" storageclass is deleted after scenario
+    Given admin ensures "ocp-34268-vsc" volumesnapshotclass is deleted after scenario
+    Given admin ensures "example-snapcontent" volumesnapshotcontent is deleted after scenario
+
+    And admin clones storage class "ocp-34268-sc" from ":default" with:
+      | ["volumeBindingMode"]    | Immediate |
+
+    Given I obtain test data file "storage/OCP-34268/test-pvc.yaml"
+    Given I obtain test data file "storage/OCP-34268/test-volumesnapshotclass.yaml"
+    When I run oc create over "test-volumesnapshotclass.yaml" replacing paths:
+      | ["driver"] | <%= storage_class("ocp-34268-sc").provisioner %> |
+    Then the step should succeed
+    
+    When I run the :create admin command with:
+      | f | test-pvc.yaml            |
+      | n | <%= project.name %>      |
+    Then the step should succeed
+    And the "ocp-34268-pvc" PVC becomes :bound within 120 seconds
+
+    Given I open admin console in a browser
+    When I perform the :create_volumesnapshot_from_console web action with:
+      | project_name | <%= project.name %> |
+      | pvc_name     | ocp-34268-pvc       |
+      | vsc_name     | ocp-34268-vsc       |
+    Then the step should succeed
+
+    When I perform the :check_snapshot_on_pvc_page web action with:
+      | project_name | <%= project.name %>    |
+      | pvc_name     | ocp-34268-pvc          |
+      | content      | ocp-34268-pvc-snapshot |
+    Then the step should succeed
+    When I perform the :goto_one_volumesnapshot_page web action with:
+      | project_name        | <%= project.name %>    |
+      | volumesnapshot_name | ocp-34268-pvc-snapshot |
+    Then the step should succeed
+
+    When I perform the :check_resource_details web action with:
+      | name                    | ocp-34268-pvc-snapshot |
+      | size                    | <%= volume_snapshot("ocp-34268-pvc-snapshot").restore_size %>               |
+      | source                  | <%= volume_snapshot("ocp-34268-pvc-snapshot").pvc_name %>                   |
+      | volume_snapshot_content | <%= volume_snapshot("ocp-34268-pvc-snapshot").volumesnapshotcontent_name %> |
+      | volume_snapshot_class   | <%= volume_snapshot("ocp-34268-pvc-snapshot").volumesnapshotclass_name %>   |
+    Then the step should succeed
+
+    When I run the :goto_volumesnapshotcontents_page web action
+    Then the step should succeed
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+
+    When I perform the :check_resource_details web action with:
+      | name                       | example-snapcontent |
+      | volume_snapshot            | <%= volume_snapshot_content("example-snapcontent").volume_snapshot %>       |
+      | driver                     | <%= volume_snapshot_content("example-snapcontent").driver %>                |
+      | deletion_policy            | <%= volume_snapshot_content("example-snapcontent").deletion_policy %>       |
+      | volume_snapshot_class_name | <%= volume_snapshot_content("example-snapcontent").volume_snapshot_class %> |
+      | snapshot_handle            | <%= volume_snapshot_content("example-snapcontent").snapshot_handle %>       |
+    Then the step should succeed
+
