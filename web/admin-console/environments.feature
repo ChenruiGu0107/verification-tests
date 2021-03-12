@@ -258,7 +258,7 @@ Feature: environment related
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :search_image web action with:
-      | search_content | openshift/hello-openshift |
+      | search_content | quay.io/openshifttest/hello-openshift:aosqe |
     Then the step should succeed
     When I run the :open_env_edit_for_dc web action
     Then the step should succeed
