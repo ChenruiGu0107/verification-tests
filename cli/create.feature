@@ -235,15 +235,6 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     Given all existing pods die with labels:
       | name=hello-openshift |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/cucushift/master/testdata/cli/hello-openshift/hello-pod.json |
-    Then the step should succeed
-    Given the pod named "hello-openshift" status becomes :running
-    When I run the :delete client command with:
-      | f | hello-openshift/hello-pod.json |
-    Then the step should succeed
-    Given all existing pods die with labels:
-      | name=hello-openshift |
     Given I create the "jenkins" directory
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json" into the "jenkins" dir
     #Change template name to distinguish itself from the default jenkins template
