@@ -3167,3 +3167,19 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | 404 page not found |
     """
+
+  # @author juzhao@redhat.com
+  # @case_id OCP-40029
+  @admin
+  Scenario: remove Ceph block devices in rules
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+
+    Given I run the :get admin command with:
+      | resource      | configmap                  |
+      | resource_name | prometheus-k8s-rulefiles-0 |
+      | namespace     | openshift-monitoring       |
+      | o             | yaml                       |
+    Then the step should succeed
+    And the output should not contain:
+      | rbd |
