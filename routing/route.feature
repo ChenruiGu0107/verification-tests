@@ -1545,3 +1545,150 @@ Feature: Testing route
     And the output should contain:
       | pod:<%= cb.pods[0].name%>:service-unsecure:http |
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-38671
+  @admin
+  Scenario: haproxy.router.openshift.io/timeout-tunnel" annotation gets applied alongside "haproxy.router.openshift.io/timeout" for clear/edge/reencrypt routes
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
+    # Deploy pods and services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    # Deploy a clear, edge and a REEN route
+    # Create edge route over 'service-unsecure' service
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    # Create REEN route over 'service-secure' service
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    # expose a clear route through "service-unsecure"
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | name          | unsecure-route   |
+    Then the step should succeed
+
+    # Annotate the routes with "timeout-tunnel" and "timout" parameters
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | edge-route                                    |
+      | keyval       | haproxy.router.openshift.io/timeout=15s       |
+      | keyval       | haproxy.router.openshift.io/timeout-tunnel=5s |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | reen-route                                    |
+      | keyval       | haproxy.router.openshift.io/timeout=15s       |
+      | keyval       | haproxy.router.openshift.io/timeout-tunnel=5s |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | unsecure-route                                |
+      | keyval       | haproxy.router.openshift.io/timeout=15s       |
+      | keyval       | haproxy.router.openshift.io/timeout-tunnel=5s |
+    Then the step should succeed
+
+    # verify the timeout values in the proxy pod configurations
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And all default router pods become ready
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | grep -w 'be_edge_http:<%= cb.proj_name %>:edge-route' /var/lib/haproxy/conf/haproxy.config -A6 \|grep 'timeout' |
+    Then the step should succeed
+    And the output should contain:
+      | timeout server  15s |
+      | timeout tunnel  5s  |
+    """
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | grep -w 'be_secure:<%= cb.proj_name %>:reen-route' /var/lib/haproxy/conf/haproxy.config -A6 \|grep 'timeout' |
+    Then the step should succeed
+    And the output should contain:
+      | timeout server  15s |
+      | timeout tunnel  5s  |
+    """
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | grep -w 'be_http:<%= cb.proj_name %>:unsecure-route' /var/lib/haproxy/conf/haproxy.config -A6 \|grep 'timeout' |
+    Then the step should succeed
+    And the output should contain:
+      | timeout server  15s |
+      | timeout tunnel  5s  |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-38672
+  @admin
+  Scenario: "haproxy.router.openshift.io/timeout-tunnel" annotation takes precedence over "haproxy.router.openshift.io/timeout" values for passthrough routes
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
+    # Deploy pods and services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+
+    # Deploy a passthrough route
+    When I run the :create_route_passthrough client command with:
+      | name    | route-passth   |
+      | service | service-secure |
+    Then the step should succeed
+
+    # Annotate the routes with "timeout-tunnel" and "timout" parameters for the passthrough route
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | route-passth                                  |
+      | keyval       | haproxy.router.openshift.io/timeout=15s       |
+      | keyval       | haproxy.router.openshift.io/timeout-tunnel=5s |
+
+    # verify the timeout values in the proxy pod configurations
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And all default router pods become ready
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | grep -w 'be_tcp:<%= cb.proj_name %>:route-passth' /var/lib/haproxy/conf/haproxy.config -A6 \|grep 'timeout tunnel' |
+    Then the step should succeed
+    And the output should contain:
+      | timeout tunnel  5s |
+    """
+    # remove the timeout tunnel annotations and check the timeout option again
+    Given I use the "<%= cb.proj_name %>" project
+    When I run the :annotate client command with:
+      | resource     | route                                       |
+      | resourcename | route-passth                                |
+      | keyval       | haproxy.router.openshift.io/timeout-tunnel- |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | grep -w 'be_tcp:<%= cb.proj_name %>:route-passth' /var/lib/haproxy/conf/haproxy.config -A6 \|grep 'timeout tunnel' |
+    Then the step should succeed
+    And the output should contain:
+      | timeout tunnel  15s |
+    """
