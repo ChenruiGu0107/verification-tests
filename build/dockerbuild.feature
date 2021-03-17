@@ -339,7 +339,7 @@ Feature: dockerbuild.feature
   Scenario: When build should not have about image operating system mismatch info
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo  | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+      | app_repo  | openshift/ruby:2.7~https://github.com/openshift/ruby-hello-world |
       | strategy  | docker                                                           |
     And the "ruby-hello-world-1" build completed
     When I run the :logs client command with:
