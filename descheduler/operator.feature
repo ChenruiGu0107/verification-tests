@@ -70,7 +70,7 @@ Feature: Descheduler related scenarios
       | pod_lifetime.go       |
 
   # @author knarra@redhat.com
-  # @case_id 40170
+  # @case_id OCP-40170
   @admin
   Scenario: Install & validate descheduler for 4.7 & above
     Given the master version >= "4.7"
