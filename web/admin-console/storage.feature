@@ -393,8 +393,8 @@ Feature: storage (storageclass, pv, pvc) related
       | name                    | ocp-34268-pvc-snapshot |
       | size                    | <%= volume_snapshot("ocp-34268-pvc-snapshot").restore_size %>               |
       | source                  | <%= volume_snapshot("ocp-34268-pvc-snapshot").pvc_name %>                   |
-      | volume_snapshot_content | <%= volume_snapshot("ocp-34268-pvc-snapshot").volumesnapshotcontent_name %> |
-      | volume_snapshot_class   | <%= volume_snapshot("ocp-34268-pvc-snapshot").volumesnapshotclass_name %>   |
+      | volume_snapshot_content | <%= volume_snapshot("ocp-34268-pvc-snapshot").volume_snapshot_content_name %> |
+      | volume_snapshot_class   | <%= volume_snapshot("ocp-34268-pvc-snapshot").volume_snapshot_class_name %>   |
     Then the step should succeed
 
     When I run the :goto_volumesnapshotcontents_page web action
