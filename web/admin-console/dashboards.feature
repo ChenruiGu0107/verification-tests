@@ -223,51 +223,26 @@ Feature: dashboards related cases
   @admin
   Scenario: Check metrics charts
     Given the master version >= "4.3"
-    Given I have a project
-    When I run the :new_app_as_dc client command with:
-      | app_repo | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b~https://github.com/sclorg/ruby-ex.git |
+    Given I register clean-up steps:
+    """
+    When I run the :oadm_policy_remove_role_from_user admin command with:
+      | role_name | admin                              |
+      | user_name | <%= user(0, switch: false).name %> |
+      | n         | openshift-apiserver                |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deploymentconfig=ruby-ex |
-    When I run the :expose client command with:
-      | resource      | service |
-      | resource_name | ruby-ex |
+    """
+    When I run the :oadm_policy_add_role_to_user admin command with:
+      | role_name | admin                              |
+      | user_name | <%= user(0, switch: false).name %> |
+      | n         | openshift-apiserver                |
     Then the step should succeed
-    Given I wait for the "ruby-ex" service to become ready
-    When I run the :exec background client command with:
-      | pod              | <%= pod.name %>                                                           |
-      | oc_opts_end      |                                                                           |
-      | exec_command     | sh                                                                        |
-      | exec_command_arg | -c                                                                        |
-      | exec_command_arg | for i in {1..100};do curl -sS http://<%= service.url %> &> /dev/null;done |
-    Then the step should succeed
-
+    Given admin uses the "openshift-apiserver" project
+    And a pod becomes ready with labels:
+      | apiserver=true |
     Given I open admin console in a browser
     When I perform the :goto_one_project_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | openshift-apiserver |
     Then the step should succeed
-
-    # query metrics by CLI - get sa/prometheus-k8s token
-    When I run the :serviceaccounts_get_token admin command with:
-      | serviceaccount_name | prometheus-k8s       |
-      | n                   | openshift-monitoring |
-    Then the step should succeed
-    And evaluation of `@result[:stdout]` is stored in the :sa_token clipboard
-
-    # query metrics by CLI - check cpu usage data is generated
-    Given I wait up to 30 seconds for the steps to pass:
-    """
-    When I run the :exec admin command with:
-      | n                | openshift-monitoring |
-      | pod              | prometheus-k8s-0     |
-      | c                | prometheus           |
-      | oc_opts_end      |                      |
-      | exec_command     | sh                   |
-      | exec_command_arg | -c                   |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=namespace%3Acontainer_cpu_usage%3Asum%7Bnamespace%3D%22<%= project.name %>%22%7D |
-    Then the step should succeed
-    And the expression should be true> @result[:stdout] =~ /value.*[\d+,\d+]/
-    """
     When I run the :check_charts_in_project_utilization web action
     Then the step should succeed
     When I run the :check_no_errors_in_charts web action
@@ -275,27 +250,13 @@ Feature: dashboards related cases
     When I run the :click_filesystem_chart web action
     Then the step should succeed
     When I perform the :check_on_dev_monitoring_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | openshift-apiserver |
     Then the step should succeed
 
     When I perform the :goto_one_pod_page web action with:
-      | project_name  | <%= project.name %> |
+      | project_name  | openshift-apiserver |
       | resource_name | <%= pod.name %>     |
     Then the step should succeed
-    # query metrics by CLI - check cpu usage data is generated
-    Given I wait up to 30 seconds for the steps to pass:
-    """
-    When I run the :exec admin command with:
-      | n                | openshift-monitoring |
-      | pod              | prometheus-k8s-0     |
-      | c                | prometheus           |
-      | oc_opts_end      |                      |
-      | exec_command     | sh                   |
-      | exec_command_arg | -c                   |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=pod%3Acontainer_cpu_usage%3Asum%7Bpod%3D%27<%= pod.name %>%27%2Cnamespace%3D%27<%= project.name %>%27%7D |
-    Then the step should succeed
-    And the expression should be true> @result[:stdout] =~ /value.*[\d+,\d+]/
-    """
     When I run the :check_charts_on_pod_page web action
     Then the step should succeed
     When I run the :check_no_errors_in_charts web action
@@ -303,7 +264,7 @@ Feature: dashboards related cases
     When I run the :click_memory_usage_chart web action
     Then the step should succeed
     When I perform the :check_on_dev_monitoring_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | openshift-apiserver |
     Then the step should succeed
 
   # @author yapei@redhat.com
