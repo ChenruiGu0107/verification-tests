@@ -154,9 +154,8 @@ Feature: buildlogic.feature
   Scenario: Build from private git repo with wrong auth method
     Given I have a project
     When I run the :new_build client command with:
-      | image_stream   | openshift/ruby:latest                         |
-      | code           | https://github.com/openshift/ruby-hello-world |
-      | name           | ruby-hello-world                              |
+      | app_repo | openshift/ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | name     | ruby-hello-world                                                    |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     Given I have an ssh-git service in the project
