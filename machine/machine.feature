@@ -358,3 +358,40 @@ Feature: Machine features testing
     Then the expression should be true> machine_set("machineset-clone-37497").desired_replicas(cached: false) == 1
     """
     Then the machineset should have expected number of running machines
+    
+  # @author zhsun@redhat.com
+  # @case_id OCP-27651
+  @admin
+  @destructive
+  Scenario:  Machine not in a running state should get terminated when the machineset gets deleted
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+    And I pick a random machineset to scale
+
+    # Create a machineset
+    Given I get project machineset named "<%= machine_set.name %>" as YAML
+    And I save the output to file> machineset-clone-27651.yaml
+    And I replace content in "machineset-clone-27651.yaml":
+      | <%= machine_set.name %> | machineset-clone-27651 |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-27651.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-clone-27651" machineset is deleted after scenario
+
+    Given I store the last provisioned machine in the :machine clipboard
+    When I run the :get background admin command with:
+      | resource      | machine           |
+      | resource_name | <%= cb.machine %> |
+      | w             | true              |
+    Then the step should succeed
+    When I terminate last background process
+    Then the expression should be true> machine(cb.machine).phase(cached: false) == "Provisioning"
+
+    Then admin ensures "machineset-clone-27651" machineset is deleted
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    And the machine named "<%= cb.machine %>" does not exist
+    """
