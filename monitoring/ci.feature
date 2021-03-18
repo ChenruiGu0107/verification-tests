@@ -16,7 +16,26 @@ Feature: Install and configuration related scenarios
       | exec_command     | cat                      |
       | exec_command_arg | /etc/grafana/grafana.ini |
     Then the output should contain:
-      | cookie_secure = true                        |
+      | cookie_secure = true |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-40320
+  @admin
+  Scenario: 4.8 and above cookie_secure is true in grafana route
+    Given the master version >= "4.8"
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+
+    Given a pod becomes ready with labels:
+      | app.kubernetes.io/name=grafana |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>          |
+      | c                | grafana                  |
+      | exec_command     | cat                      |
+      | exec_command_arg | /etc/grafana/grafana.ini |
+    Then the output should contain:
+      | cookie_secure = true |
 
   # @author juzhao@redhat.com
   # @case_id OCP-23705
@@ -1555,11 +1574,11 @@ Feature: Install and configuration related scenarios
     # get sa/prometheus-k8s token
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
     When I run the :get admin command with:
-      | resource       | pod  |
-      | all_namespaces | true |
-      | o              | wide |
+      | resource       | pod                                             |
+      | all_namespaces | true                                            |
+      | template       | {{range .items}}{{.status.phase}}{{";"}}{{end}} |
     Then the step should succeed
-    And evaluation of `@result[:stdout].split(/\n/)` is stored in the :output_pods clipboard
+    And evaluation of `@result[:stdout].split(/;/)` is stored in the :output_pods clipboard
     And evaluation of `cb.output_pods.map{|n| n.match(/.*Running.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :running_pods clipboard
     #query an metric
     When I perform the HTTP request:
@@ -3068,10 +3087,10 @@ Feature: Install and configuration related scenarios
       | thanos_sidecar_prometheus_up |
 
     When I run the :get client command with:
-      | n             | openshift-monitoring |
-      | resource      | PrometheusRule       |
-      | resource_name | prometheus-k8s-rules |
-      | o             | yaml                 |
+      | n             | openshift-monitoring       |
+      | resource      | configmap                  |
+      | resource_name | prometheus-k8s-rulefiles-0 |
+      | o             | yaml                       |
     Then the step should succeed
     And the output should contain:
       | ThanosSidecarPrometheusDown |
