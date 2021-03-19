@@ -168,3 +168,57 @@ Feature: Storage stage tests
     And I ensure "mypvc" pvc is deleted
     Then the PV becomes :available within 120 seconds
 
+
+  # @author wduan@redhat.com
+  # @case_id OCP-35942
+  @admin
+  Scenario: [Stage] LocalVolumeDiscovery works
+    Given the master version >= "4.6"
+    # LSO, LVS and LVD are installed during stage pipline
+    # storageclass(local-storage-set-sc) and pv(local-pv-*) is supposed to be availabel at this moment
+    Given I check that the "local-storage-set-sc" storageclass exists
+    When I run the :get admin command with:
+      | resource | pv |
+    Then the step should succeed
+    And the output should contain:
+      | local-storage-set-sc |
+
+    Given I switch to cluster admin pseudo user
+    Given I use the "local-storage" project
+    When I run the :get admin command with:
+      | resource | localvolumediscovery  |
+    Then the output should contain "auto-discover-devices"
+    And I save all localvolumediscoveryresults for my cluster to :lvdr_1 clipboard
+
+    Given I switch to the first user
+    And I have a project
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc                |
+      | ["spec"]["storageClassName"]                 | local-storage-set-sc |
+      | ["spec"]["resources"]["requests"]["storage"] | 2G                   |
+    Then the step should succeed
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod        |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc        |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/storage |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    When I run the :get admin command with:
+      | resource      | pv                               |
+      | resource_name | <%= pvc.volume_name %>           |
+      | o             | custom-columns=:.spec.local.path |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/")[-1].strip` is stored in the :device_id clipboard
+
+    Given I log the message> <%= cb.lvdr_1 %>
+    Then the output should contain "<%= cb.device_id %>"
+
+    Given 300 seconds have passed
+    Given I switch to cluster admin pseudo user
+    Given I use the "local-storage" project
+    Given I save all localvolumediscoveryresults for my cluster to :lvdr_2 clipboard
+    And I log the message> <%= cb.lvdr_2 %>
+    Then the output should not contain "<%= cb.device_id %>"
