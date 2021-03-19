@@ -656,8 +656,7 @@ Feature: customize console related
     Then the step should fail
 
     # Click 'Insert snippet' will insert code snippet into YAML editor
-    When I perform the :click_button web action with:
-      | button_text | Insert Snippet |
+    When I run the :insert_snippet web action
     Then the step should succeed
     When I perform the :check_content_in_yaml_editor web action with:
       | yaml_content | countdown |
