@@ -1,6 +1,7 @@
 Feature: build 'apps' with CLI
 
   # @author chunchen@redhat.com
+  @flaky
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
     When I run the :create_secret client command with:
@@ -203,6 +204,7 @@ Feature: build 'apps' with CLI
 
   # @author pruan@redhat.com
   # @case_id OCP-12295
+  @flaky
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type
     Given I have a project
     When I run the :new_app client command with:

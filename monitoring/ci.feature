@@ -1566,6 +1566,7 @@ Feature: Install and configuration related scenarios
   # @author hongyli@redhat.com
   # @case_id OCP-33244
   @admin
+  @flaky
   Scenario: [BZ 1846805] kubelet_running_pod_count shouldn't take into account completed pods
     Given the master version >= "4.6"
     And I switch to cluster admin pseudo user

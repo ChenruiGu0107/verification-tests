@@ -163,6 +163,7 @@ Feature: Testing registry
   # @case_id OCP-22781
   @admin
   @destructive
+  @flaky
   Scenario: Set toleration field for image registry pod
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project

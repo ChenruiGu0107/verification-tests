@@ -3,6 +3,7 @@ Feature: Install and uninstall related scenarios
   # @case_id OCP-22073
   @admin
   @destructive
+  @flaky
   Scenario: install metering via OLM
     Given the master version >= "4.1"
     Given metering service has been installed successfully using OLM
@@ -20,6 +21,7 @@ Feature: Install and uninstall related scenarios
   # @case_id OCP-22527
   @admin
   @destructive
+  @flaky
   Scenario: install metering using Openshift webconsole via Operator Hub link
     # must make sure we don't have an existing project.
     Given the "openshift-metering" metering service is uninstalled using OLM
