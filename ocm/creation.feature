@@ -852,3 +852,28 @@ Feature: only about page related to cluster login page
     When I perform the :check_error_for_labels web action with:
       | error_message | Need to update after SDA-3444 fixed |
     Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-39958
+  Scenario: Check the billing model in creation page
+    Given I open ocm portal as a regularUser user
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | aws |
+    Then the step should succeed
+    When I run the :check_billing_model web action
+    Then the step should succeed
+    When I perform the :select_byoc_model web action with:
+      | AWS ||
+    Then the step should succeed
+    When I run the :check_billing_model web action
+    Then the step should succeed
+    When I run the :click_clusters_url web action
+    Then the step should succeed
+    When I perform the :switch_to_osd_creation_page web action with:
+      | product_id     | osd |
+      | cloud_provider | gcp |
+    Then the step should succeed
+    When I run the :check_billing_model web action
+    Then the step should succeed

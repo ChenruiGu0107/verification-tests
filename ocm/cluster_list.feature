@@ -27,39 +27,39 @@ Feature: About cluster list page
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-ui-ocp |
-      | cluster_status | ready       |
+      | cluster_status | Stale       |
       | cluster_type   | OCP         |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-ui-archive |
-      | cluster_status | disconnected    |
+      | cluster_status | Disconnected    |
       | cluster_type   | OCP             |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-ui-disconnected |
-      | cluster_status | disconnected         |
+      | cluster_status | Disconnected         |
       | cluster_type   | OCP                  |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-ui-adminowned-disconnected  |
-      | cluster_status | disconnected                     |
+      | cluster_status | Disconnected                     |
       | cluster_type   | OCP                              |
     Then the step should succeed
     When I perform the :check_clusters_list_info_include_provider web action with:
       | cluster_name   | sdqe-ui-default |
-      | cluster_status | ready           |
+      | cluster_status | Ready           |
       | cluster_type   | OSD             |
       | provider       | AWS             |
       | location       | us-east-1       |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
       | cluster_name   | sdqe-adminosd |
-      | cluster_status | ready         |
+      | cluster_status | Ready         |
       | cluster_type   | OSD           |
     Then the step should succeed
     When I perform the :check_clusters_list_info_include_provider web action with:
       | cluster_name   | sdqe-ui-gcp |
-      | cluster_status | ready       |
+      | cluster_status | Ready       |
       | cluster_type   | OSD         |
       | provider       | GCP         |
       | location       | us-east1    |
