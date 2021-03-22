@@ -27,19 +27,16 @@ Feature: Scenarios which will be used both for function checking and upgrade che
 
 
   # @author lxia@redhat.com
+  # @case_id OCP-22715
   @admin
-  Scenario Outline: Cluster operator storage should be in available status
+  Scenario: Cluster operator storage should be in available status
     Given I log the messages:
-      | Running <for> test ... |
+      | Running function test ... |
     Given the expression should be true> cluster_operator('storage').condition(type: 'Progressing')['status'] == "False"
     Given the expression should be true> cluster_operator('storage').condition(type: 'Available')['status'] == "True"
     Given the expression should be true> cluster_operator('storage').condition(type: 'Degraded')['status'] == "False"
     Given the expression should be true> env.version_ge("4.2", user: user) ? cluster_operator('storage').condition(type: 'Upgradeable')['status'] == "True" : true
 
-    Examples:
-      | for      |
-      | function | # @case_id OCP-22715
-      | upgrade  | # @case_id OCP-23501
 
   # @author lxia@redhat.com
   Scenario Outline: Dynamic provision with default storage class should work
