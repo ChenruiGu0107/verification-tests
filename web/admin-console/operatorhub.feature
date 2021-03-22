@@ -1587,3 +1587,77 @@ Feature: operatorhub feature related
     # packagemanifests page have catalogsource link
     When I run the :check_packagemanifests_have_cs_link web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-39596
+  @admin
+  @destructive
+  Scenario: Add a UI for enabling and disabling dynamic plugins during operator install
+    Given the master version >= "4.8"
+    Given admin creates "ui-dynamic-plugin-operators" catalog source with image "quay.io/openshifttest/dynamic-plugin-oprs:latest" with display name "ui dynamic plugin test"
+    Given I switch to the first user
+    Given I have a project
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | prometheus                  |
+      | catalog_name     | ui-dynamic-plugin-operators |
+      | target_namespace | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    # check plugins are disabled by default
+    When I run the :check_extension_help_block web action
+    Then the step should succeed
+    When I run the :check_plugins_are_disabled_bydefault web action
+    Then the step should succeed
+
+    # check enablement help message
+    When I perform the :check_warning_for_enablement web action with:
+      | plugin_name | prometheus-plugin1 |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | clusterserviceversion |
+      | n        | <%= project.name %>   |
+    Then the step should succeed
+    And the output should contain "prometheusoperator"
+    """
+
+    # installed operators list page shows 'UI extension available' and redirects user to operator details page
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_extension_available_guide web action
+    Then the step should succeed
+
+    # operator details page show correct status of enabled & disabled plugins
+    When I perform the :check_plugin_status_on_operator_details_page web action with:
+      | plugin_1_name   | prometheus-plugin1 |
+      | plugin_1_status | Enabled            |
+      | plugin_2_name   | prometheus-plugin2 |
+      | plugin_2_status | Disabled           |
+    Then the step should succeed
+    Then the expression should be true> console_operator("cluster").plugins.index("prometheus-plugin1") != nil
+    Then the expression should be true> console_operator("cluster").plugins.index("prometheus-plugin2") == nil
+
+    # enable & disable plugin on operator details page
+    When I perform the :disable_plugin web action with:
+      | plugin_name | prometheus-plugin1 |
+    Then the step should succeed
+    When I perform the :enable_plugin web action with:
+      | plugin_name | prometheus-plugin2 |
+    Then the step should succeed
+    When I perform the :check_plugin_status_on_operator_details_page web action with:
+      | plugin_1_name   | prometheus-plugin1 |
+      | plugin_1_status | Disabled           |
+      | plugin_2_name   | prometheus-plugin2 |
+      | plugin_2_status | Enabled            |
+    Then the step should succeed
+    Then the expression should be true> console_operator("cluster").plugins.index("prometheus-plugin1") == nil
+    Then the expression should be true> console_operator("cluster").plugins.index("prometheus-plugin2") != nil
