@@ -257,8 +257,11 @@ Feature: deployment related features
       | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 55 |
     Then the step should succeed
     Given the pod named "database-1-deploy" status becomes :failed
-    When I get project pods
-    Then the output should contain "DeadlineExceeded"
+    When I run the :describe client command with:
+      | resource | pod               |
+      | name     | database-1-deploy |
+    Then the output should match:
+      | Reason:\\s+DeadlineExceeded |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11203
