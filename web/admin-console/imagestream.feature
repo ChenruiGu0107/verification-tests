@@ -39,8 +39,7 @@ Feature: imagestream related
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
-    When I perform the :check_page_contains web action with:
-      | content | There are 1 warning alerts |
+    When I run the :check_page_contains_warning_alert web action
     Then the step should succeed
     """
     When I perform the :click_button web action with:
