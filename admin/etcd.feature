@@ -346,3 +346,23 @@ Feature: etcd related features
       | exec_command_arg | /etc/kubernetes/rollbackcopy/currentVersion.latest/backupenv.json |
     And evaluation of `@result[:stdout]` is stored in the :snapshot_data_later clipboard
     And the expression should be true> cb.snapshot_data == cb.snapshot_data_later
+
+  # @author knarra@redhat.com
+  # @case_id OCP-39820
+  @admin
+  Scenario: A valid endpoint should have the URL scheme prepended
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd-operator" project
+    And status becomes :running of 1 pods labeled:
+      | app=etcd-operator |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+    When I run the :exec background client command with:
+      | pod              | <%= cb.pod_name %>    |
+      | c                | operator              |
+      | exec_command     | cluster-etcd-operator |
+      | exec_command_arg | rollbackcopy          |
+    Then the step should succeed
+    Given 60 seconds have passed
+    When I terminate last background process
+    And evaluation of `@result[:response]` is stored in the :etcd_endpoint clipboard
+    And the expression should be true> cb.etcd_endpoint.include?("https://localhost:2379")
