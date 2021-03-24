@@ -139,6 +139,7 @@ Feature: elasticsearch related tests
   @commonlogging
   Scenario Outline: Elasticsearch alert rules validation testing
     Given evaluation of `<alert_names>` is stored in the :alerts clipboard
+    Given 5 seconds have passed
     Given I repeat the following steps for each :alert in cb.alerts:
     """
     Given I use the "openshift-logging" project

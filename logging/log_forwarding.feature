@@ -120,7 +120,7 @@ Feature: log forwarding related tests
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given fluentd receiver is deployed as secure in the "openshift-logging" project
+    Given fluentd receiver is deployed as secure with mTLS_share enabled in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/logforwarding/fluentd/secure/logforwarding.yaml"
     When I run the :create client command with:
@@ -231,7 +231,7 @@ Feature: log forwarding related tests
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
 
-    Given fluentd receiver is deployed as secure in the "openshift-logging" project
+    Given fluentd receiver is deployed as secure with server_auth_share enabled in the "openshift-logging" project
 
     Given admin ensures "secure-forward" config_map is deleted from the "openshift-logging" project after scenario
     Given admin ensures "secure-forward" secret is deleted from the "openshift-logging" project after scenario
@@ -350,7 +350,7 @@ Feature: log forwarding related tests
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
-    Given fluentd receiver is deployed as secure in the "openshift-logging" project
+    Given fluentd receiver is deployed as secure with mTLS_share enabled in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/logforwarding/multiple_receiver/logforwarding.yaml"
     When I run the :create client command with:

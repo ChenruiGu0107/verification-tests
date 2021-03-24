@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "servers"
+  labels:
+    provider: aosqe
+    component: "servers"
+    logging-infra: "servers"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      provider: aosqe
+      component: "servers"
+      logging-infra: "servers"
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        logging-infra: "servers"
+        provider: aosqe
+        component: "servers"
+    spec:
+      containers:
+      - name: "fluentdserver"
+        image: "quay.io/openshift/origin-logging-fluentd:latest"
+        imagePullPolicy: "IfNotPresent"
+        args:
+        - "fluentd"
+        - "-c"
+        - "/fluentd/etc/fluent.conf"
+        ports:
+        - containerPort: 24224
+          name: fluentdserver
+        securityContext:
+          privileged: true
+          procMount: Default
+        volumeMounts:
+        - mountPath: /fluentd/etc
+          name: config
+          readOnly: true
+        - mountPath: /etc/fluentd/secrets
+          name: certs
+          readOnly: true
+      - image: quay.io/openshifttest/elasticsearch@sha256:87538ba78df48470563796df1dbbf2e7bf407e97542830bfd395f912b15c07f0
+        imagePullPolicy: IfNotPresent
+        name: elasticsearch-server
+        ports:
+        - containerPort: 9300
+          protocol: TCP
+        - containerPort: 9200
+          protocol: TCP
+        securityContext:
+          privileged: true
+          procMount: Default
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
+          name: elasticsearch-config
+        - mountPath: /usr/share/elasticsearch/config/secret
+          name: certificates
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      serviceAccount: servers
+      serviceAccountName: servers
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: fluentdserver
+        name: config
+      - name: certs
+        secret:
+          defaultMode: 420
+          secretName: fluentdserver
+      - configMap:
+          defaultMode: 420
+          name: elasticsearch-server
+        name: elasticsearch-config
+      - name: certificates
+        secret:
+          defaultMode: 420
+          secretName: elasticsearch-server
+
