@@ -54,7 +54,7 @@ Feature: Storage stage tests
     When I run commands on the host:
       | mount |
     Then the output should contain:
-      | local-pv |
+      | <%= pvc.volume_name %> |
 
     When I run the :scale admin command with:
       | resource | deployment          |
@@ -69,7 +69,7 @@ Feature: Storage stage tests
     When I run commands on the host:
       | mount |
     Then the output should not contain:
-      | local-pv |
+      | <%= pvc.volume_name %> |
     """
 
     When I run the :scale admin command with:
@@ -133,7 +133,7 @@ Feature: Storage stage tests
     When I run commands on the host:
       | mount |
     Then the output should contain:
-      | local-pv |
+      | <%= pvc.volume_name %> |
 
     When I run the :scale admin command with:
       | resource | deployment          |
@@ -148,7 +148,7 @@ Feature: Storage stage tests
     When I run commands on the host:
       | mount |
     Then the output should not contain:
-      | local-pv |
+      | <%= pvc.volume_name %> |
     """
 
     When I run the :scale admin command with:
