@@ -402,3 +402,18 @@ Feature: etcd related features
     Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("etcd").condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator("etcd").condition(type: 'Available')['status'] == "True"
+
+  # @author knarra@redhat.com
+  # @case_id OCP-40615
+  @admin
+  Scenario: Avoid etcdInsufficientMembers alert fires incorrectly when any instance is down and not when quorum is lost
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-monitoring" project
+    When I run the :get admin command with:
+      | resource      | cm                         |
+      | resource_name | prometheus-k8s-rulefiles-0 |
+      | o             | yaml                       |
+    Then the step should succeed
+    And the output should contain:
+      | - alert: etcdInsufficientMembers                                                                                                                                       |
+      | expr: sum(up{job="etcd"} == bool 1 and etcd_server_has_leader{job="etcd"} == bool 1) without (instance,pod) < ((count(up{job="etcd"}) without (instance,pod) + 1) / 2) |
