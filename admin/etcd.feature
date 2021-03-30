@@ -366,3 +366,39 @@ Feature: etcd related features
     When I terminate last background process
     And evaluation of `@result[:response]` is stored in the :etcd_endpoint clipboard
     And the expression should be true> cb.etcd_endpoint.include?("https://localhost:2379")
+
+  # @author knarra@redhat.com
+  # @case_id OCP-39812
+  @admin
+  Scenario: Etcd verification test on Single node cluster
+    Given the cluster is Single Node Openshift
+    # Store node name in clipboard
+    When I run the :get admin command with:
+      | resource    | node                                         |
+      | o           | custom-columns=:.status.addresses[0].address |
+    Then the step should succeed
+    And evaluation of `@result[:stdout]` is stored in the :node_name clipboard
+    Given I switch to cluster admin pseudo user
+    # Validate that there is only one etcd member in openshift-etcd project
+    When I use the "openshift-etcd" project
+    And status becomes :running of 1 pods labeled:
+      | app=etcd |
+    # Find out the leader and store the value in etcd_leader clipboard
+    When I execute on the pod:
+      | bash | -c | etcdctl endpoint status -w json |
+    And evaluation of `YAML.load(@result[:stdout]).find{ |e| e.dig("Status", "header", "leader") == e.dig("Status", "header", "memeber_id")}.values[0].split(":")[1].split("//")[1]` is stored in the :etcd_leader clipboard
+    # Verified the etcd member is leader
+    And the expression should be true> cb.etcd_leader == cb.node_name.strip()
+    # Verify etcd operator pod is running in openshift-etcd-operator project & there is one quorum
+    When I use the "openshift-etcd-operator" project
+    And status becomes :running of 1 pods labeled:
+      | app=etcd-operator |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/<%= cb.pod_name %> |
+    And the output should contain:
+      | etcd cluster has quorum of 1 |
+   # Validate cluster operator status is normal
+    Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Available')['status'] == "True"
