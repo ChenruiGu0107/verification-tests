@@ -147,7 +147,7 @@ Feature: groups and users related features
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
-
+    Given 30 seconds have passed
     When I switch to the first user
     And I wait for the "<%= cb.project1 %>" projects to appear
     And I wait for the resource "project" named "<%= cb.project2 %>" to disappear
@@ -168,16 +168,22 @@ Feature: groups and users related features
       | n        | <%= cb.project1 %> |
     Then the step should succeed
     """
+    And I wait for the steps to pass:
+    """
     When I run the :policy_add_role_to_user client command with:
       | role       | edit                                        |
       | user_name  | <%= user(1, switch: false).name %>          |
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
     When I run the :policy_remove_role_from_user client command with:
       | role       | edit                                        |
       | user_name  | <%= user(1, switch: false).name %>          |
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
+    """
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project2 %> |
@@ -189,14 +195,20 @@ Feature: groups and users related features
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
       | n          | <%= cb.project2 %>                          |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project2 %> |
     Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
     When I run the :new_app client command with:
       | file | application-template-stibuild.json |
       | n    | <%= cb.project2 %>                 |
     Then the step should succeed
+    """
     When I run the :policy_add_role_to_user client command with:
       | role       | edit                                        |
       | user_name  | <%= user(1, switch: false).name %>          |
