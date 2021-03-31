@@ -211,35 +211,27 @@ Feature: build 'apps' with CLI
     Then the "nodejs-ex-1" build completes
     Given I obtain test data file "build/shared_compressed_files/nodejs-ex.zip"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex                 |
-      | from_dir    | -                         |
-      | _stdin      | <%= @result[:response] %> |
-      | _binmode    |                           |
+      | buildconfig  | nodejs-ex     |
+      | from_archive | nodejs-ex.zip |
     Then the step succeeded
     Then the "nodejs-ex-2" build completes
     Given I obtain test data file "build/shared_compressed_files/nodejs-ex.tar"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex                 |
-      | from_dir    | -                         |
-      | _stdin      | <%= @result[:response] %> |
-      | _binmode    |                           |
+      | buildconfig  | nodejs-ex     |
+      | from_archive | nodejs-ex.tar |
     Then the step succeeded
     Then the "nodejs-ex-3" build completes
     Given I obtain test data file "build/shared_compressed_files/nodejs-ex.tar.gz"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex                 |
-      | from_dir    | -                         |
-      | _stdin      | <%= @result[:response] %> |
-      | _binmode    |                           |
+      | buildconfig  | nodejs-ex        |
+      | from_archive | nodejs-ex.tar.gz |
     Then the step succeeded
     Then the "nodejs-ex-4" build completes
     Given I obtain test data file "build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex                 |
-      | from_dir    | -                         |
-      | _stdin      | <%= @result[:response] %> |
-      | _binmode    |                           |
+      | buildconfig  | nodejs-ex |
+      | from_archive | test.zip  |
     Then the step should succeed
     # some environment versions have #1466659 and command may succeed
     And the "nodejs-ex-5" build fails
