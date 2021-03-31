@@ -222,9 +222,9 @@ Feature: buildconfig.feature
   Scenario: Docker build with imageStreamImage in buildConfig
     Given I have a project
     When I run the :import_image client command with:
-      | image_name | <%= project.name %>/ruby                                                                                      |
-      | from       | quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
-      | confirm    | true                                                                                                          |
+      | image_name | <%= project.name %>/ruby                      |
+      | from       | quay.io/openshifttest/ruby-27-centos7:centos7 |
+      | confirm    | true                                          |
     Then the step should succeed
     And the expression should be true> image_stream("ruby").exists?(user: user)
     And evaluation of `image_stream_tag("ruby:latest").digest` is stored in the :imagesha clipboard
@@ -247,7 +247,7 @@ Feature: buildconfig.feature
       | resource | build              |
       | name     | ruby-hello-world-2 |
     Then the step should succeed
-    And the output should match "DockerImage\s+quay.io/openshifttest/ruby-25-centos7@<%= cb.imagesha %>"
+    And the output should match "DockerImage\s+quay.io/openshifttest/ruby-27-centos7@<%= cb.imagesha %>"
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                            |
       | resource_name | ruby-hello-world                                                                                                       |

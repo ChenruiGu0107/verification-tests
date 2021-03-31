@@ -110,8 +110,8 @@ Feature: stibuild.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo     | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
-      | source_secret | mysecret |
+      | app_repo      | openshift/ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | source_secret | mysecret                                                            |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -121,7 +121,7 @@ Feature: stibuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo      | https://github.com/openshift/ruby-hello-world |
-      | image_stream  | openshift/ruby:2.6                            |
+      | image_stream  | openshift/ruby:2.7                            |
       | source_secret | nonsecret                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -134,8 +134,8 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo     | openshift/ruby:2.5~<%= cb.git_repo %> |
-      | source_secret| mysecret                              |
+      | app_repo      | openshift/ruby:latest~<%= cb.git_repo %> |
+      | source_secret | mysecret                                 |
     Then the step should succeed
     And the "sample-1" build was created
     And the "sample-1" build completed
@@ -158,8 +158,8 @@ Feature: stibuild.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_app_as_dc client command with:
-      | app_repo      | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
-      | source_secret | mysecret |
+      | app_repo      | openshift/ruby~https://github.com/openshift/ruby-hello-world |
+      | source_secret | mysecret                                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -176,8 +176,8 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_app_as_dc client command with:
-      | app_repo      | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
-      | source_secret | nonsecret |
+      | app_repo      | openshift/ruby~https://github.com/openshift/ruby-hello-world |
+      | source_secret | nonsecret                                                    |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     Then the "ruby-hello-world-1" build becomes :pending
@@ -189,8 +189,8 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo     | openshift/ruby:2.5~<%= cb.git_repo %> |
-      | source_secret| mysecret                              |
+      | app_repo      | openshift/ruby~<%= cb.git_repo %> |
+      | source_secret | mysecret                          |
     Then the step should succeed
     And the "sample-1" build was created
     And the "sample-1" build completed
@@ -453,7 +453,7 @@ Feature: stibuild.feature
   Scenario: Add invalid pull secret in buildconfig and start-build
   When I have a project
   Then I run the :new_build client command with:
-    | app_repo | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+    | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world |
   Then the step should succeed
   And the "ruby-hello-world-1" build completed
     Given I obtain test data file "build/OCP-30238/invaildsecret.json"

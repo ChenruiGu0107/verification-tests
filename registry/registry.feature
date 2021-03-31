@@ -221,7 +221,7 @@ Feature: Testing registry
       | Internal Registry Hostname  |
       | <%= cb.integrated_reg_ip %> |
     Then I run the :image_mirror client command with:
-      | source_image | <%= cb.integrated_reg_ip %>/openshift/ruby:2.5                 |
+      | source_image | <%= cb.integrated_reg_ip %>/openshift/ruby:latest              |
       | dest_image   | <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage:latest |
       | a            | <%= cb.dockercfg_file %>                                       |
       | insecure     | true                                                           |
