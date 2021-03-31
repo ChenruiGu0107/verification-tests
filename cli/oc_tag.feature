@@ -81,8 +81,8 @@ Feature: oc tag related scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Then I run the :new_build client command with:
-      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
-      | name     | origin-ruby-sample                                           |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7:build~https://github.com/sclorg/ruby-ex.git |
+      | name     | origin-ruby-sample                                                                |
     Then the step should succeed
     Given the "origin-ruby-sample-1" build was created
     And the "origin-ruby-sample-1" build completed
