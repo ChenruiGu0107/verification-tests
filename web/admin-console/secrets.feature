@@ -160,7 +160,7 @@ Feature: secrets related
   # @author schituku@redhat.com
   # @case_id OCP-40430
   Scenario: Create key/value secret from a binary file
-    Given the master version >= "4.7"
+    Given the master version >= "4.8"
     Given I have a project
     Given I open admin console in a browser
 
