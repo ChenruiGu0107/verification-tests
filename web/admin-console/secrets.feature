@@ -156,3 +156,38 @@ Feature: secrets related
     When I perform the :check_page_contains web action with:
       | content | value_2 |
     Then the step should succeed
+
+  # @author schituku@redhat.com
+  # @case_id OCP-40430
+  Scenario: Create key/value secret from a binary file
+    Given the master version >= "4.7"
+    Given I have a project
+    Given I open admin console in a browser
+
+    When I perform the :goto_secrets_creation_page web action with:
+      | project_name        | <%= project.name %> |
+      | secret_type         | generic             |
+    Then the step should succeed
+    # get the secret binary file
+    Given I obtain test data file "secrets/secret-binary-file.binary"
+    When I perform the :create_generic_secret web action with:
+      | secret_name      | gui-secret-file                                          |
+      | key              | gui-secret-key-from-file                                 |
+      | secret_file_path | <%= localhost.absolutize("secret-binary-file.binary") %> |
+    Then the step should succeed
+    When I run the :check_message_for_binary_file web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+
+    Given I wait for the "gui-secret-file" secret to appear up to 20 seconds
+    # Check created secret
+    When I perform the :goto_one_secret_page web action with:
+      | project_name        | <%= project.name %> |
+      | secret_name         | gui-secret-file     |
+    Then the step should succeed
+    When I run the :check_page_contains_save_file web action
+    Then the step should succeed
+    When I run the :check_encoded_secret web action
+    Then the step should succeed
+
