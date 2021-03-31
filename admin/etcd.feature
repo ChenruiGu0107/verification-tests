@@ -320,8 +320,8 @@ Feature: etcd related features
       | exec_command     | chroot                             |
       | exec_command_arg | /host                              |
       | exec_command     | ls                                 |
-      | exec_command     | -l              |
-      | exec_command_arg | /etc/kubernetes |
+      | exec_command     | -l                                 |
+      | exec_command_arg | /etc/kubernetes                    |
     Then the step should succeed
     When I run the :debug admin command with:
       | resource         | node/<%= cb.leader_nodename %>                                    |
@@ -417,3 +417,37 @@ Feature: etcd related features
     And the output should contain:
       | - alert: etcdInsufficientMembers                                                                                                                                       |
       | expr: sum(up{job="etcd"} == bool 1 and etcd_server_has_leader{job="etcd"} == bool 1) without (instance,pod) < ((count(up{job="etcd"}) without (instance,pod) + 1) / 2) |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-40059
+  @admin
+  Scenario: Backup script does not take static-pod-resources on a reliable way
+    Given I store the schedulable masters in the :masters clipboard
+    And I use the "<%= cb.masters.first.name %>" node
+    When I run commands on the host:
+      | ls -vd /etc/kubernetes/static-pod-resources/kube-apiserver-pod-* \| tail -1 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :static_kubeapiserver_pod clipboard
+    When I run commands on the host:
+      | grep -o -m 1 "/etc/kubernetes/static-pod-resources/kube-apiserver-pod-[0-9]*" "/etc/kubernetes/manifests/kube-apiserver-pod.yaml" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :latest_kubeapiserver_pod clipboard
+    And the expression should be true> cb.static_kubeapiserver_pod == cb.latest_kubeapiserver_pod
+    When I run commands on the host:
+      | ls -vd /etc/kubernetes/static-pod-resources/kube-controller-manager-pod-* \| tail -1 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :static_kcm_pod clipboard
+    When I run commands on the host:
+      | grep -o -m 1 "/etc/kubernetes/static-pod-resources/kube-controller-manager-pod-[0-9]*" "/etc/kubernetes/manifests/kube-controller-manager-pod.yaml" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :latest_kcm_pod clipboard
+    And the expression should be true> cb.static_kcm_pod == cb.latest_kcm_pod
+    When I run commands on the host:
+      | ls -vd /etc/kubernetes/static-pod-resources/kube-scheduler-pod-* \| tail -1 |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :static_kubescheduler_pod clipboard
+    When I run commands on the host:
+      | grep -o -m 1 "/etc/kubernetes/static-pod-resources/kube-scheduler-pod-[0-9]*" "/etc/kubernetes/manifests/kube-scheduler-pod.yaml" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :latest_kubescheduler_pod clipboard
+    And the expression should be true> cb.static_kubescheduler_pod == cb.latest_kubescheduler_pod
