@@ -648,8 +648,16 @@ Feature: only about page related to cluster login page
       | cloud_provider | aws             |
       | cluster_name   | sdqe-ui-default |
     Then the step should succeed
-    Given I close the current browser
+    When I perform the :wait_cluster_status_on_detail_page web action with:
+      | cluster_status | Ready |
+      | wait_time      | 7200  |
     Then the step should succeed
+    When I run the :check_install_successfully_message_loaded web action
+    Then the step should succeed
+
+  # @author xueli@redhat.com
+  # @case_id OCP-40720
+  Scenario: Create an default OSD cluster on AWS by orgAdmin
     Given I open ocm portal as an orgAdmin user
     Then the step should succeed
     When I perform the :create_osd_cluster web action with:
@@ -657,24 +665,10 @@ Feature: only about page related to cluster login page
       | cloud_provider | aws           |
       | cluster_name   | sdqe-adminosd |
     When I perform the :wait_cluster_status_on_detail_page web action with:
-      | cluster_status | ready |
+      | cluster_status | Ready |
       | wait_time      | 7200  |
     Then the step should succeed
     When I run the :check_install_successfully_message_loaded web action
-    Then the step should succeed
-    When I run the :go_to_cluster_list_page web action
-    Then the step should succeed
-    When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-default |
-    Then the step should succeed
-    When I run the :go_to_cluster_list_page web action
-    Then the step should succeed
-    When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-adminosd |
-    Then the step should succeed
-    When I perform the :wait_cluster_status_on_detail_page web action with:
-      | cluster_status | ready |
-      | wait_time      | 7200  |
     Then the step should succeed
 
   # @author xueli@redhat.com
@@ -699,7 +693,7 @@ Feature: only about page related to cluster login page
       | listening      | internal         |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
-      | cluster_status | ready |
+      | cluster_status | Ready |
       | wait_time      | 7200  |
     Then the step should succeed
     When I run the :refresh_detail_page web action
@@ -736,7 +730,7 @@ Feature: only about page related to cluster login page
       | host_prefix    | /24                |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
-      | cluster_status | ready |
+      | cluster_status | Ready |
       | wait_time      | 7200  |
     Then the step should succeed
 
