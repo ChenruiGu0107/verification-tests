@@ -3202,3 +3202,26 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should not contain:
       | rbd |
+
+  # @author juzhao@redhat.com
+  # @case_id OCP-40863
+  @admin
+  @destructive
+  Scenario: set loglevel for prometheusOperator,prometheus and thanosQuerier
+    Given the master version >= "4.7"
+    And I switch to cluster admin pseudo user
+    And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    #set log level
+    Given I obtain test data file "monitoring/loglevel_config.yaml"
+    When I run the :apply client command with:
+      | f         | loglevel_config.yaml |
+      | overwrite | true                 |
+    Then the step should succeed
+
+    Given I use the "openshift-monitoring" project
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Then the expression should be true> deployment("prometheus-operator").containers_spec(cached: false).first.args.include?("--log-level=warn")
+    And the expression should be true> prometheus("k8s").log_level(cached: false) == "error"
+    And the expression should be true> deployment("thanos-querier").containers_spec(cached: false).first.args.include?("--log.level=debug")
+    """
