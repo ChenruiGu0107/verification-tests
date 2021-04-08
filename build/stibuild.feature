@@ -583,6 +583,7 @@ Feature: stibuild.feature
   # @author wewang@redhat.com
   # @case_id OCP-24931
   @admin
+  @flaky
   Scenario: Mount trusted CA for cluster proxies to source build pod
   Given I run the :get admin command with:
     | resource      | configmap                          |

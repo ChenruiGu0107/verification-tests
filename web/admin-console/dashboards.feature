@@ -112,6 +112,7 @@ Feature: dashboards related cases
   # @author yanpzhan@redhat.com
   # @case_id OCP-26557
   @admin
+  @flaky
   Scenario: System events streaming
     Given the master version >= "4.4"
     Given the first user is cluster-admin

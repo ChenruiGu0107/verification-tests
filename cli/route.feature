@@ -1,6 +1,7 @@
 Feature: route related features via cli
   # @author yinzhou@redhat.com
   # @case_id OCP-12559
+  @flaky
   Scenario: Create a route without route's name named ---should be failed
     Given I have a project
     Given I obtain test data file "routing/negative/route_with_nil_routename.json"
