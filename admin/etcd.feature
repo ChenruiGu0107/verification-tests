@@ -451,3 +451,29 @@ Feature: etcd related features
     Then the step should succeed
     And evaluation of `@result[:stdout].split("/").pop().chomp()` is stored in the :latest_kubescheduler_pod clipboard
     And the expression should be true> cb.static_kubescheduler_pod == cb.latest_kubescheduler_pod
+
+  # @author knarra@redhat.com
+  # @case_id OCP-40981
+  @admin
+  @destructive
+  Scenario: etcd should use socket option (SO_REUSEADDR) instead of wait for port release on process restart
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    Given 3 pods become ready with labels:
+      | app=etcd |
+    Given evaluation of `@pods[0].name` is stored in the :etcdpod clipboard
+    When I run the :rsh client command with:
+      | c           | etcd              |
+      | command     | -T                |
+      | pod         | <%= cb.etcdpod %> |
+      | command     | kill              |
+      | command_arg | 1                 |
+    Then the step should succeed
+    Given I wait up to 80 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.etcdpod %>\\s+3\/3\\s+Running\\s+1 |
+    """
