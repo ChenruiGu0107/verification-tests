@@ -230,3 +230,15 @@ Feature: Testing DNS features
       | bash | -c | coredns -version |
     Then the step should succeed
     And the output should contain "CoreDNS-1.8."
+
+  # @author jechen@redhat.com
+  # @case_id OCP-40717
+  @admin
+  Scenario: Hostname lookup does not delay when master node down   
+    Given the master version >= "4.5"
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-dns" project
+    And a pod becomes ready with labels:
+      | dns.operator.openshift.io/daemonset-dns=default |
+    Then the expression should be true> daemon_set('dns-default').container_spec(name: 'dns').readiness_probe.dig('periodSeconds') == 3
+    Then the expression should be true> daemon_set('dns-default').container_spec(name: 'dns').readiness_probe.dig('timeoutSeconds') == 3
