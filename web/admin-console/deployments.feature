@@ -5,10 +5,6 @@ Feature: deployment/dc related features via web
   Scenario: Check deployment page
     Given the master version >= "3.11"
     Given I have a project
-    Given I obtain test data file "storage/nfs/claim-rwo-ui.json"
-    When I run the :create client command with:
-      | f | claim-rwo-ui.json |
-    Then the step should succeed
     And I open admin console in a browser
     When I perform the :goto_deployment_page web action with:
       | project_name | <%= project.name %> |
@@ -20,28 +16,29 @@ Feature: deployment/dc related features via web
       | deploy_name  | example              |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
-      | name            | example             |
-      | pod_selector    | app=hello-openshift |
-      | update_strategy | RollingUpdate       |
-      | max_unavailable | 25%                 |
-      | max_surge       | 25%                 |
+      | name            | example |
+      | pod_selector    | <%= deployment("example").pod_selector[0] %>                            |
+      | update_strategy | <%= deployment("example").strategy['type'] %>                            |
+      | max_unavailable | <%= deployment("example").strategy['rollingUpdate']['maxUnavailable'] %> |
+      | max_surge       | <%= deployment("example").strategy['rollingUpdate']['maxSurge'] %>       |
     Then the step should succeed
+    Given a pod is present with labels:
+      | <%= deployment("example").pod_selector[0] %> |
     When I perform the :click_pod_selector_on_resource_detail web action with:
-      | value | app=hello-openshift |
+      | value | <%= deployment("example").pod_selector[0] %> |
     Then the step should succeed
     Given the expression should be true> browser.url.include? "/search/ns/<%= project.name %>?kind=Pod"
+    When I perform the :check_page_contains web action with:
+      | content | <%= pod.name %> |
+    Then the step should succeed
     When I perform the :goto_one_deployment_page web action with:
       | project_name | <%= project.name %>  |
       | deploy_name  | example              |
     Then the step should succeed
-    When I run the :edit_pod_count_action web action
-    Then the step should succeed
-    When I perform the :update_resource_count web action with:
+    When I perform the :update_pod_count web action with:
       | resource_count | 2 |
     Then the step should succeed
     Given I wait until number of replicas match "2" for deployment "example"
-    When I run the :edit_update_strategy_action web action
-    Then the step should succeed
     When I perform the :update_rollout_strategy web action with:
       | update_strategy | Recreate |
     Then the step should succeed
@@ -80,9 +77,9 @@ Feature: deployment/dc related features via web
     When I run the :delete_deployment_action web action
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
-      | cascade       | true |
+      | cascade | true |
     Then the step should succeed
-    Given I wait up to 70 seconds for the steps to pass:
+    Given I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | deployment |

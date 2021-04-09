@@ -193,8 +193,7 @@ Feature: storage (storageclass, pv, pvc) related
     Given the first user is cluster-admin
     When I run the :goto_storageclass_page web action
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text | Create Storage Class |
+    When I run the :click_resource_creation_button web action
     Then the step should succeed
     When I run the :wait_form_loaded web action
     Then the step should succeed
