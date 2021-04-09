@@ -222,3 +222,21 @@ Feature: Storage stage tests
     Given I save all localvolumediscoveryresults for my cluster to :lvdr_2 clipboard
     And I log the message> <%= cb.lvdr_2 %>
     Then the output should not contain "<%= cb.device_id %>"
+
+  # @author wduan@redhat.com
+  # @case_id OCP-40577
+  @admin
+  Scenario: [Stage] Local storage must-gather image can gather logs
+    Given the master version >= "4.7"
+    Given a 5 characters random string is saved into the :rand_str clipboard
+    And I store master major version in the :master_version clipboard
+    When I switch to cluster admin pseudo user
+    And I run the :oadm_must_gather admin command with:
+      | dest_dir | /tmp/ocp40577/must-gather.local.<%= cb.rand_str %>                                         |
+      | image    | registry.redhat.io/openshift4/ose-local-storage-mustgather-rhel8:v<%= cb.master_version %> |
+    Then the step should succeed
+    And the output should not contain:
+      | "unable to pull image" |
+    And the "/tmp/ocp40577/must-gather.local.<%= cb.rand_str %>" file is present
+    Given the "/tmp/ocp40577/must-gather.local.<%= cb.rand_str %>" directory is removed
+
