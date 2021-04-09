@@ -126,11 +126,12 @@ Feature: dashboards related cases
     And the expression should be true> browser.url.end_with? "/k8s/all-namespaces/events"
     """
 
-    When I run the :goto_cluster_dashboards_page web action
+    Given I create a new project
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :click_events_pause_button web action
     Then the step should succeed
-    Given I create a new project
     Given I obtain test data file "pods/pod-invalid.yaml"
     When I run the :create client command with:
       | f | pod-invalid.yaml    |
@@ -142,10 +143,12 @@ Feature: dashboards related cases
     Then the step should fail
     When I run the :click_events_resume_button web action
     Then the step should succeed
-    Given 10 seconds have passed
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :check_event_message_on_dashboard_page web action with:
       | event_message | Pulling image "wrong" |
     Then the step should succeed
+    """
 
     Given I obtain test data file "networking/failed-pod.json"
     When I run oc create over "failed-pod.json" replacing paths:

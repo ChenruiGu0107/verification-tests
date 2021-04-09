@@ -12,6 +12,8 @@ Feature: tests on catalog page
       | is_name      | ruby                |
       | label        | testapp=one         |
     Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | all         |
       | selector | testapp=one |
@@ -21,12 +23,15 @@ Feature: tests on catalog page
       | buildconfig.*ruby      |
       | imagestream.*ruby      |
       | route.*ruby            |
+    """
 
     When I perform the :create_app_from_deploy_image web action with:
       | project_name   | <%= project.name %>   |
       | label          | testdc=two            |
       | search_content | quay.io/openshifttest/hello-openshift:aosqe |
     Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | all        |
       | selector | testdc=two |
@@ -35,6 +40,7 @@ Feature: tests on catalog page
       | service.*hello-openshift          |
       | imagestream.*hello-openshift      |
       | route.*hello-openshift            |
+    """
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-21250
