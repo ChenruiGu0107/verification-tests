@@ -44,8 +44,8 @@ Feature: Return description with cli
       | name     | :false |
     Then the output should contain:
       | URL:			https://github.com/openshift/ruby-hello-world.git |
-      | From Image:		ImageStreamTag openshift/ruby:2.5             |
-      | Output to:		ImageStreamTag origin-ruby-sample:lates       |
+      | From Image:		ImageStreamTag openshift/ruby:latest          |  
+      | Output to:		ImageStreamTag origin-ruby-sample:latest      |
 
     When  I run the :describe client command with:
       | resource | rc |
