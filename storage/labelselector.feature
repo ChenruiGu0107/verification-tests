@@ -139,7 +139,7 @@ Feature: Target pvc to a specific pv
   # @case_id OCP-11971
   @admin
   Scenario: PVC could bind prebound PV with mismatched label
-    Given I have a project
+    Given I create a project with non-leading digit name
     Given I obtain test data file "storage/nfs/labelmatch/pv5.json"
     When admin creates a PV from "pv5.json" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
