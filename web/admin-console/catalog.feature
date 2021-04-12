@@ -2,7 +2,6 @@ Feature: tests on catalog page
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-23610
-  @flaky
   Scenario: Create labels when source-to-image/Deploy Image creation
     Given the master version >= "4.2"
     Given I have a project
