@@ -127,6 +127,7 @@ Feature: Testing DNS features
   @admin
   Scenario: the image-registry service IP is added to node's hosts file
     Given the master version >= "4.1"
+    And the master version < "4.8"
     And I switch to cluster admin pseudo user
     Given I use the "openshift-image-registry" project
     And I use the "image-registry" service
@@ -234,7 +235,7 @@ Feature: Testing DNS features
   # @author jechen@redhat.com
   # @case_id OCP-40717
   @admin
-  Scenario: Hostname lookup does not delay when master node down   
+  Scenario: Hostname lookup does not delay when master node down
     Given the master version >= "4.5"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-dns" project
@@ -242,3 +243,23 @@ Feature: Testing DNS features
       | dns.operator.openshift.io/daemonset-dns=default |
     Then the expression should be true> daemon_set('dns-default').container_spec(name: 'dns').readiness_probe.dig('periodSeconds') == 3
     Then the expression should be true> daemon_set('dns-default').container_spec(name: 'dns').readiness_probe.dig('timeoutSeconds') == 3
+
+  # @author jechen@redhat.com
+  # @case_id OCP-40867
+  @admin
+  Scenario: image-registry service IP is added to node's hosts file
+    Given the master version >= "4.8"
+    And I switch to cluster admin pseudo user
+    Given I use the "openshift-image-registry" project
+    And I use the "image-registry" service
+    And evaluation of `service.ip` is stored in the :image_registry_svc_ip clipboard
+
+    Given I use the "openshift-dns" project
+    And all existing pods are ready with labels:
+      | dns.operator.openshift.io/daemonset-node-resolver |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>   |
+      | exec_command     | cat               |
+      | exec_command_arg | /etc/hosts        |
+    Then the step should succeed
+    And the output should contain "<%= cb.image_registry_svc_ip %> image-registry.openshift-image-registry.svc image-registry.openshift-image-registry.svc.cluster.local"
