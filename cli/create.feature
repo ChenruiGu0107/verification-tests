@@ -308,31 +308,29 @@ Feature: creating 'apps' with CLI
       | f        | invalid.json |
     Then the step should fail
     And the output should match:
-      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+      | error:.*invalid character |
     When I run the :create client command with:
       | _tool    | <tool>        |
       | f        | template.json |
     Then the step should fail
     And the output should match:
-      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+      | error:.*invalid character |
     When I run the :process client command with:
       | f | template.json |
     Then the step should fail
     And the output should match:
-      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+      | error:.*invalid character |
     When I run the :replace client command with:
       | _tool    | <tool>        |
       | f        | template.json |
     Then the step should fail
     And the output should match:
-      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+      | error:.*invalid character |
     Given I obtain test data file "cli/OCP-11049/invalid.yaml"
     When I run the :create client command with:
       | _tool    | <tool>        |
       | f        | invalid.yaml |
     Then the step should fail
-    #And the output should match:
-    #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
     Examples:
       | tool     |
       | oc       | # @case_id OCP-11049
