@@ -522,14 +522,15 @@ Feature: Cluster Autoscaler Tests
       | c             | machine-controller |
     Then the step should succeed
     And the output should match:
-      | <machineset_name>-invalid.*ReconcileError |
+      | <Output> |
     """
 
     Examples:
-      | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  |
-      | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | # @case_id OCP-28778
-      | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | # @case_id OCP-28876
-      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | # @case_id OCP-28875
+      | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  | Output                                    |
+      | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28778
+      | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28876
+      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28875
+      | /diskGiB:.*/      | diskGiB: 120               | diskGiB: 0            | diskGiB:      | machineset-41039 | error getting disk spec                   | # @case_id OCP-41039
 
   # @author zhsun@redhat.com
   @admin
