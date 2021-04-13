@@ -47,7 +47,7 @@ Feature: oc set triggers tests
   Scenario: `oc set triggers` for bc
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo |  openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+      | app_repo |  openshift/ruby~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     And I run the :get client command with:
       | resource      | bc               |

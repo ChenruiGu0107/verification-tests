@@ -109,7 +109,7 @@ Feature: dockerbuild.feature
     Given I have a project
     When I run the :new_build client command with:
       | code         | https://github.com/openshift/ruby-hello-world |
-      | image_stream | openshift/ruby:2.6                            |
+      | docker_image | quay.io/openshifttest/ruby-27-centos7:centos7 |
       | strategy     | docker                                        |
       | build_arg    | ARG=VALUE                                     |
     Then the step should succeed
@@ -161,7 +161,7 @@ Feature: dockerbuild.feature
     Given I have a project
     When I run the :new_build client command with:
       | code         | https://github.com/openshift/ruby-hello-world |
-      | image_stream | openshift/ruby:2.6                            |
+      | image_stream | openshift/ruby                                |
       | strategy     | source                                        |
       | to           | test                                          |
     Then the step should succeed
@@ -186,7 +186,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | code         | https://github.com/openshift/ruby-hello-world |
-      | image_stream | openshift/ruby:2.6                            |
+      | image_stream | openshift/ruby                                |
       | strategy     | source                                        |
       | to           | test                                          |
       | build_arg    | ARG=VALUE                                     |
@@ -197,7 +197,7 @@ Feature: dockerbuild.feature
     # start docker build with invalid args
     When I run the :new_build client command with:
       | code         | https://github.com/openshift/ruby-hello-world |
-      | image_stream | openshift/ruby:2.6                            |
+      | docker_image | quay.io/openshifttest/ruby-27-centos7:centos7 | 
       | strategy     | docker                                        |
       | build_arg    | ARG=VALUE                                     |
     Then the step should succeed
@@ -339,8 +339,8 @@ Feature: dockerbuild.feature
   Scenario: When build should not have about image operating system mismatch info
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo  | openshift/ruby:2.7~https://github.com/openshift/ruby-hello-world |
-      | strategy  | docker                                                           |
+      | app_repo  | quay.io/openshifttest/ruby-27-centos7:centos7~https://github.com/openshift/ruby-hello-world |
+      | strategy  | docker                                                                                      |
     And the "ruby-hello-world-1" build completed
     When I run the :logs client command with:
       | resource_name | build/ruby-hello-world-1 |

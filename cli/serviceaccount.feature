@@ -94,7 +94,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
@@ -125,7 +125,7 @@ Feature: ServiceAccount and Policy Managerment
       | project_name | <%= cb.project2 %> |
     Then the step should succeed
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
@@ -166,7 +166,7 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant edit permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
@@ -180,7 +180,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     And I use the "<%= project.name %>" project
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp2                                        |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
@@ -207,7 +207,7 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant view permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                                         |
     # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
@@ -347,7 +347,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     And I use the "<%= project.name %>" project
     When I create a new application with:
-      | image_stream | openshift/ruby:2.5                            |
+      | image_stream | openshift/ruby                                |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution

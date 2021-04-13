@@ -68,8 +68,8 @@ Feature: buildlogic.feature
     Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:
       | app_repo     | https://github.com/sclorg/s2i-ruby-container |
-      | context_dir  | 2.5/test/puma-test-app/                      |
-      | image_stream | openshift/ruby:2.5                           |
+      | context_dir  | 2.7/test/puma-test-app/                      |
+      | image_stream | openshift/ruby                               |
       | name         | ruby-hello-world                             |
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
@@ -287,7 +287,7 @@ Feature: buildlogic.feature
   Scenario: Check the events for started/completed/failed builds
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:2.5                |
+      | image_stream | openshift/ruby                    |
       | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     Given the "ruby-ex-1" build completed
@@ -323,9 +323,9 @@ Feature: buildlogic.feature
     And I have a skopeo pod in the project
     Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:
-      | app_repo | ruby:2.7~https://github.com/openshift/ruby-hello-world.git |
-      | strategy | docker                                                     |
-      | l        | app=newbuild1                                              |
+      | app_repo | quay.io/openshifttest/ruby-27-centos7:centos7~http://github.com/openshift/ruby-hello-world.git |
+      | strategy | docker                                                                                         |
+      | l        | app=newbuild1                                                                                  |
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
     When I run the :patch client command with:

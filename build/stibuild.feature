@@ -121,7 +121,7 @@ Feature: stibuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo      | https://github.com/openshift/ruby-hello-world |
-      | image_stream  | openshift/ruby:2.7                            |
+      | image_stream  | openshift/ruby                                |
       | source_secret | nonsecret                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -558,7 +558,7 @@ Feature: stibuild.feature
   Scenario: Create build using node credentials to pull image
     Given I have a project
     When I run the :tag client command with:
-      | source | registry.redhat.io/rhscl/ruby-25-rhel7:latest |
+      | source | registry.redhat.io/rhscl/ruby-27-rhel7:latest |
       | dest   | <%= project.name %>/ruby:latest               |
     Then the step should succeed
     Given the "ruby" image stream was created
