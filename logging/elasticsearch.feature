@@ -154,8 +154,24 @@ Feature: elasticsearch related tests
     Examples:
       | alert_names                                                                                      |
       | ["ElasticsearchJVMHeapUseHigh", "AggregatedLoggingSystemCPUHigh", "ElasticsearchProcessCPUHigh"] | # @case_id OCP-22314
-      | ["ElasticsearchWriteRequestsRejectionJumps"]                                                     | # @case_id OCP-35767
       | ["ElasticsearchBulkRequestsRejectionJumps"]                                                      | # @case_id OCP-22311
+
+  # @author qitang@redhat.com
+  # @case_id OCP-35767
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: elasticsearch alerting rules test: ElasticsearchWriteRequestsRejectionJumps
+    Given I use the "openshift-logging" project
+    And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchWriteRequestsRejectionJumps').expr.split('>')[0]` is stored in the :expr clipboard
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query? |
+      | query | <%= cb.expr %> |
+    Then the step should succeed
+    And the expression should be true>  @result[:parsed]["data"]["result"].count > 0
+    """
 
   # @author qitang@redhat.com
   # @case_id OCP-33698
