@@ -269,7 +269,7 @@ Feature: query browser
     Then the step should succeed
     #check query by filter metrics
     When I perform the :perform_filter_query web action with:
-      | metrics | cluster:capacity_cpu_cores:sum |
+      | metrics | kube_pod_status_scheduled |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
