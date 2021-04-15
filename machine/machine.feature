@@ -17,7 +17,7 @@ Feature: Machine features testing
     Then the step should succeed
     And I save the output to file> machineset-invalid.yaml
     And I replace content in "machineset-invalid.yaml":
-      | <%= machine_set.name %> | machineset-invalid |
+      | <%= machine_set.name %> | <machineset-name>  |
       | <valid_field>           | <invalid_value>    |
       | /replicas:.*/           | replicas: 1        |
 
@@ -50,12 +50,12 @@ Feature: Machine features testing
     """
 
     Examples:
-      | valid_field       | invalid_value          |
-      | /machineType:.*/  | machineType: invalid   | # @case_id OCP-25927
-      | /instanceType:.*/ | instanceType: invalid  | # @case_id OCP-28817
-      | /vmSize:.*/       | vmSize: invalid        | # @case_id OCP-28818
-      | /flavor:.*/       | flavor: invalid        | # @case_id OCP-28916
-      | /folder:.*/       | folder: /dc1/vm/invalid| # @case_id OCP-28971
+      | valid_field       | invalid_value           | machineset-name          |
+      | /machineType:.*/  | machineType: invalid    | machineset-invalid-25927 | # @case_id OCP-25927
+      | /instanceType:.*/ | instanceType: invalid   | machineset-invalid-28817 | # @case_id OCP-28817
+      | /vmSize:.*/       | vmSize: invalid         | machineset-invalid-28818 | # @case_id OCP-28818
+      | /flavor:.*/       | flavor: invalid         | machineset-invalid-28916 | # @case_id OCP-28916
+      | /folder:.*/       | folder: /dc1/vm/invalid | machineset-invalid-28971 | # @case_id OCP-28971
 
   # @author zhsun@redhat.com
   # @case_id OCP-29351
