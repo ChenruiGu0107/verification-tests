@@ -348,7 +348,6 @@ Feature: storage (storageclass, pv, pvc) related
   # @case_id OCP-34268
   @admin
   @destructive
-  @flaky
   Scenario: Check Volume Snapshots related page from console
     Given the master version >= "4.6"
     Given I have a project
