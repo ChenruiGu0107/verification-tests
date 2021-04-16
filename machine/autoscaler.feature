@@ -526,11 +526,14 @@ Feature: Cluster Autoscaler Tests
     """
 
     Examples:
-      | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  | Output                                    |
-      | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28778
-      | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28876
-      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | <machineset_name>-invalid.*ReconcileError | # @case_id OCP-28875
-      | /diskGiB:.*/      | diskGiB: 120               | diskGiB: 0            | diskGiB:      | machineset-41039 | error getting disk spec                   | # @case_id OCP-41039
+      | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  | Output                                                                   |
+      | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | <machineset_name>-invalid.*ReconcileError                                | # @case_id OCP-28778
+      | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | <machineset_name>-invalid.*ReconcileError                                | # @case_id OCP-28876
+      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | <machineset_name>-invalid.*ReconcileError                                | # @case_id OCP-28875
+      | /diskGiB:.*/      | diskGiB: 120               | diskGiB: 0            | diskGiB:      | machineset-41039 | error getting disk spec                                                  | # @case_id OCP-41039
+      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-41146 | Failed to set autoscaling from zero annotations, instance type unknown   | # @case_id OCP-41146
+      | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-41150 | Failed to set autoscaling from zero annotations, instance type unknown   | # @case_id OCP-41150
+      | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-41151 | To fix this, manually populate machine annotations for your instance type| # @case_id OCP-41151
 
   # @author zhsun@redhat.com
   @admin
