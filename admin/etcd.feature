@@ -477,3 +477,45 @@ Feature: etcd related features
     And the output should match:
       | <%= cb.etcdpod %>\\s+3\/3\\s+Running\\s+1 |
     """
+
+  # @author geliu@redhat.com
+  # @case_id OCP-23802
+  @admin
+  @destructive
+  Scenario: DR Backing up etcd in ocp 4.x	
+    Given the master version >= "4.4"
+    Given I switch to cluster admin pseudo user
+    Given I store the schedulable masters in the :masters clipboard
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.masters[0].name %>   |
+      | oc_opts_end      |                                  |
+      | exec_command     | chroot                           |
+      | exec_command_arg | /host                            |
+      | exec_command     | /usr/local/bin/cluster-backup.sh |
+      | exec_command_arg | /home/core/assets/backup         |
+      | n                | openshift-etcd                   |
+    Then the step should succeed
+    And the output should contain:
+      | snapshot db and kube resources are successfully saved to /home/core/assets/backup |
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.masters[1].name %>   |
+      | oc_opts_end      |                                  |
+      | exec_command     | chroot                           |
+      | exec_command_arg | /host                            |
+      | exec_command     | /usr/local/bin/cluster-backup.sh |
+      | exec_command_arg | /home/core/assets/backup         |
+      | n                | openshift-etcd                   |
+    Then the step should succeed
+    And the output should contain:
+      | snapshot db and kube resources are successfully saved to /home/core/assets/backup |
+    When I run the :debug admin command with:
+      | resource         | node/<%= cb.masters[2].name %>   |
+      | oc_opts_end      |                                  |
+      | exec_command     | chroot                           |
+      | exec_command_arg | /host                            |
+      | exec_command     | /usr/local/bin/cluster-backup.sh |
+      | exec_command_arg | /home/core/assets/backup         |
+      | n                | openshift-etcd                   |
+    Then the step should succeed
+    And the output should contain:
+      | snapshot db and kube resources are successfully saved to /home/core/assets/backup|
