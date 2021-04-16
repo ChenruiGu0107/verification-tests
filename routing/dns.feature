@@ -263,3 +263,24 @@ Feature: Testing DNS features
       | exec_command_arg | /etc/hosts        |
     Then the step should succeed
     And the output should contain "<%= cb.image_registry_svc_ip %> image-registry.openshift-image-registry.svc image-registry.openshift-image-registry.svc.cluster.local"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-40718
+  # @bug_id 1933761, 1943578
+  @admin
+  Scenario: CoreDNS cache should use 900s for positive responses and 30s for negative responses
+    Given the master version >= "4.6"
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-dns" project
+    And all existing pods are ready with labels:
+      | dns.operator.openshift.io/daemonset-dns=default |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>       |
+      | c                | dns                   |
+      | exec_command     | cat                   |
+      | exec_command_arg | /etc/coredns/Corefile |
+    Then the step should succeed
+    And the output should contain:
+      | cache 900      |
+      | denial 9984 30 |
+
