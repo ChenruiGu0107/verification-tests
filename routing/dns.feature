@@ -214,8 +214,8 @@ Feature: Testing DNS features
       | resource_name | default        |
       | o             | yaml           |
     Then the step should succeed
-    And the output should contain 3 times:
-      | No IP assigned to DNS service |
+    And the output should match 3 times:
+      | No IP.*assigned to.*DNS service |
     """
 
   # @author jechen@redhat.com
