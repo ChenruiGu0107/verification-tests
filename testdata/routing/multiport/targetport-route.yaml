@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: 39853-mroute
+spec:
+  host: service.example.com
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: service-unsecure
+  wildcardPolicy: None
+

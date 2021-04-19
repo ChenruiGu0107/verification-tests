@@ -590,3 +590,69 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift abtest-websrv2"
     """
 
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-39853
+  # @bug_id 1906471
+  @admin
+  Scenario: Router accepts services with duplicate TargetPorts and continues to function normally
+    Given the master version >= "4.4"
+    And I have a project
+    Then evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+
+    # create custom ingresscontroller
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-39853" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nodeport.yaml"
+    When I run oc create over "ingressctl-nodeport.yaml" replacing paths:
+      | ["metadata"]["name"] | test-39853                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-39853") %> |
+    Then the step should succeed
+
+    # Ensure the router gets spawned and the vital info is saved in the cb
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-39853 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    # Deploy backend pod and one multiport service with targetPort 8080
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/web-server-1.yaml"
+    When I run the :create client command with:
+      | f | web-server-1.yaml |
+    Then the step should succeed
+    And the pod named "web-server-1" becomes ready
+    Given I obtain test data file "routing/multiport/multiport-service.yaml"
+    When I run the :create client command with:
+      | f | multiport-service.yaml |
+    Then the step should succeed
+
+    # Deploy a route with a duplicate port pointing to 8080
+    Given I obtain test data file "routing/multiport/targetport-route.yaml"
+    And I run oc create over "targetport-route.yaml" replacing paths:
+      | ["spec"]["host"] | <%= cb.proj_name %>.39853.example.com |
+    And the step should succeed
+
+    # Delete the router pod to verify it is re-spawned without any errors
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-ingress" project
+    Given I ensure "<%= cb.router_pod %>" pod is deleted
+    And I wait for the resource "pod" named "<%= cb.router_pod %>" to disappear
+
+    # Check the proxy config to verify the backend route info
+    Given status becomes :running of 1 pods labeled:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-39853 |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | pod/<%= cb.router_pod %> |
+      | tail          | 50                       |
+    Then the step should succeed
+    And the output should contain "router reloaded"
+    And the output should not match:
+      | Fatal errors found in configuration |
+    """
+
