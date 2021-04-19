@@ -603,7 +603,7 @@ Feature: Testing Scheduler Operator related scenarios
   @admin
   @destructive
   Scenario: Verify logLevel settings in kube-scheduler operator
-    Given the CR "cluster" named "kubescheduler" is restored after scenario
+    Given the CR "kubescheduler" named "cluster" is restored after scenario
     When I run the :patch admin command with:
       | resource      | kubescheduler                                                 |
       | resource_name | cluster                                                       |
@@ -681,3 +681,67 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     And the output should contain:
       | - -v=4 |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-40181
+  @admin
+  @destructive
+  Scenario: Enable TLS secure communication for kube-scheduler components
+    Given I switch to cluster admin pseudo user
+    Given the CR "apiserver" named "cluster" is restored after scenario
+    When I run the :describe admin command with:
+      | resource      | pods                         |
+      | l             | app=openshift-kube-scheduler |
+      | n             | openshift-kube-scheduler     |
+    Then the step should succeed
+    Then the output should match 3 times:
+      | --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 |
+      | --tls-min-version=VersionTLS12                         |
+    When I run the :patch admin command with:
+      | resource      | apiserver                                     |
+      | resource_name | cluster                                       |
+      | p             | [{"op": "add", "path": "/spec/tlsSecurityProfile", "value":{"custom":{"ciphers":["ECDHE-ECDSA-CHACHA20-POLY1305","ECDHE-RSA-CHACHA20-POLY1305","ECDHE-RSA-AES128-GCM-SHA256","ECDHE-ECDSA-AES128-GCM-SHA256"],"minTLSVersion":"VersionTLS11"},"type":"Custom"}}] |
+      | type          | json                                          |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    When I run the :describe admin command with:
+      | resource      | pods                         |
+      | l             | app=openshift-kube-scheduler |
+      | n             | openshift-kube-scheduler     |
+    Then the step should succeed
+    Then the output should match 3 times:
+      | --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 |
+      | --tls-min-version=VersionTLS11                                                                                                                                                              |
+    When I run the :patch admin command with:
+      | resource      | apiserver                                                                                |
+      | resource_name | cluster                                                                                  |
+      | p             | [{"op": "replace", "path": "/spec/tlsSecurityProfile", "value":{"old":{},"type":"Old"}}] |
+      | type          | json                                                                                     |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    When I run the :describe admin command with:
+      | resource      | pods                         |
+      | l             | app=openshift-kube-scheduler |
+      | n             | openshift-kube-scheduler     |
+    Then the step should succeed
+    Then the output should match 3 times:
+      | --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_3DES_EDE_CBC_SHA |
+      | --tls-min-version=VersionTLS10         |
