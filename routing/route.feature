@@ -1551,7 +1551,7 @@ Feature: Testing route
   # @case_id OCP-38671
   @admin
   Scenario: haproxy.router.openshift.io/timeout-tunnel" annotation gets applied alongside "haproxy.router.openshift.io/timeout" for clear/edge/reencrypt routes
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
 
@@ -1639,7 +1639,7 @@ Feature: Testing route
   # @case_id OCP-38672
   @admin
   Scenario: "haproxy.router.openshift.io/timeout-tunnel" annotation takes precedence over "haproxy.router.openshift.io/timeout" values for passthrough routes
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
 
