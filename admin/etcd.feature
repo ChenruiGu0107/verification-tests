@@ -519,3 +519,23 @@ Feature: etcd related features
     Then the step should succeed
     And the output should contain:
       | snapshot db and kube resources are successfully saved to /home/core/assets/backup|
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41291
+  @admin
+  Scenario:  Enable zap as default logger
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-etcd" project
+    Given 3 pods become ready with labels:
+      | app=etcd |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | exec ionice -c2 -n0 etcd |
+      | --logger=zap             |
+      | --log-level=info         |
+    And the output should not contain:
+      | --logger=capnslog |
