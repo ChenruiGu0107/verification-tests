@@ -49,7 +49,7 @@ Feature: buildconfig.feature
       | resource | build     |
       | name     | ruby-ex-2 |
     Then the step should succeed
-    And the output should match "DockerImage\s+ruby-25-centos7@<%= cb.imagesha %>"
+    And the output should match "DockerImage\s+quay.io/openshifttest/ruby-25-centos7@<%= cb.imagesha %>"
     #And the output should match:
     #  | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
