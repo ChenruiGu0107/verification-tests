@@ -578,3 +578,153 @@ Feature: cluster-logging-operator related cases
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
+
+  # @author qitang@redhat.com
+  # @case_id OCP-41464
+  @admin
+  @destructive
+  Scenario: Deploy logging with customized pod resource in clusterlogging(no curator)
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd-im.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                           |
+      | crd_yaml            | customresource-fluentd-im.yaml |
+      | check_status        | false                          |
+    Then the step should succeed
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
+    And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And I wait for the "kibana" deployment to appear up to 300 seconds
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    Then the expression should be true> deployment('kibana').container_spec(name: 'kibana').memory_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana').cpu_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana').memory_request_raw == "1Gi"
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana').cpu_request_raw == "100m"
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana-proxy').cpu_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana-proxy').memory_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana-proxy').memory_request_raw == "100Mi"
+    And the expression should be true> deployment('kibana').container_spec(name: 'kibana-proxy').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(name: 'fluentd').cpu_limit_raw == nil
+    And the expression should be true> daemon_set('fluentd').container_spec(name: 'fluentd').memory_limit_raw == nil
+    And the expression should be true> daemon_set('fluentd').container_spec(name: 'fluentd').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(name: 'fluentd').memory_request_raw == "1Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'elasticsearch').memory_limit_raw == "1Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'elasticsearch').cpu_limit_raw == nil
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'elasticsearch').memory_request_raw == "1Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'elasticsearch').cpu_request_raw == "100m"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'proxy').memory_limit_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'proxy').cpu_limit_raw == nil
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'proxy').memory_request_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(name: 'proxy').cpu_request_raw == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_limit_cpu == nil
+    And the expression should be true> elasticsearch('elasticsearch').resource_limit_memory == nil
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_cpu == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_memory == "1Gi"
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd-im_change.yaml"
+    When I run the :apply client command with:
+      | f | customresource-fluentd-im_change.yaml |
+    Then the step should succeed
+
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    And the expression should be true> deployment('kibana').container_spec(cached: false, name: 'kibana').memory_request_raw == "16Gi"
+    And the expression should be true> deployment('kibana').container_spec(cached: false, name: 'kibana').cpu_request_raw == "100m"
+    And the expression should be true> deployment('kibana').container_spec(cached: false, name: 'kibana-proxy').memory_request_raw == "200Mi"
+    And the expression should be true> deployment('kibana').container_spec(cached: false, name: 'kibana-proxy').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(cached: false, name: 'fluentd').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(cached: false, name: 'fluentd').memory_request_raw == "16Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'elasticsearch').memory_request_raw == "16Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'elasticsearch').cpu_request_raw == "100m"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'proxy').memory_request_raw == "128Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(cached: false, name: 'proxy').cpu_request_raw == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_cpu(cached: false) == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_memory(cached: false) == "16Gi"
+    """
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_logging('instance').es_node_conditions.to_s.include? "Insufficient memory"
+    And the expression should be true> cluster_logging('instance').kibana_cluster_condition.to_s.include? "Insufficient memory"
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.to_s.include? "Insufficient memory"
+    And the expression should be true> cluster_logging('instance').fluentd_cluster_condition.to_s.include? "Insufficient memory"
+    """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-41466
+  @admin
+  @destructive
+  Scenario: The CLO should handle the nodeSelectors correctly(no curator)
+    Given I obtain test data file "logging/clusterlogging/nodeSelector-im.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                 |
+      | crd_yaml            | nodeSelector-im.yaml |
+      | check_status        | false                |
+    Then the step should succeed
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
+    And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And I wait for the "kibana" deployment to appear up to 300 seconds
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    Then the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector['es'] == 'deploy'
+    And the expression should be true> daemon_set('fluentd').node_selector['fluentd'] == 'deploy'
+    And the expression should be true> deployment('kibana').node_selector['kibana'] == 'deploy'
+    And the expression should be true> cron_job('elasticsearch-im-app').node_selector['es'] == 'deploy'
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_logging('instance').es_node_conditions.to_s.match? (/0\/\d+ nodes are available/)
+    And the expression should be true> cluster_logging('instance').kibana_cluster_condition.to_s.match? (/0\/\d+ nodes are available/)
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.to_s.match? (/0\/\d+ nodes are available/)
+    """
+    Given I obtain test data file "logging/clusterlogging/nodeSelector-im_change.yaml"
+    When I run the :apply client command with:
+      | f | nodeSelector-im_change.yaml |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+      """
+      #And the expression should be true> elasticsearch('elasticsearch').node_selector['es'] == 'deploy1'
+      And the expression should be true> daemon_set('fluentd').node_selector(cached: false, quiet: true)['fluentd'] == 'deploy1'
+      And the expression should be true> deployment('kibana').node_selector(cached: false, quiet: true)['kibana'] == 'deploy1'
+      And the expression should be true> cron_job('elasticsearch-im-app').node_selector(cached: false, quiet: true)['es'] == 'deploy1'
+      """
+    Given I wait up to 600 seconds for the steps to pass:
+      """
+      And the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').node_selector(cached: false, quiet: true)['es'] == 'deploy1'
+      """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-41467
+  @admin
+  @destructive
+  Scenario: Cluster logging should add/update tolerations for logging pods(no curator).
+    Given the master version >= "4.7"
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                         |
+      | crd_yaml            | example_indexmanagement.yaml |
+    Then the step should succeed
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
+    And the expression should be true> deployment('kibana').tolerations == nil
+    And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    And the expression should be true> cron_job('elasticsearch-im-app').tolerations == nil
+    And the expression should be true> (daemon_set('fluentd').tolerations - [{"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    Given I obtain test data file "logging/clusterlogging/tolerations-im.yaml"
+    When I run the :apply client command with:
+      | f | tolerations-im.yaml |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    And the expression should be true> (deployment('kibana').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations(cached: false) - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}, {"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (cron_job('elasticsearch-im-app').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (daemon_set('fluentd').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}, {"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    """
