@@ -2250,9 +2250,12 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     #Accessing pod in project1 from pod in project3
     Given I use the "<%= cb.proj3 %>" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p3pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
     Then the step should fail
+    """
     #Accessing pod in project3 from pod in project1
     Given I use the "<%= cb.proj1 %>" project
     When I execute on the "<%= cb.p1pod1 %>" pod:
