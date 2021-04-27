@@ -521,7 +521,7 @@ Feature: etcd related features
       | snapshot db and kube resources are successfully saved to /home/core/assets/backup|
 
   # @author knarra@redhat.com
-  # @case_id OCP-41291
+  # @case_id OCP-41095
   @admin
   Scenario:  Enable zap as default logger
     Given I switch to cluster admin pseudo user
