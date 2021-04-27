@@ -656,3 +656,163 @@ Feature: Testing haproxy router
       | Fatal errors found in configuration |
     """
 
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-40747
+  @admin
+  Scenario: The "tune.maxrewrite" value for haproxy router can be modified with "headerBufferMaxRewriteBytes" ingresscontroller parameter
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-40747" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-tuning.yaml"
+    And I run oc create over "ingressctl-tuning.yaml" replacing paths:
+      | ["spec"]["domain"]                                       | <%= cb.subdomain.gsub("apps","test-40747") %> |
+      | ["metadata"]["name"]                                     | test-40747                                    |
+      | ["spec"]["tuningOptions"]["headerBufferMaxRewriteBytes"] | 8192                                          |
+    Then the step should succeed
+
+    # Ensure the router gets spawned with the tune.maxrewrite buffer env value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-40747 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Then the expression should be true> deployment('router-test-40747').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_MAX_REWRITE_SIZE=8192 | -q |
+    Then the step should succeed
+    """
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep | -w | tune.maxrewrite | /var/lib/haproxy/conf/haproxy.config |
+    Then the step should succeed
+    And the output should contain:
+      | tune.maxrewrite 8192 |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-40748
+  @admin
+  Scenario: The "tune.bufsize" value for haproxy router can be modified with "headerBufferBytes" ingresscontroller parameter
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-40748" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-tuning.yaml"
+    And I run oc create over "ingressctl-tuning.yaml" replacing paths:
+      | ["spec"]["domain"]                             | <%= cb.subdomain.gsub("apps","test-40748") %> |
+      | ["metadata"]["name"]                           | test-40748                                    |
+      | ["spec"]["tuningOptions"]["headerBufferBytes"] | 18000                                         |
+    Then the step should succeed
+
+    # Ensure the router gets spawned with the tune.bufsize buffer env value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-40748 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Then the expression should be true> deployment('router-test-40748').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_BUF_SIZE=18000 | -q |
+    Then the step should succeed
+    """
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep | -w | tune.bufsize | /var/lib/haproxy/conf/haproxy.config |
+    Then the step should succeed
+    And the output should contain:
+      | tune.bufsize 18000   |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-40822
+  @admin
+  Scenario: The 'headerBufferBytes' and 'headerBufferMaxRewriteBytes' strictly honours the default minimum values during ingrescontroller deployment
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-40822" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-tuning.yaml"
+    And I run oc create over "ingressctl-tuning.yaml" replacing paths:
+      | ["spec"]["domain"]                                       | <%= cb.subdomain.gsub("apps","test-40822") %> |
+      | ["metadata"]["name"]                                     | test-40822                                    |
+      | ["spec"]["tuningOptions"]["headerBufferBytes"]           | 8192                                          |
+      | ["spec"]["tuningOptions"]["headerBufferMaxRewriteBytes"] | 2048                                          | 
+    Then the step should fail
+    And the output should contain:
+      | The IngressController "test-40822" is invalid: |
+      | * spec.tuningOptions.headerBufferMaxRewriteBytes: Invalid value: 2048: spec.tuningOptions.headerBufferMaxRewriteBytes in body should be greater than or equal to 4096 |
+      | * spec.tuningOptions.headerBufferBytes: Invalid value: 8192: spec.tuningOptions.headerBufferBytes in body should be greater than or equal to 16384 |
+ 
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-40821
+  @admin
+  Scenario: The "tune.bufsize" and "tune.maxwrite" values can be defined per haproxy router basis
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-40821" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I use the router project
+    # Copy one of the default router name for referencing the buffer values
+    Given all default router pods become ready
+    And evaluation of `pod.name` is stored in the :default_pod clipboard
+
+    # Deploy an ingresscontroller with a different buffer value
+    Given I obtain test data file "routing/operator/ingressctl-tuning.yaml"
+    And I run oc create over "ingressctl-tuning.yaml" replacing paths:
+      | ["spec"]["domain"]                                       | <%= cb.subdomain.gsub("apps","test-40821") %> |
+      | ["metadata"]["name"]                                     | test-40821                                    |
+      | ["spec"]["tuningOptions"]["headerBufferBytes"]           | 18000                                         |
+      | ["spec"]["tuningOptions"]["headerBufferMaxRewriteBytes"] | 10000                                         |
+    Then the step should succeed
+
+    # Ensure the router gets spawned with the buffer env value set
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-40821 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Then the expression should be true> deployment('router-test-40821').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -e "ROUTER_MAX_REWRITE_SIZE=10000" -e grep -e ROUTER_BUF_SIZE=18000 | -q |
+    Then the step should succeed
+    """
+    # Verify the buffer values are applied correctly on the router pod
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep | -e | tune.maxrewrite | -e | tune.bufsize | /var/lib/haproxy/conf/haproxy.config |
+    Then the step should succeed
+    And the output should contain:
+      | tune.maxrewrite 10000 |
+      | tune.bufsize 18000    |
+    """
+
+    # Check the tuning buffer values of the default router to verify
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | grep | -e | tune.maxrewrite | -e | tune.bufsize | /var/lib/haproxy/conf/haproxy.config |
+    Then the step should succeed
+    And the output should contain:
+      | tune.maxrewrite 8192 |
+      | tune.bufsize 32768   |
+    """
