@@ -426,7 +426,9 @@ Feature: Testing Ingress Operator related scenarios
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
-      | resource | route |
+      | resource      | route                                                                                                      |
+      | resource_name | route-reen                                                                                                 |
+      | template      | {{range .status.ingress}}{{if eq .routerName "test-27595"}}{{range .conditions}}{{.}}{{end}}{{end}}{{end}} |
     Then the step should succeed
     And the output should contain "HostAlreadyClaimed"
     """
