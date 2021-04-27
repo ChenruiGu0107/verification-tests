@@ -539,3 +539,46 @@ Feature: etcd related features
       | --log-level=info         |
     And the output should not contain:
       | --logger=capnslog |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41291
+  @admin
+  @destructive
+  Scenario:  Setting etcd spec.LogLevel in etcd CR
+    Given the CR "etcd" named "cluster" is restored after scenario
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-etcd" project
+    Given a pod becomes ready with labels:
+      | app=etcd |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | --log-level=info |
+    When I run the :patch admin command with:
+      | resource      | etcd                                                       |
+      | resource_name | cluster                                                    |
+      | p             | [{"op":"replace", "path":"/spec/logLevel", "value":Debug}] |
+      | type          | json                                                       |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Available')['status'] == "True"
+    """
+    Given a pod becomes ready with labels:
+      | app=etcd |
+    Given evaluation of `@pods[0].name` is stored in the :podname clipboard
+    When I run the :get admin command with:
+      | resource | pod/<%= cb.podname %> |
+      | o        | yaml                  |
+    Then the step should succeed
+    And the output should contain:
+      | --log-level=debug |
