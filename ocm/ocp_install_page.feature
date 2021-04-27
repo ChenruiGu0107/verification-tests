@@ -168,6 +168,22 @@ Feature: Only about install page
     Then the step should succeed
 
   # @author tzhou@redhat.com
+  # @case_id OCP-41209
+  Scenario: Check elements on the OCP install page - vSphere IPI- UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_vsphere_ipi_install_page web action
+    Then the step should succeed
+    When I perform the :check_vsphere_ipi_install_page web action with:
+      | title | Install OpenShift on vSphere with installer-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | vsphere                              |
+      | provider_name  | VMware vSphere                       |
+      | infrastructure | Installer-provisioned infrastructure |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
   # @case_id OCP-24072
   Scenario: Check elements on the OCP install page - vSphere - UI
     Given I open ocm portal as an regularUser user
@@ -177,8 +193,10 @@ Feature: Only about install page
     When I perform the :check_vsphere_install_page web action with:
       | title | Install OpenShift on vSphere with user-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
-      | provider_name | VMware vSphere |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | vsphere                         |
+      | provider_name  | VMware vSphere                  |
+      | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
