@@ -1692,3 +1692,225 @@ Feature: Testing route
     And the output should contain:
       | timeout tunnel  15s |
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41187
+  @admin
+  Scenario: The Power-of-two balancing honours the per route balancing algorithm defined via "haproxy.router.openshift.io/balance" annotation
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    # Verify and collect default router info
+    And I use the "openshift-ingress" project
+    And all default router pods become ready
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_LOAD_BALANCE_ALGORITHM=random | -q |
+    Then the step should succeed
+    """
+
+    # Deploy a project with pod/service resource
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    Then the expression should be true> service('service-unsecure').exists?
+
+    # Expose the route and add the haproxy.router.openshift.io/balance annotation
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | service-unsecure                              |
+      | keyval       | haproxy.router.openshift.io/balance=leastconn |
+    Then the step should succeed
+
+    # Check the route balancing algorithm inside proxy pod
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ingress" project
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_http:<%= cb.proj_name %>:service-unsecure" haproxy.config -A5 \|grep "leastconn" -q |
+    Then the step should succeed
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41186
+  @admin
+  Scenario: The Power-of-two balancing features switches to "roundrobin" mode for REEN/Edge/insecure/passthrough routes with multiple backends configured with weights
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
+    # Deploy project with pods/services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    Given I obtain test data file "routing/service_secure.yaml"
+    Given I obtain test data file "routing/service_unsecure.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    And I run oc create over "service_secure.yaml" replacing paths:
+      | ["metadata"]["name"]           | service-secure-2 |
+      | ["metadata"]["labels"]["name"] | service-secure-2 |
+    Then the step should succeed
+    And I run oc create over "service_unsecure.yaml" replacing paths:
+      | ["metadata"]["name"]           | service-unsecure-2 |
+      | ["metadata"]["labels"]["name"] | service-unsecure-2 |
+    Then the step should succeed
+
+    # Deploy Edge/REEN/Insecure/Passthrough routes
+    # Edge route
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    # REEN route
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    # Insecure route
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | name          | unsecure-route   |
+    Then the step should succeed
+    # passthrough route
+    When I run the :create_route_passthrough client command with:
+      | name    | route-passth   |
+      | service | service-secure |
+    Then the step should succeed
+
+    # Check the backend algorithm for each of the routes
+    Given I switch to cluster admin pseudo user
+    Given I use the router project
+    Given all default router pods become ready
+    And evaluation of `pod.name` is stored in the :default_pod clipboard
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_http:<%= cb.proj_name %>:unsecure-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_secure:<%= cb.proj_name %>:reen-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_edge_http:<%= cb.proj_name %>:edge-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_tcp:<%= cb.proj_name %>:route-passth" haproxy.config -A5 \|grep "balance source" -q |
+    Then the step should succeed
+    """
+
+    # Set backend to each of the routes
+    And I use the "<%= cb.proj_name %>" project
+    When I run the :set_backends client command with:
+      | routename | edge-route            |
+      | service   | service-unsecure=60   |
+      | service   | service-unsecure-2=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | unsecure-route        |
+      | service   | service-unsecure=60   |
+      | service   | service-unsecure-2=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | reen-route          |
+      | service   | service-secure=60   |
+      | service   | service-secure-2=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-passth          |
+      | service   | service-unsecure=60   |
+      | service   | service-unsecure-2=40 |
+    Then the step should succeed
+
+    # Verify the backend algorithm on the router.
+    Given I use the router project
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_http:<%= cb.proj_name %>:unsecure-route" haproxy.config -A5 \|grep "balance roundrobin" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_tcp:<%= cb.proj_name %>:route-passth" haproxy.config -A5 \|grep "balance roundrobin" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_secure:<%= cb.proj_name %>:reen-route" haproxy.config -A5 \|grep "balance roundrobin" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_edge_http:<%= cb.proj_name %>:edge-route" haproxy.config -A5 \|grep "balance roundrobin" -q |
+    Then the step should succeed
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41042
+  @admin
+  Scenario: The Power-of-two balancing features defaults to "balance" LB algorithm instead of "leastconn" for REEN/Edge/insecure routes
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+
+    # Deploy project with pods/services
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+
+    # Deploy Edge/REEN/Insecure/Passthrough routes
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    # Create REEN route over 'service-secure' service
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    # expose a clear route through "service-unsecure"
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | name          | unsecure-route   |
+    Then the step should succeed
+
+    # Check the backend algorithm for each of the routes
+    Given I switch to cluster admin pseudo user
+    Given I use the router project
+    Given all default router pods become ready
+    And evaluation of `pod.name` is stored in the :default_pod clipboard
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_http:<%= cb.proj_name %>:unsecure-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_edge_http:<%= cb.proj_name %>:edge-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    When I execute on the "<%= cb.default_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_secure:<%= cb.proj_name %>:reen-route" haproxy.config -A5 \|grep "balance" -q |
+    Then the step should succeed
+    """
