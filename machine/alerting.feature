@@ -84,7 +84,7 @@ Feature: Alerting for machine-api
     When I run the :create admin command with:
       | f | machineset-invalid.yaml |
     Then the step should succeed
-    And admin ensures "machineset-invalid" machineset is deleted after scenario
+    And admin ensures <machineset-name> machineset is deleted after scenario
 
     # Verified machine has 'Failed' phase
     Given I store the last provisioned machine in the :invalid_machine clipboard
