@@ -177,7 +177,7 @@ Feature: PVC resizing Test
     """
     When I get project events
     Then the output should match:
-      | quantity.* is too great, overflows int64 |
+      | (quantity.* is too great, overflows int64\|greater than the maximum) |
     """
 
   # @author piqin@redhat.com
