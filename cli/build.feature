@@ -2,15 +2,19 @@ Feature: build 'apps' with CLI
 
   # @author chunchen@redhat.com
   @flaky
+  @admin
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
+    Given I save a htpasswd registry auth to the :combine_dockercfg clipboard
     When I run the :create_secret client command with:
-     | name        | sec-push                                                                        |
-     | secret_type | generic                                                                         |
-     | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
-     | type        | kubernetes.io/dockercfg                                                         |
+     | name        | sec-push                                      |
+     | secret_type | generic                                       |
+     | from_file   | .dockerconfigjson=<%= cb.combine_dockercfg %> |
+     | type        | kubernetes.io/dockerconfigjson                |
     Then the step should succeed
     Given I obtain test data file "templates/ocp11463/<template_file>"
+    And I replace lines in "<template_file>":
+      | "name": "quay.io/openshifttest/ruby-27-centos7:centos7" | "name": "<%= cb.custom_registry %>/mypush:latest" |
     When I run the :new_app client command with:
       | file            | <template_file> |
     Given the "ruby-sample-build-1" build was created
