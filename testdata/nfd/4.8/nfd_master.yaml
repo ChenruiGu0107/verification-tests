@@ -1,0 +1,10 @@
+apiVersion: nfd.openshift.io/v1
+kind: NodeFeatureDiscovery
+metadata:
+  name: nfd-master-server
+  namespace: <%= project.name %>
+spec:
+  operand:
+    image: quay.io/openshift/origin-node-feature-discovery:4.8
+    imagePullPolicy: Always
+    namespace: openshift-nfd

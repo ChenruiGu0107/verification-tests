@@ -1,0 +1,21 @@
+apiVersion: nfd.openshift.io/v1
+kind: NodeFeatureDiscovery
+metadata:
+  name: nfd-master-server
+  namespace: openshift-nfd
+spec:
+  operand:
+    image: 'quay.io/openshift/origin-node-feature-discovery:4.8'
+    imagePullPolicy: Always
+    namespace: openshift-nfd
+  workerConfig:
+    configData: |
+      sources:
+        pci:
+          deviceLabelFields:
+            - "vendor"
+          deviceClassWhitelist:
+            - "0200"
+            - "03"
+            - "12"
+
