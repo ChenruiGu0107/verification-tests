@@ -1319,9 +1319,12 @@ Feature: operatorhub feature related
     When I perform the :set_password web action with:
       | password | testpassword |
     Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :set_k8s_resource web action with:
       | k8s_resource | default |
     Then the step should succeed
+    """
     When I perform the :set_pod_count web action with:
       | pod_count | 5 |
     Then the step should succeed
