@@ -431,25 +431,26 @@ Feature: storageClass related feature
   # @author chaoyang@redhat.com
   # @case_id OCP-12874
   @admin
-  @destructive
   Scenario: Check storageclass info when pvc using default storageclass
     Given I have a project
-    Given I obtain test data file "storage/gce/storageClass.yaml"
-    When admin creates a StorageClass from "storageClass.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
-      | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
-      | ["parameters"]["type"]                                                     | gp2                     |
-      | ["parameters"]["zone"]                                                     | us-east-1d              |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
-    Then the step should succeed
+    And default storageclass is stored in the :default_sc clipboard
 
     Given I obtain test data file "storage/misc/pvc-without-annotations.json"
     When I run oc create over "pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
+
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod                  |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>|
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypath            |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "<%= cb.default_sc.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "<%= cb.default_sc.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12875
