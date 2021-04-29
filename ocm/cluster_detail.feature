@@ -552,20 +552,24 @@ Feature: Only for case related to cluster detail page
     When I run the :check_subscription_settings_dialog web action
     Then the step should succeed
     When I perform the :update_subscription_settings_in_dialog web action with:
-      | support_level     | Premium    |
-      | production_status | Production |
-      | service_level     | L1-L3      |
-      | unit              | Cores/vCPU |
-      | unit_value        | 11         |
+      | support_level     | Premium                 |
+      | production_status | Production              |
+      | service_level     | L1-L3                   |
+      | support_type      | Red Hat support (L1-L3) |
+      | unit              | Cores/vCPU              |
+      | cpu_units         | Cores/vCPUs             |
+      | unit_value        | 11                      |
     Then the step should succeed
     When I run the :check_subscription_settings_dialog web action
     Then the step should succeed
     When I perform the :update_subscription_settings_in_dialog web action with:
-      | support_level     | Self-Support      |
-      | production_status | Disaster Recovery |
-      | service_level     | L3-only           |
-      | unit              | Sockets           |
-      | unit_value        | 4                 |
+      | support_level     | Self-Support         |
+      | production_status | Disaster Recovery    |
+      | service_level     | L3-only              |
+      | support_type      | Partner support (L3) |
+      | unit              | Sockets              |
+      | socket_units      | Sockets              |
+      | unit_value        | 4                    |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -583,11 +587,11 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
       | unit_value    | -1      |
-      | error_message | value can only be a positive integer. |
+      | error_message | value can only be an integer number |
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
       | unit_value    | 2aa      |
-      | error_message | value can only be a positive integer. |
+      | error_message | value can only be an integer number |
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
       | unit_value    | 9999999999999      |
