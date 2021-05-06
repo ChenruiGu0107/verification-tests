@@ -1181,7 +1181,7 @@ Feature: Install and configuration related scenarios
       | deployment.apps/prometheus-operator       |
       | replicaset.apps/prometheus-operator       |
       | statefulset.apps/prometheus-user-workload |
-      
+
     #Create one namespace, create resources in the namespace
     When I run the :new_project client command with:
       | project_name | ocp-25925-proj |
@@ -1416,7 +1416,7 @@ Feature: Install and configuration related scenarios
     And the pod named "prometheus-user-workload-1" status becomes :running
     And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
-    
+
     #Create one namespace, create resources in the namespace
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
@@ -2595,8 +2595,8 @@ Feature: Install and configuration related scenarios
     Given I store the masters in the :masters clipboard
     When I repeat the following steps for each :master in cb.masters:
     """
-    Given the "<%= cb.master.name %>" node labels are restored after scenario
-    Then label "monitoring=deploy" is added to the "<%= cb.master.name %>" node
+    Given the "#{cb.master.name}" node labels are restored after scenario
+    Then label "monitoring=deploy" is added to the "#{cb.master.name}" node
     """
     # get monitoring pods
     When I run the :get client command with:
@@ -2935,7 +2935,7 @@ Feature: Install and configuration related scenarios
     Given I store the ready and schedulable workers in the :nodes clipboard
     When I repeat the following steps for each :node in cb.nodes:
     """
-    Given I use the "<%= cb.node.name %>" node
+    Given I use the "#{cb.node.name}" node
     Given I run commands on the host:
       | mkdir -p /srv/                       |
       | chcon -Rt svirt_sandbox_file_t /srv/ |
