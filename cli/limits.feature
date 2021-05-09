@@ -88,10 +88,10 @@ Feature: limit range related scenarios:
     Then the output should match "openshift.io/imagestreams:0"
     """
     When I run the :import_image client command with:
-      | image_name | centos           |
-      | from       | quay.io/openshifttest/centos@sha256:285bc3161133ec01d8ca8680cd746eecbfdbc1faa6313bd863151c4b26d7e5a5 |
-      | confirm    | true             |
-      | all        | true             |
+      | image_name | centos                       |
+      | from       | quay.io/openshifttest/centos |
+      | confirm    | true                         |
+      | all        | true                         |
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                           |
