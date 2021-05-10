@@ -582,3 +582,26 @@ Feature: etcd related features
     Then the step should succeed
     And the output should contain:
       | --log-level=debug |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41580
+  @admin
+  Scenario: sno cluster never pivots from bootstrapIP endpoint
+    Given the cluster is Single Node Openshift
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-etcd" project
+    Given a pod becomes ready with labels:
+      | app=etcd |
+    When I run the :get admin command with:
+      | resource | ep                                         |
+      | o        | custom-columns=:subsets[0].addresses[0].ip |
+    Then the step should succeed
+    Given evaluation of `@result[:stdout]` is stored in the :endpoint clipboard
+    When I run the :get admin command with:
+      | resource | cm/etcd-endpoints |
+      | o        | yaml              |
+    Then the step should succeed
+    And the output should match:
+      | data.*\\s.*<%= cb.endpoint.strip() %> |
+    And the output should not match:
+      | annotations.*\\s.*alpha.installer.openshift.io\/etcd-bootstrap |
