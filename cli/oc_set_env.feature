@@ -80,6 +80,7 @@ Feature: oc_set_env.feature
       | secretKeyRef:        |
       | key: data-1          |
       | name: test-secret    |
+    And the output by order should match:
       | - name: MYSQL_DATA_2 |
       | valueFrom:           |
       | secretKeyRef:        |
