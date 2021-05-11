@@ -236,9 +236,6 @@ Feature: environment related
     Then the step should succeed
     When I get the html of the web page
     Then the output should contain:
-      | Ports                                         |
-      | Mounted Volumes                               |
-      | Environment Variables                         |
       | env1                                          |
       | value1                                        |
       | ENV_FROM_CM                                   |
