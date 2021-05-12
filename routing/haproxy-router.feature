@@ -816,3 +816,60 @@ Feature: Testing haproxy router
       | tune.maxrewrite 8192 |
       | tune.bufsize 32768   |
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41206
+  @admin
+  Scenario: "unsupportedConfigOverrides" option overrides the default "random" algorithm to older "leastconn" balancing with power-of-two function
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    # Deploy a router with configoverride option
+    And admin ensures "test-41206" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nodeport.yaml"
+    And I run oc create over "ingressctl-nodeport.yaml" replacing paths:
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-41206") %> |
+      | ["metadata"]["name"] | test-41206                                    |
+    Then the step should succeed
+
+    # Verify the power of two algorithm is active
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-41206 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Then the expression should be true> deployment('router-test-41206').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_LOAD_BALANCE_ALGORITHM=random | -q |
+    Then the step should succeed
+    """
+
+    # Patch the ingresscontroller with unsupported config option
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller                                                              |
+      | resource_name | test-41206                                                                     |
+      | n             | openshift-ingress-operator                                                     |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"loadBalancingAlgorithm":"leastconn"}}} |
+      | type          | merge                                                                          |
+    Given I wait for the resource "pod" named "<%= cb.router_pod %>" to disappear
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-41206 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_LOAD_BALANCE_ALGORITHM=leastconn | -q |
+    Then the step should succeed
+    """
+
+    # Verify the balancing algorithm of any of the existing routes such as the console service
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | grep -w  "backend be_secure:openshift-console:console" haproxy.config -A5 \|grep "leastconn" -q |
+    Then the step should succeed
+    """
