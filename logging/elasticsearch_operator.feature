@@ -523,7 +523,13 @@ Feature: elasticsearch operator related tests
     """
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec": {"tokenConfig": {"accessTokenMaxAgeSeconds": 180}}} |
-    And I wait for the steps to pass:
+    # wait up to 3 minutes for co/authentication to start progressing
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    # wait for co/authentication back to normal
+    And I wait up to 600 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -534,7 +540,7 @@ Feature: elasticsearch operator related tests
     When I login to kibana logging web console
     Then the step should succeed
     When I perform the :create_index_pattern_in_kibana web action with:
-      | index_pattern_name | app |
+      | index_pattern_name | "*app" |
     Then the step should succeed
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -542,7 +548,7 @@ Feature: elasticsearch operator related tests
     Then the step should succeed
     """
     # wait for 3 minutes for the oauthaccesstokens.oauth.openshift.io to expire
-    Given 180 seconds have passed
+    Given 185 seconds have passed
     When I run the :click_refresh_button_in_kibana web action
     Then the step should succeed
 
