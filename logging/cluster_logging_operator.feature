@@ -525,8 +525,7 @@ Feature: cluster-logging-operator related cases
     Given I wait for the "fluentd" prometheus_rule to appear up to 300 seconds
 
     Then the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "critical"
-    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthBurst').severity == "warning"
-    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthIncreasing').severity == "critical"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthIncreasing').severity == "error"
     And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentDHighErrorRate').severity == "warning"
     And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentDVeryHighErrorRate').severity == "critical"
 
@@ -535,8 +534,7 @@ Feature: cluster-logging-operator related cases
     Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['name'] == "logging_fluentd.alerts"
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "critical"
-    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthBurst'}['labels']['severity'] == "warning"
-    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthIncreasing'}['labels']['severity'] == "critical"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthIncreasing'}['labels']['severity'] == "error"
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDHighErrorRate'}['labels']['severity'] == "warning"
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDVeryHighErrorRate'}['labels']['severity'] == "critical"
     """
@@ -557,7 +555,6 @@ Feature: cluster-logging-operator related cases
     """
     Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
     And the output should not contain:
-      | FluentdQueueLengthBurst      |
       | FluentdQueueLengthIncreasing |
       | FluentDHighErrorRate         |
       | FluentDVeryHighErrorRate     |
