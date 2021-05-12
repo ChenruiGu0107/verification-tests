@@ -64,7 +64,7 @@ Feature: samplesoperator
       | object_type       | template               |
       | object_name_or_id | rails-pgsql-persistent |
     Then the step should succeed
-    Given I wait for the "php" image_stream to appear up to 60 seconds
+    Given I wait for the "php" image_stream to appear up to 180 seconds
     And I wait for the resource "imagestream" named "perl" to disappear
     And I wait for the resource "template" named "rails-pgsql-persistent" to disappear
     Given admin updated the operator crd "config.samples" managementstate operand to Removed
