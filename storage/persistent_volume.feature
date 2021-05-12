@@ -415,12 +415,14 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
-      | ["metadata"]["name"] | pv-<%= project.name %> |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     Given I obtain test data file "storage/iscsi/claim.json"
-    And I create a manual pvc from "claim.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-<%= project.name %> |
-      | ["spec"]["volumeMode"] | Filesystem              |
+    And I create a dynamic pvc from "claim.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"]       | Filesystem              |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
