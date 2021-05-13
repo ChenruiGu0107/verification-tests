@@ -9,7 +9,9 @@ Feature: mega menu on console
     Given the first user is cluster-admin
     When I run the :navigate_to_dev_console web action
     Then the step should succeed
-    And the expression should be true> browser.url.include? "/topology/"
+    When I perform the :check_active_perspective web action with:
+      | perspective | dev |
+    Then the step should succeed
     When I run the :goto_projects_list_page web action
     Then the step should succeed
     When I run the :check_mega_menu web action
