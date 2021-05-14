@@ -145,7 +145,7 @@ Feature: containers related features
     """
     | When I perform the HTTP request:                |
     | """                                             |
-    | :url: http://127.0.0.1:<%= cb[:port2] %>        |
+    | :url: http://127.0.0.1: #{cb[:port2]}           |
     | :method: :get                                   |
     | :proxy: ""                                      |
     | """                                             |

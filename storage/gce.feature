@@ -33,20 +33,21 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]   | Immediate                   |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
     And I run the steps 10 times:
     """
-    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
     When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-#{cb.i}            |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-#{cb.i}" PVC becomes :bound
     When I run the :get admin command with:
-      | resource | pv/<%= pvc.volume_name %> |
-      | o        | json                      |
+      | resource | pv/#{pvc.volume_name} |
+      | o        | json                  |
     Then the output should match:
       | us-central1-[ab] |
     """
+
 
   # @author lxia@redhat.com
   # @case_id OCP-12834
