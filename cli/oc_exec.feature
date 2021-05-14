@@ -141,16 +141,16 @@ Feature: containers related features
       | port_spec | <%= cb[:port2] %>:8081                                |
       | _env      | https_proxy=tester:redhat@127.0.0.1:<%= cb[:port1] %> |
     Then the step should succeed
-    Given I wait up to 120 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
-    | When I perform the HTTP request:                |
-    | """                                             |
-    | :url: http://127.0.0.1: #{cb[:port2]}           |
-    | :method: :get                                   |
-    | :proxy: ""                                      |
-    | """                                             |
-    | Then the step should succeed                    |
-    | And the output should contain "Hello OpenShift" |
+    When I perform the HTTP request:
+      ```
+      :url: http://127.0.0.1:<%= cb[:port2] %>
+      :method: :get
+      :proxy: ""
+      ```
+    Then the step should succeed
+    And the output should contain "Hello OpenShift"
     """
     Then I terminate last background process
 
