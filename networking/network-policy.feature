@@ -2099,7 +2099,7 @@ Feature: Network policy plugin scenarios
       | bash | -c | ovn-nbctl list ACL |
     Then the step should succeed
     And the output should contain 10 times:
-      | allow-from-blue |
+      | policy=allow-from-blue |
 
     Given I have a project
     #Creating Policies in loop again
@@ -2123,8 +2123,8 @@ Feature: Network policy plugin scenarios
       | bash | -c | ovn-nbctl list ACL |
     Then the step should succeed
     And the output should contain 10 times:
-      | allow-from-red  |
-      | allow-from-blue |
+      | policy=allow-from-red  |
+      | policy=allow-from-blue |
 
   # @author anusaxen@redhat.com
   # @case_id OCP-21866
