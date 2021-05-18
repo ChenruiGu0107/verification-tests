@@ -2042,17 +2042,21 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     #Creating other pods in loop
     Given evaluation of `%w{black allowall blue}` is stored in the :pods clipboard
-    And I run the steps 3 times:
-    """
+    # initialize the ip_urls Hash
+    Given evaluation of `{}` is stored in the :ip_urls clipboard
     Given I obtain test data file "networking/pod-for-ping.json"
+    And I run the steps 3 times:
+    ```
+    Given evaluation of `cb.pods[cb.i-1]` is stored in the :meta_name clipboard
     When I run oc create over "pod-for-ping.json" replacing paths:
-      | ["metadata"]["name"]           | #{cb.pods[cb.i-1]}-pod |
-      | ["metadata"]["labels"]["name"] | #{cb.pods[cb.i-1]}     |
+      | ["metadata"]["name"]           | #{cb.meta_name}-pod |
+      | ["metadata"]["labels"]["name"] | #{cb.meta_name}     |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=#{cb.pods[cb.i-1]} |
-    And evaluation of `pod.ip_url` is stored in the :<%=cb.pods[cb.i-1]%>_ip clipboard
-    """
+      | name=#{cb.meta_name} |
+    And the expression should be true> cb.ip_urls[cb.meta_name] = pod.ip_url
+    ```
+
     #As Blue-pod is the pod which will refresh all network policies created above we need to make sure every other pod is curl'able via it which proves that ovs rules are populated correct
     #5-10 seconds are more than enough to make sure rules to get populated in OVS table post above pods creation
     Given 10 seconds have passed
@@ -2063,13 +2067,13 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.test_pod2_ip %>:8080 |
     Then the step should succeed
     When I execute on the "blue-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.black_ip %>:8080     |
+      | curl | --connect-timeout | 5 | <%= cb.ip_urls['black'] %>:8080 |
     Then the step should succeed
     When I execute on the "blue-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.allowall_ip %>:8080  |
+      | curl | --connect-timeout | 5 | <%= cb.ip_urls['allowall'] %>:8080 |
     Then the step should succeed
     When I execute on the "black-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.blue_ip %>:8080      |
+      | curl | --connect-timeout | 5 | <%= cb.ip_urls['blue'] %>:8080 |
     Then the step should fail
 
   # @author anusaxen@redhat.com
