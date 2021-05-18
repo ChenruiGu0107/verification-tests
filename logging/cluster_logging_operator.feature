@@ -141,7 +141,6 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> daemon_set('fluentd').node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> deployment('kibana').node_selector['kubernetes.io/os'] == 'linux'
-    And the expression should be true> cron_job('curator').node_selector['kubernetes.io/os'] == 'linux'
     Given I obtain test data file "logging/clusterlogging/nodeSelector.yaml"
     When I run the :apply client command with:
       | f | nodeSelector.yaml |
@@ -151,10 +150,8 @@ Feature: cluster-logging-operator related cases
       #And the expression should be true> elasticsearch('elasticsearch').node_selector['es'] == 'deploy'
       And the expression should be true> daemon_set('fluentd').node_selector(cached: false, quiet: true)['fluentd'] == 'deploy'
       And the expression should be true> deployment('kibana').node_selector(cached: false, quiet: true)['kibana'] == 'deploy'
-      And the expression should be true> cron_job('curator').node_selector(cached: false, quiet: true)['curator'] == 'deploy'
       And the expression should be true> daemon_set('fluentd').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       And the expression should be true> deployment('kibana').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
-      And the expression should be true> cron_job('curator').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       """
     Given I wait up to 300 seconds for the steps to pass:
       """
@@ -170,10 +167,8 @@ Feature: cluster-logging-operator related cases
       #And the expression should be true> elasticsearch('elasticsearch').node_selector['es'] == nil
       And the expression should be true> daemon_set('fluentd').node_selector(cached: false, quiet: true)['fluentd'] == nil
       And the expression should be true> deployment('kibana').node_selector(cached: false, quiet: true)['kibana'] == nil
-      And the expression should be true> cron_job('curator').node_selector(cached: false, quiet: true)['curator'] == nil
       And the expression should be true> daemon_set('fluentd').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       And the expression should be true> deployment('kibana').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
-      And the expression should be true> cron_job('curator').node_selector(cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       #And the expression should be true> elasticsearch('elasticsearch').node_selector['kubernetes.io/os'] == 'foo'
       """
     Given I wait up to 300 seconds for the steps to pass:
