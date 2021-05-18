@@ -59,45 +59,32 @@ Feature: Machine features testing
 
   # @author zhsun@redhat.com
   # @case_id OCP-29351
-  Scenario Outline: Use oc explain to see detailed documentation of the resources
+  Scenario: Use oc explain to see detailed documentation of the resources
+    Given evaluation of `["machine", "machineset", "machinehealthcheck", "clusterautoscaler", "machineautoscaler"]` is stored in the :resources clipboard
+    And I repeat the following steps for each :resource in cb.resources:
+    """
     When I run the :explain client command with:
-      | resource | <resource> |
+      | resource | #{cb.resource} |
     Then the step should succeed
     And the output should contain:
       | apiVersion |
     And the output should not contain:
       | <empty> |
       | <none>  |
-
-    Examples:
-      | resource           |
-      | machine            |
-      | machineset         |
-      | machinehealthcheck |
-      | clusterautoscaler  |
-      | machineautoscaler  |
+    """
 
   # @author zhsun@redhat.com
   # @case_id OCP-30257
   @admin
-  Scenario Outline: Cluster-reader should be able to view machine resources
+  Scenario: Cluster-reader should be able to view machine resources
     Given cluster role "cluster-reader" is added to the "first" user
     Given I switch to the first user
     Then I use the "openshift-machine-api" project
-
     When I run the :get client command with:
-      | resource | <resource> |
+      | resource | machine,machineset,machinehealthcheck,machineautoscaler |
     Then the step should succeed
     And the output should not contain:
       | Error |
-
-    Examples:
-      | resource           |
-      | machine            |
-      | machineset         |
-      | machinehealthcheck |
-      | clusterautoscaler  |
-      | machineautoscaler  |
 
   # @author zhsun@redhat.com
   # @case_id OCP-30836
