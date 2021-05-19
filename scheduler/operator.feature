@@ -515,9 +515,9 @@ Feature: Testing Scheduler Operator related scenarios
     And I use the "openshift-kube-scheduler" project
     When I run the :get admin command with:
       | resource | configmap/config |
-      | o        | yaml             |
-    And the output should contain:
-      | {"disabled":[{"name":"NodeResourcesLeastAllocated"}],"enabled":[{"name":"NodeResourcesMostAllocated"}]} |
+      | o        | json             |
+    And the output should match:
+      | disabled.*NodeResourcesLeastAllocated.*enabled.*NodeResourcesMostAllocated |
     Given a pod becomes ready with labels:
       | app=openshift-kube-scheduler |
     Given evaluation of `@pods[0].name` is stored in the :podname clipboard
@@ -545,9 +545,9 @@ Feature: Testing Scheduler Operator related scenarios
     And I use the "openshift-kube-scheduler" project
     When I run the :get admin command with:
       | resource | configmap/config |
-      | o        | yaml             |
-    And the output should contain:
-      | {"leaderElect":true,"resourceLock":"configmaps","resourceNamespace":"openshift-kube-scheduler"} |
+      | o        | json             |
+    And the output should match:
+      | leaderElect.*resourceNamespace.*openshift-kube-scheduler |
     Given a pod becomes ready with labels:
       | app=openshift-kube-scheduler |
     Given evaluation of `@pods[0].name` is stored in the :podname clipboard
@@ -585,9 +585,9 @@ Feature: Testing Scheduler Operator related scenarios
     And I use the "openshift-kube-scheduler" project
     When I run the :get admin command with:
       | resource | configmap/config |
-      | o        | yaml             |
-    And the output should contain:
-      | "profiles":[{"plugins":{"preScore":{"disabled":[{"name":"*"}]},"score":{"disabled":[{"name":"*"}]}} |
+      | o        | json             |
+    And the output should match:
+      | plugins.*preScore.*disabled.*score.*disabled |
     Given a pod becomes ready with labels:
       | app=openshift-kube-scheduler |
     Given evaluation of `@pods[0].name` is stored in the :podname clipboard
