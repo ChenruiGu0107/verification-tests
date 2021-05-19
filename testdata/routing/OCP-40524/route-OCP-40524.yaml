@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    route.openshift.io/allow-non-dns-compliant-host: "true"
+  name: d4d15ddb333b1c39ab-13fccf00a-9f930e88f-56eda-78
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: service-unsecure
+    weight: null
+  wildcardPolicy: None

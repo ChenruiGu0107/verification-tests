@@ -1914,3 +1914,39 @@ Feature: Testing route
       | bash | -lc | grep -w  "backend be_secure:<%= cb.proj_name %>:reen-route" haproxy.config -A5 \|grep "balance" -q |
     Then the step should succeed
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-40524
+  Scenario: The "route.openshift.io/allow-non-dns-compliant-host" annotation allows lenient validation of DNS1123 naming convention during creation
+    Given the master version >= "4.8"
+    # Create a project with a very long name
+    Given a 48 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    Given I obtain test data file "routing/service_unsecure.yaml"
+    Given I obtain test data file "routing/OCP-40524/route-OCP-40524.yaml"
+    When I run the :create client command with:
+      | f | service_unsecure.yaml |
+    Then the step should succeed
+    # expose the  service
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | o             | yaml             |
+    Then the step should fail
+    And the output should contain:
+      | STDERR:                                                           |
+      | The Route "service-unsecure" is invalid: spec.host: Invalid value |
+    # Deploy route with "allow-non-dns-compliant-host" annotation
+    When I run oc create over "route-OCP-40524.yaml" replacing paths:
+      | ["metadata"]["name"] | <%= cb.proj_name %> |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain "InvalidHost"
+    """
