@@ -68,7 +68,7 @@ Feature: KUBE API server related features
   # @author kewang@redhat.com
   # @case_id OCP-21246
   @admin
-  Scenario Outline: Check the exposed prometheus metrics of operators
+  Scenario: Check the exposed prometheus metrics of operators
     When I run the :serviceaccounts_get_token admin command with:
       | serviceaccount_name | cluster-monitoring-operator |
       | n                   | openshift-monitoring        |
@@ -77,37 +77,38 @@ Feature: KUBE API server related features
 
     # Get pod name of operators
     Given I switch to cluster admin pseudo user
-    And I use the "<ns>" project
+    Given evaluation of `["kube-apiserver-operator", "kube-storage-version-migrator-operator", "kube-controller-manager-operator"]` is stored in the :resources clipboard
+    And I repeat the following steps for each :resource in cb.resources:
+    """
+    And I use the "openshift-#{cb.resource}" project
     Given a pod becomes ready with labels:
-      | app=<label> |
-
-    # Using snippet script to grab the data from the results
-    Given a "snippet" file is created with the following lines:
-    """
-    curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://localhost:8443/metrics > /tmp/OCP-21246.metrics
-    grep workqueue_depth /tmp/OCP-21246.metrics | head -n 5 > /tmp/OCP-21246.grep
-    grep workqueue_adds /tmp/OCP-21246.metrics | head -n 5 >> /tmp/OCP-21246.grep
-    grep workqueue_queue_duration /tmp/OCP-21246.metrics | head -n 5 >> /tmp/OCP-21246.grep
-    grep workqueue_work_duration /tmp/OCP-21246.metrics | head -n 5 >> /tmp/OCP-21246.grep
-    grep workqueue_retries /tmp/OCP-21246.metrics | head -n 5 >> /tmp/OCP-21246.grep
-    cat /tmp/OCP-21246.grep
-    """
+      | app=#{cb.resource} |
     When I execute on the pod:
-      | bash | -c | <%= File.read("snippet") %> |
-    Then the step should succeed
+      | bash | -c | curl --connect-timeout 30 --retry 3 -N -k -H "Authorization: Bearer #{cb.sa_token}" https://localhost:8443/metrics > /tmp/ocp21246 |
+    Then I execute on the pod:
+      | bash | -c | for pattern in workqueue_{adds,depth,queue_duration,retries,work_duration} ; do grep -m 5 $pattern /tmp/ocp21246 ; done |
     And the output should contain:
-      | workqueue_depth          |
       | workqueue_adds           |
+      | workqueue_depth          |
       | workqueue_queue_duration |
-      | workqueue_work_duration  |
       | workqueue_retries        |
+      | workqueue_work_duration  |
+    """
 
-    Examples:
-      | ns                                               | label                                  |
-      | openshift-apiserver-operator                     | openshift-apiserver-operator           |
-      | openshift-kube-apiserver-operator                | kube-apiserver-operator                |
-      | openshift-kube-controller-manager-operator       | kube-controller-manager-operator       |
-      | openshift-kube-storage-version-migrator-operator | kube-storage-version-migrator-operator |
+    And I use the "openshift-apiserver-operator" project
+    Given a pod becomes ready with labels:
+      | app=openshift-apiserver-operator |
+    When I execute on the pod:
+      | bash | -c | curl --connect-timeout 30 --retry 3 -N -k -H "Authorization: Bearer <%= cb.sa_token %>" https://localhost:8443/metrics > /tmp/ocp21246 |
+    Then I execute on the pod:
+      | bash | -c | for pattern in workqueue_{adds,depth,queue_duration,retries,work_duration} ; do grep -m 5 $pattern /tmp/ocp21246 ; done |
+    And the output should contain:
+      | workqueue_adds           |
+      | workqueue_depth          |
+      | workqueue_queue_duration |
+      | workqueue_retries        |
+      | workqueue_work_duration  |
+
 
   # @author kewang@redhat.com
   # @case_id OCP-33427
