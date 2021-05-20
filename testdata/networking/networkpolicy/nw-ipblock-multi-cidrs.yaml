@@ -1,0 +1,14 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: test-ipblock
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 10.128.6.27/32 
+    - ipBlock:
+        cidr: 10.128.10.13/32 
+    - ipBlock:
+        cidr: 10.128.6.28/32 
