@@ -2276,3 +2276,55 @@ Feature: Network policy plugin scenarios
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p2pod3ip %>:8080 |
     Then the step should fail
+
+  # @author huirwang@redhat.com
+  # @case_id OCP-41879
+  @admin
+  Scenario: [bug1953680] IpBlock should not ignore all other cidr's apart from the last one specified
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 5 |
+    Then the step should succeed
+    Given 5 pods become ready with labels:
+      | name=test-pods |
+    # Save pod0 pod1 pod3 pod4 name
+    And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
+    And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
+    And evaluation of `pod(3).name` is stored in the :pod3_name clipboard
+    And evaluation of `pod(4).name` is stored in the :pod4_name clipboard
+    # Save related pods ip
+    And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
+    And evaluation of `pod(3).ip` is stored in the :pod3_ip clipboard
+    And evaluation of `pod(4).ip` is stored in the :pod4_ip clipboard
+
+    #Apply networpolicy with ipBlock as pod0 pod3 pod4 ips
+    When I obtain test data file "networking/networkpolicy/nw-ipblock-multi-cidrs.yaml"
+    And I replace lines in "nw-ipblock-multi-cidrs.yaml":
+      | 10.128.6.27/32  | <%= cb.pod0_ip %>/32 |
+      | 10.128.10.13/32 | <%= cb.pod3_ip %>/32 |
+      | 10.128.6.28/32  | <%= cb.pod4_ip %>/32 |
+    And I run the :create admin command with:
+      | f | nw-ipblock-multi-cidrs.yaml |
+      | n | <%= cb.proj1 %>             |
+    Then the step should succeed
+
+    #From pod0,pod3,pod4 access pod2 success, from pod1 access pod2 fail
+    When I execute on the "<%= cb.pod0_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod3_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod4_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod1_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
