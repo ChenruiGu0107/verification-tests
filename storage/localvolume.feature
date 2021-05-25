@@ -3,6 +3,7 @@ Feature: local storage operator testing
   # @case_id OCP-24498
   @admin
   @smoke
+  @flaky
   Scenario: [local-storage-operator] Install operator from the OperatorHub using the CLI
     Given I switch to cluster admin pseudo user
     And local storage operator has been installed successfully
@@ -13,6 +14,7 @@ Feature: local storage operator testing
   # @case_id OCP-24524
   @admin
   @smoke
+  @flaky
   Scenario: [local-storage-operator] LocalVolume with Filesystem VolumeMode and type xfs can be used by Pod
     Given I switch to cluster admin pseudo user
     And local storage operator has been installed successfully
@@ -80,6 +82,7 @@ Feature: local storage operator testing
   # @case_id OCP-24520
   @admin
   @smoke
+  @flaky
   Scenario: [local-storage-provisioner] PV can be reused
     Given I switch to cluster admin pseudo user
     And local storage operator has been installed successfully
