@@ -148,7 +148,10 @@ Feature: cluster log forwarder testing
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given I create pipelinesecret with auth type mTLS_share
+    Given I create a pipeline secret with:
+      | secret_name | pipelinesecret |
+      | auth_type   | mTLS_share     |
+      | shared_key  | fluentdserver  |
     Given admin ensures "instance" cluster_log_forwarder is deleted from the "openshift-logging" project after scenario
     And I obtain test data file "logging/clusterlogforwarder/forward_with_same_secret/clf.yaml"
     When I process and create:
@@ -162,11 +165,7 @@ Feature: cluster log forwarder testing
     When I create clusterlogging instance with:
       | remove_logging_pods | true              |
       | crd_yaml            | fluentd_only.yaml |
-      | check_status        | false             |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     Given I use the "<%= cb.servers_ns %>" project
     And a pod becomes ready with labels:

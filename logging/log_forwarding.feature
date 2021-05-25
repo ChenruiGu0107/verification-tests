@@ -21,11 +21,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false               |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -57,7 +53,11 @@ Feature: log forwarding related tests
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given elasticsearch receiver is deployed as insecure
+    And external elasticsearch server is deployed with:
+      | version               | 6.8               |
+      | scheme                | http              |
+      | transport_ssl_enabled | false             |
+      | project_name          | openshift-logging |
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/logforwarding/elasticsearch/insecure/logforwarding.yaml"
     When I run the :create client command with:
@@ -68,11 +68,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false               |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -131,11 +127,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false               |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -167,7 +159,12 @@ Feature: log forwarding related tests
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given elasticsearch receiver is deployed as secure
+    And external elasticsearch server is deployed with:
+      | version               | 6.8               |
+      | scheme                | https             |
+      | transport_ssl_enabled | true              |
+      | project_name          | openshift-logging |
+      | secret_name           | pipelinesecret    |
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/logforwarding/elasticsearch/secure/logforwarding.yaml"
     When I run the :create client command with:
@@ -178,11 +175,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false               |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -250,11 +243,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                    |
       | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
-      | check_status        | false                                   |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -302,11 +291,7 @@ Feature: log forwarding related tests
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                    |
       | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
-      | check_status        | false                                   |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
