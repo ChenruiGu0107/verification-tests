@@ -101,3 +101,24 @@ Feature: admin console api related
     When I perform the :check_page_match web action with:
       | content | Welcome to your static httpd application |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-36165
+  Scenario: Switch language on console
+    Given the master version >= "4.7"
+    Given I open admin console in a browser
+    When I run the :check_default_language web action
+    Then the step should succeed
+    When I run the :switch_language_to_chinese web action
+    Then the step should succeed
+    # will check pages translation and localStorage['bridge/language']
+    When I run the :check_pages_in_chinese web action
+    Then the step should succeed
+    When I run the :switch_language_to_japanese web action
+    Then the step should succeed
+    When I run the :check_pages_in_japanese web action
+    Then the step should succeed
+    When I run the :switch_language_to_korean web action
+    Then the step should succeed
+    When I run the :check_pages_in_korean web action
+    Then the step should succeed
