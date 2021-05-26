@@ -1,7 +1,9 @@
 approvers:
   - akostadinov
+  - lihongan
   - pruan-rht
   - liangxia
+  - yapei
 
 reviewers:
   - chengzhang1016
@@ -10,5 +12,4 @@ reviewers:
   - xingxingxia
   - xiuwang
   - yanpzhan
-  - yapei
   - zhouying7780
