@@ -873,3 +873,70 @@ Feature: Testing haproxy router
       | bash | -lc | grep -w  "backend be_secure:openshift-console:console" haproxy.config -A5 \|grep "leastconn" -q |
     Then the step should succeed
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-38675
+  # bug_1905100
+  @admin
+  Scenario: "ingress.operator.openshift.io/hard-stop-after" annotation can be applied on per ingresscontroller basis
+    Given the master version >= "4.5"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-38675-1" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    And admin ensures "test-38675-2" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingresscontroller-test.yaml"
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
+      | ["metadata"]["name"]                   | test-38675-1                                    |
+      | ["spec"]["defaultCertificate"]["name"] | router-certs-default                            |
+      | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-38675-1") %> |
+    Then the step should succeed
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
+      | ["metadata"]["name"]                   | test-38675-2                                    |
+      | ["spec"]["defaultCertificate"]["name"] | router-certs-default                            |
+      | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-38675-2") %> |
+    Then the step should succeed
+    Given I use the router project
+    # Verify the state of the routers and collect router pod names
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-38675-1 |
+    And evaluation of `pod.name` is stored in the :router1_pod clipboard
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-38675-2 |
+    And evaluation of `pod.name` is stored in the :router2_pod clipboard
+    Then the expression should be true> deployment('router-test-38675-1').exists?
+    Then the expression should be true> deployment('router-test-38675-2').exists?
+    # Annotate the router with separate  hardstop values
+    Given I use the "openshift-ingress-operator" project
+    When I run the :annotate admin command with:
+      | resourcename | ingresscontrollers/test-38675-1                   |
+      | keyval       | ingress.operator.openshift.io/hard-stop-after=15m |
+    Then the step should succeed
+    When I run the :annotate admin command with:
+      | resourcename | ingresscontrollers/test-38675-2                   |
+      | keyval       | ingress.operator.openshift.io/hard-stop-after=30m |
+    Then the step should succeed
+    # Check the re-spawn of the router pods
+    Given I use the "openshift-ingress" project
+    And I wait for the resource "pod" named "<%= cb.router1_pod %>" to disappear
+    And I wait for the resource "pod" named "<%= cb.router2_pod %>" to disappear
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-38675-1 |
+    And evaluation of `pod.name` is stored in the :router1_pod clipboard
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-38675-2 |
+    And evaluation of `pod.name` is stored in the :router2_pod clipboard
+    # Check the hardstop timer for each router pods
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router1_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_HARD_STOP_AFTER=15m | -q |
+    Then the step should succeed
+    """
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router2_pod %>" pod:
+      | bash | -lc | env \|grep -w ROUTER_HARD_STOP_AFTER=30m | -q |
+    Then the step should succeed
+    """
