@@ -3,6 +3,7 @@ Feature: Regression testing cases
   # @author wduan@redhat.com
   # @case_id OCP-32853
   @admin
+  @smoke
   Scenario: Check the binary files and selinux setting used by storage
     Given I store the schedulable nodes in the :nodes clipboard
     Given I repeat the following steps for each :node in cb.nodes:

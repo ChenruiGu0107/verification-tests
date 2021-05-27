@@ -1,6 +1,7 @@
 Feature: PVC resizing Test
   # @author chaoyang@redhat.com
   @admin
+  @smoke
   Scenario Outline: Check volumes could resize
     Given I have a StorageClass named "<sc_name>"
     And I have a project

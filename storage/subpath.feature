@@ -165,6 +165,7 @@ Feature: volumeMounts should be able to use subPath
 
   # @author jhou@redhat.com
   @admin
+  @smoke
   Scenario Outline: Subpath with cloud volumes
     Given I have a project
 
@@ -246,6 +247,7 @@ Feature: volumeMounts should be able to use subPath
   # @author wduan@redhat.com
   # @case_id OCP-18428
   @admin
+  @smoke
   Scenario: Subpath with azure-file
     Given I have a project
     And azure file dynamic provisioning is enabled in the project

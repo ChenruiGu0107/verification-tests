@@ -187,6 +187,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author lxia@redhat.com
   # @case_id OCP-9845
+  @smoke
   Scenario: Pod should be able to mount multiple PVCs
     Given I have a project
     When I run the :new_app client command with:
@@ -322,6 +323,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author wduan@redhat.com
   # @case_id OCP-25833
+  @smoke
   Scenario: Add/Remove dynamic-provisioning persistentVolumeClaim to dc
     Given I have a project
     When I run the :new_app_as_dc client command with:

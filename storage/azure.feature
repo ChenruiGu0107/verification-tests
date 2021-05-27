@@ -3,6 +3,7 @@ Feature: Azure disk and Azure file specific scenarios
   # @author wehe@redhat.com
   # @author wduan@redhat.com
   @admin
+  @smoke
   Scenario Outline: azureDisk volume with readwrite/readonly cachingmode and xfs fstype
     Given I have a project
     When admin clones storage class "sc-<%= project.name %>" from ":default" with:
@@ -161,6 +162,7 @@ Feature: Azure disk and Azure file specific scenarios
   # @author lxia@redhat.com
   # @case_id OCP-14526
   @admin
+  @smoke
   Scenario: Azure file with secretNamespace parameter of current project
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
