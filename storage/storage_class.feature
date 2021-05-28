@@ -512,6 +512,7 @@ Feature: storageClass related feature
 
   # @author jhou@redhat.com
   @admin
+  @smoke
   Scenario Outline: Setting mountOptions for StorageClass
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:

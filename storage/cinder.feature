@@ -3,6 +3,7 @@ Feature: Cinder Persistent Volume
   # @author wehe@redhat.com
   # @case_id OCP-10052
   @admin
+  @smoke
   Scenario: Cinder volume should be detached after delete pod
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard

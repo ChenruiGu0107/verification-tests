@@ -203,6 +203,7 @@ Feature: secrets related scenarios
 
   # @author wehe@redhat.com
   # @case_id OCP-10170
+  @smoke
   Scenario: Consume secret via volume plugin with multiple volumes
     Given I have a project
     Given I obtain test data file "secrets/secret.yaml"
