@@ -205,3 +205,32 @@ Feature: GCE specific scenarios
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-39819
+  @admin
+  Scenario: Check gcp csi pd is provisioned with disk-encryption-kms-key
+    Given I have a project
+    And admin clones storage class "sc-<%= project.name %>" from "standard-csi" with:
+      | ["metadata"]["name"]                      | sc-<%= project.name %>      |
+      | ["parameters"]["disk-encryption-kms-key"] | projects/openshift-qe/locations/global/keyRings/openshiftqe/cryptoKeys/openshiftqe | 
+    Then the step should succeed
+
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod                   |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+
+    And I ensure "mypod" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
