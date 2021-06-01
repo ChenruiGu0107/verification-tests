@@ -565,11 +565,7 @@ Feature: cluster-logging-operator related cases
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                    |
       | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
-      | check_status        | false                                   |
     Then the step should succeed
-    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
-    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
-      | logging-infra=fluentd |
 
   # @author qitang@redhat.com
   # @case_id OCP-41464
