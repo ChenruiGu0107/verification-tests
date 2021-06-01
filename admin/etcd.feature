@@ -605,3 +605,38 @@ Feature: etcd related features
       | data.*\\s.*<%= cb.endpoint.strip() %> |
     And the output should not match:
       | annotations.*\\s.*alpha.installer.openshift.io\/etcd-bootstrap |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41675
+  @admin
+  @destructive
+  Scenario: etcd readinessProbe is reflective of actual readiness
+    Given the CR "etcd" named "cluster" is restored after scenario
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-etcd" project
+    Given 3 pods become ready with labels:
+      | app=etcd |
+    When I run the :patch admin command with:
+      | resource      | etcd                                                                            |
+      | resource_name | cluster                                                                         |
+      | p             | {"spec": {"forceRedeploymentReason": "recovery-'\"$( date --rfc-3339=ns )\"'"}} |
+      | type          | merge                                                                           |
+    Then the step should succeed
+    When I run the :get background client command with:
+      | resource | pods           |
+      | n        | openshift-etcd |
+      | w        | true           |
+    Then the step should succeed
+    Given 60 seconds have passed
+    When I terminate last background process
+    And the expression should be true> @result[:response].include? ("0/3" || "1/3" || "2/3")
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("etcd").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("etcd").condition(type: 'Available')['status'] == "True"
+    """
