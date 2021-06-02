@@ -640,3 +640,21 @@ Feature: etcd related features
     And the expression should be true> cluster_operator("etcd").condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator("etcd").condition(type: 'Available')['status'] == "True"
     """
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41930
+  @admin
+  Scenario: New etcd alerts to be added to the monitoring stack
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given all pods in the project are ready
+    When I run the :get admin command with:
+      | resource      | configmap                  |
+      | resource_name | prometheus-k8s-rulefiles-0 |
+      | namespace     | openshift-monitoring       |
+      | o             | yaml                       |
+    Then the step should succeed
+    And the output should contain:
+      | - alert: etcdHighFsyncDurations      |
+      | - alert: etcdBackendQuotaLowSpace    |
+      | - alert: etcdExcessiveDatabaseGrowth |
