@@ -37,14 +37,13 @@ Feature: pods related scenarios
     Then the step should succeed
     Given I wait for the steps to pass:
     """
-    I get project pods as YAML
-    the output should contain:
+    When I get project pods as YAML
+    And the output should contain:
       | drop:        |
       | - KILL       |
       | - MKNOD      |
       | - SETGID     |
       | - SETUID     |
-      | - SYS_CHROOT |
     """
 
   # @author chuyu@redhat.com
