@@ -96,12 +96,8 @@ Feature: elasticsearch operator related tests
     And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchJVMHeapUseHigh').severity == "alert"
     And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'AggregatedLoggingSystemCPUHigh').severity == "alert"
     And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchProcessCPUHigh').severity == "alert"
-
-    Given I run the :patch client command with:
-      | resource      | prometheusrule |
-      | resource_name | elasticsearch-prometheus-rules |
-      | p             | {"spec": {"groups": [{"name": "logging_elasticsearch.alerts", "rules": [{"alert": "ElasticsearchClusterNotHealthy","expr": "sum by (cluster) (es_cluster_status == 2)", "for": "5m", "labels": {"severity": "critical"}}]}]}} |
-      | type          | merge |
+    Given I successfully merge patch resource "prometheusrule/elasticsearch-prometheus-rules" with:
+      | {"spec": {"groups": [{"name": "logging_elasticsearch.alerts", "rules": [{"alert": "ElasticsearchClusterNotHealthy","expr": "sum by (cluster) (es_cluster_status == 2)", "for": "5m", "labels": {"severity": "critical"}}]}]}} |
     Then the step should succeed
     And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchClusterNotHealthy').for == "5m"
     And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rules.count == 1
@@ -150,12 +146,8 @@ Feature: elasticsearch operator related tests
     Then the expression should be true> cb.index_data['pri'].to_i == cb.es_node_count_1
     When I get the ".kibana" logging index information from a pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['pri'].to_i == cb.es_node_count_1
-    When I run the :patch client command with:
-      | resource      | clusterlogging                                          |
-      | resource_name | instance                                                |
-      | p             | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
-      | type          | merge                                                   |
-    Then the step should succeed
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
     And the expression should be true> cluster_logging('instance').logstore_node_count == 2
     Given I wait for the steps to pass:
     """
@@ -223,12 +215,8 @@ Feature: elasticsearch operator related tests
     Then the expression should be true> cb.index_data['pri'].to_i == 1
     When I get the ".kibana" logging index information from a pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['pri'].to_i == 1
-    When I run the :patch client command with:
-      | resource      | clusterlogging                                          |
-      | resource_name | instance                                                |
-      | p             | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
-      | type          | merge                                                   |
-    Then the step should succeed
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
     And the expression should be true> cluster_logging('instance').logstore_node_count == 2
     Given I wait for the steps to pass:
     """
@@ -331,11 +319,8 @@ Feature: elasticsearch operator related tests
     And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.first['reason'] == "Invalid Settings"
     And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.first['type'] == "InvalidRedundancy"
     """
-    When I run the :patch client command with:
-      | resource      | clusterlogging                                                                |
-      | resource_name | instance                                                                      |
-      | p             | {"spec":{"logStore":{"elasticsearch":{"redundancyPolicy":"ZeroRedundancy"}}}} |
-      | type          | merge                                                                         |
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec":{"logStore":{"elasticsearch":{"redundancyPolicy":"ZeroRedundancy"}}}} |
     Then the step should succeed
     And a pod becomes ready with labels:
       | es-node-master=true |
@@ -383,8 +368,8 @@ Feature: elasticsearch operator related tests
       Given the expression should be true> pod('#{cb.es_pod}').exists?
     """
     When I run the :delete client command with:
-     | object_type       | pod                       |
-     | object_name_or_id | <%= cb.es_pods_1.first %> |
+      | object_type       | pod                       |
+      | object_name_or_id | <%= cb.es_pods_1.first %> |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= cb.es_pods_1.first %>" to disappear
     Given evaluation of `cluster_logging('instance').logstore_node_count.to_i` is stored in the :es_node_count clipboard
@@ -616,3 +601,81 @@ Feature: elasticsearch operator related tests
       | ElasticsearchHighFileDescriptorUsage     |
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}['for'] == "5m"
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-41657
+  @admin
+  @destructive
+  Scenario: EO should generate correct cluster status message when ES node storage changes
+    Given default storageclass is stored in the :default_sc clipboard
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 10Gi                                 |
+      | es_node_count       | 3                                    |
+      | redundancy_policy   | SingleRedundancy                     |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | component=elasticsearch |
+    And evaluation of `pod.name` is stored in the :es_pod clipboard
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.nil? || !(elasticsearch('elasticsearch').cluster_conditions[0].values.include? "StorageSizeChangeIgnored")
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"storage": {"size": "3Gi"}}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').cluster_conditions(cached: false)[0].values.include? "StorageSizeChangeIgnored"
+    """
+    And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
+    And the expression should be true> elasticsearch('elasticsearch').nodes_status[0]['upgradeStatus'].empty?
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"storage": {"size": "10Gi"}}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').cluster_conditions(cached: false).nil? || !(elasticsearch('elasticsearch').cluster_conditions[0].values.include? "StorageSizeChangeIgnored")
+    """
+    And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"storage": {"storageClassName": "test-sc"}}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').cluster_conditions(cached: false)[0].values.include? "StorageClassNameChangeIgnored"
+    """
+    And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
+    And the expression should be true> elasticsearch('elasticsearch').nodes_status[0]['upgradeStatus'].empty?
+    When I replace resource "clusterlogging" named "instance" saving edit to "tmp_out.yaml":
+      | storage:       | storage: {} |
+      | size: 10Gi                |  |
+      | storageClassName: test-sc |  |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').cluster_conditions(cached: false)[0].values.include? "StorageStructureChangeIgnored"
+    """
+    And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
+    And the expression should be true> elasticsearch('elasticsearch').nodes_status[0]['upgradeStatus'].empty?
+
+  # @author qitang@redhat.com
+  # @case_id OCP-41671
+  @admin
+  @destructive
+  Scenario: EO should generate correct cluster status message after adding storage to ES.
+  Given default storageclass is stored in the :default_sc clipboard
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                         |
+      | crd_yaml            | example_indexmanagement.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | component=elasticsearch |
+    And evaluation of `pod.name` is stored in the :es_pod clipboard
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.nil? || !(elasticsearch('elasticsearch').cluster_conditions[0].values.include? "StorageSizeChangeIgnored")
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"storage": {"size": "10Gi", "storageClassName": "<%= cb.default_sc.name %>"}}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').cluster_conditions(cached: false)[0].values.include? "StorageStructureChangeIgnored"
+    """
+    And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
+    And the expression should be true> elasticsearch('elasticsearch').nodes_status[0]['upgradeStatus'].empty?

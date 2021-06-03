@@ -1,5 +1,5 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: clusterlogging-template
   annotations:
@@ -16,23 +16,19 @@ objects:
         logStore:
           type: "elasticsearch"
           elasticsearch:
-            nodeCount: 1
+            nodeCount: ${{ES_NODE_COUNT}}
             resources:
               requests:
                 cpu: 100m
                 memory: 1Gi
             storage: 
-              storageClassName: ${STORAGE_CLASS}
-              size: ${PVC_SIZE}
-            redundancyPolicy: "ZeroRedundancy"
+              storageClassName: "${STORAGE_CLASS}"
+              size: "${PVC_SIZE}"
+            redundancyPolicy: "${REDUNDANCY_POLICY}"
         visualization:
           type: "kibana"
           kibana:
             replicas: 1
-        curation:
-          type: "curator"
-          curator:
-            schedule: "*/10 * * * *"
         collection:
           logs:
             type: "fluentd"
@@ -40,4 +36,10 @@ objects:
 
 parameters:
   - name: STORAGE_CLASS
+    value: "gp2"
   - name: PVC_SIZE
+    value: "10Gi"
+  - name: ES_NODE_COUNT
+    value: "1"
+  - name: REDUNDANCY_POLICY
+    value: "ZeroRedundancy"
