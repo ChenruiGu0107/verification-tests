@@ -461,7 +461,7 @@ Feature: Descheduler related scenarios
    @admin
    @destructive
    Scenario: Basic descheduler - RemovePodsViolatingInterPodAntiAffinity strategy
-     Given the CR "descheduler" named "cluster" is restored from the "openshift-kube-descheduler-operator" after scenario
+     Given the "cluster" descheduler CR is restored from the "openshift-kube-descheduler-operator" after scenario
      Given I switch to cluster admin pseudo user
      And I use the "openshift-kube-descheduler-operator" project
      Given a pod becomes ready with labels:
