@@ -658,3 +658,22 @@ Feature: etcd related features
       | - alert: etcdHighFsyncDurations      |
       | - alert: etcdBackendQuotaLowSpace    |
       | - alert: etcdExcessiveDatabaseGrowth |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-41882
+  @admin
+  Scenario: static pod revision should be visible from etcd logs
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    Given evaluation of `@pods[0].name` is stored in the :etcdpod clipboard
+    When I run the :get client command with:
+      | resource | pod/<%= cb.etcdpod %>         |
+      | template | {{.metadata.labels.revision}} |
+    And evaluation of `@result[:stdout]` is stored in the :static_pod_revision clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/<%= cb.etcdpod %> |
+      | c             | etcd                  |
+    Then the output should contain:
+      | ETCD_STATIC_POD_REV=<%= cb.static_pod_revision %> |
