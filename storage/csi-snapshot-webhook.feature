@@ -33,7 +33,7 @@ Feature: CSI snapshot webhook related scenarios
     # Default logLevel should be Normal (--v=2)
     And the expression should be true> deployment("csi-snapshot-webhook").containers_spec(cached: false).first.args.include?("--v=2")
 
-    # Change the default logLevel to Normal in teardown step
+    # Change the logLevel to Normal in teardown step
     And I register clean-up steps:
     """
     Given I successfully merge patch resource "CSISnapshotController/cluster" with:
