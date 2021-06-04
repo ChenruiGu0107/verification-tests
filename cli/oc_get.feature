@@ -1,77 +1,49 @@
 Feature: oc get related command
   # @author xiaocwan@redhat.com
   # @case_id OCP-11987
-  Scenario Outline: Show friendly message when request resource is empty instead of return nothing
+  Scenario: Show friendly message when request resource is empty instead of return nothing
     Given I have a project
     When I run the :get client command with:
-      | resource    | <resource-type> |
+      | resource | bc,hpa,pvc |
     Then the step should succeed
     And the output should match:
-      | [Nn]o resources found         |
-
-    Examples:
-      | resource-type |
-      | bc            |
-      | hpa           |
-      | pvc           |
+      | [Nn]o resources found |
 
   # @author xxia@redhat.com
   # @case_id OCP-21061
-  Scenario Outline: kubectl shows friendly message when resource is empty
+  Scenario: kubectl shows friendly message when resource is empty
     Given I have a project
     When I run the :get client command with:
-      | _tool       | kubectl         |
-      | resource    | <resource-type> |
+      | _tool    | kubectl    |
+      | resource | bc,hap,pvc |
     Then the step should succeed
     And the output should match:
-      | [Nn]o resources found         |
-
-    Examples:
-      | resource-type |
-      | bc            |
-      | hpa           |
-      | pvc           |
+      | [Nn]o resources found |
 
   # @author xxia@redhat.com
   # @case_id OCP-21059
   Scenario Outline: kubectl shows friendly message when user can not list cluster scope resource
     Given I have a project
     When I run the :get client command with:
-      | _tool       | kubectl         |
-      | resource    | <resource-type> |
+      | _tool    | kubectl              |
+      | resource | user,groups,no,ns,pv |
     Then the step should fail
     And the output should contain "cannot list"
     # Bug 1612628
     And the output should not match:
-      | [Nn]o resources found         |
-
-    Examples:
-      | resource-type    |
-      | user             |
-      | groups           |
-      | no               |
-      | ns               |
-      | pv               |
+      | [Nn]o resources found |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10497
   Scenario Outline: Show friendly message when user can not list in cluster scope
     Given I have a project
     When I run the :get client command with:
-      | resource    | <resource-type> |
+      | resource | user,groups,no,ns,pv |
     Then the step should fail
     And the output should contain "cannot list"
     # Bug 1612628
     And the output should not match:
-      | [Nn]o resources found         |
-
-    Examples:
-      | resource-type    |
-      | user             |
-      | groups           |
-      | no               |
-      | ns               |
-      | pv               |
+      | [Nn]o resources found |
 
   # @author yapei@redhat.com
   # @case_id OCP-12887
@@ -165,26 +137,21 @@ Feature: oc get related command
   # @author knarra@redhat.com
   # @case_id OCP-34139
   @admin
-  Scenario Outline: oc get rolebinding and clusterrolebinding should work well
+  Scenario: oc get rolebinding and clusterrolebinding should work well
     Given the master version >= "4.5"
     Given I switch to cluster admin pseudo user
     When I use the "openshift-kube-scheduler" project
     When I run the :get admin command with:
-      | resource | <resourcename> |
+      | resource | rolebinding,clusterrolebinding |
     Then the step should succeed
-    And the output should match:
+    And the output should match 2 times:
       | NAME\\s+ROLE\\s+AGE |
     When I run the :get admin command with:
-      | resource | <resourcename> |
-      | o        | wide           |
+      | resource | rolebinding,clusterrolebinding |
+      | o        | wide                           |
     Then the step should succeed
-    And the output should match:
+    And the output should match 2 times:
       | NAME\\s+ROLE\\s+AGE\\s+USERS\\s+GROUPS\\s+SERVICEACCOUNTS |
-
-    Examples:
-      | resourcename       |
-      | rolebinding        |
-      | clusterrolebinding |
 
   # @author knarra@redhat.com
   # @case_id OCP-34701
