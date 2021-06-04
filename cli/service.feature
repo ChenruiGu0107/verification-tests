@@ -8,18 +8,6 @@ Feature: service related scenarios
     When I run the :create client command with:
       | f | hello-openshift.json |
     Then the step should succeed
-    When I run the :create client command with:
-      | help |  |
-    Then the step should succeed
-    And the output should contain "Create a service"
-    When I run the :create_service client command with:
-      | createservice_type | |
-      | help               | |
-    Then the step should succeed
-    And the output should contain:
-      | Available Commands: |
-      | clusterip           |
-      | loadbalancer        |
     When I run the :create_service client command with:
       | createservice_type  | clusterip       |
       | name                | hello-openshift |
