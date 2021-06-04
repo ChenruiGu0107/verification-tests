@@ -586,15 +586,18 @@ Feature: Only for case related to cluster detail page
     When I run the :check_subscription_settings_dialog web action
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
+      | socket_units  | Sockets |
       | unit_value    | -1      |
       | error_message | value can only be an integer number |
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
+      | socket_units  | Sockets |
       | unit_value    | 2aa      |
       | error_message | value can only be an integer number |
     Then the step should succeed
     When I perform the :check_subscription_settings_error_message web action with:
-      | unit_value    | 9999999999999      |
+      | socket_units  | Sockets |
+      | unit_value    | 9999999999999                 |
       | error_message | cannot be larger than 200000. |
     Then the step should succeed
 

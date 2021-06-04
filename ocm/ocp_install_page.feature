@@ -79,7 +79,8 @@ Feature: Only about install page
     When I run the :go_to_aws_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_aws_ipi_install_page web action with:
-      | title | Install OpenShift on AWS with installer-provisioned infrastructure |
+      | page_flag | AWS Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on AWS with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | aws                                  |
@@ -95,7 +96,8 @@ Feature: Only about install page
     When I run the :go_to_aws_upi_install_page web action
     Then the step should succeed
     When I perform the :check_aws_upi_install_page web action with:
-      | title | Install OpenShift on AWS with user-provisioned infrastructure |
+      | page_flag | AWS User-Provisioned Infrastructure |
+      | title     | Install OpenShift on AWS with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | aws                             |
@@ -111,7 +113,8 @@ Feature: Only about install page
     When I run the :go_to_azure_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_azure_ipi_install_page web action with:
-      | title | Install OpenShift on Azure with installer-provisioned infrastructure |
+      | page_flag | Azure Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on Azure with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | azure                                |
@@ -127,7 +130,8 @@ Feature: Only about install page
     When I run the :go_to_azure_upi_install_page web action
     Then the step should succeed
     When I perform the :check_azure_upi_install_page web action with:
-      | title | Install OpenShift on Azure with user-provisioned infrastructure |
+      | page_flag | Azure User-Provisioned Infrastructure |
+      | title     | Install OpenShift on Azure with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | azure                           |
@@ -143,7 +147,8 @@ Feature: Only about install page
     When I run the :go_to_gcp_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_gcp_ipi_install_page web action with:
-      | title | Install OpenShift on GCP with installer-provisioned infrastructure |
+      | page_flag | GCP Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on GCP with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | gcp                                  |
@@ -159,7 +164,8 @@ Feature: Only about install page
     When I run the :go_to_gcp_upi_install_page web action
     Then the step should succeed
     When I perform the :check_gcp_upi_install_page web action with:
-      | title | Install OpenShift on GCP with user-provisioned infrastructure |
+      | page_flag | GCP User-Provisioned Infrastructure |
+      | title     | Install OpenShift on GCP with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | gcp                             |
@@ -175,7 +181,8 @@ Feature: Only about install page
     When I run the :go_to_vsphere_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_vsphere_ipi_install_page web action with:
-      | title | Install OpenShift on vSphere with installer-provisioned infrastructure |
+      | page_flag | vSphere Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on vSphere with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | vsphere                              |
@@ -190,8 +197,9 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :go_to_vsphere_install_page web action
     Then the step should succeed
-    When I perform the :check_vsphere_install_page web action with:
-      | title | Install OpenShift on vSphere with user-provisioned infrastructure |
+    When I perform the :check_vsphere_upi_install_page web action with:
+      | page_flag | vSphere User-Provisioned Infrastructure |
+      | title     | Install OpenShift on vSphere with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | vsphere                         |
@@ -207,7 +215,8 @@ Feature: Only about install page
     When I run the :go_to_openstack_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_openstack_ipi_install_page web action with:
-      | title | Install OpenShift on Red Hat OpenStack Platform with installer-provisioned infrastructure |
+      | page_flag | OpenStack Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on Red Hat OpenStack Platform with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | openstack                            |
@@ -223,7 +232,8 @@ Feature: Only about install page
     When I run the :go_to_openstack_upi_install_page web action
     Then the step should succeed
     When I perform the :check_openstack_upi_install_page web action with:
-      | title | Install OpenShift on Red Hat OpenStack Platform with user-provisioned infrastructure |
+      | page_flag | OpenStack User-Provisioned Infrastructure |
+      | title     | Install OpenShift on Red Hat OpenStack Platform with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | openstack                       |
@@ -239,7 +249,8 @@ Feature: Only about install page
     When I run the :go_to_rhv_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_rhv_ipi_install_page web action with:
-      | title | Install OpenShift on Red Hat Virtualization with installer-provisioned infrastructure |
+      | page_flag | RHV Installer-Provisioned Infrastructure |
+      | title     | Install OpenShift on Red Hat Virtualization with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | rhv                                  |
@@ -255,7 +266,8 @@ Feature: Only about install page
     When I run the :go_to_rhv_upi_install_page web action
     Then the step should succeed
     When I perform the :check_rhv_upi_install_page web action with:
-      | title | Install OpenShift on Red Hat Virtualization with user-provisioned infrastructure |
+      | page_flag | RHV User-Provisioned Infrastructure |
+      | title     | Install OpenShift on Red Hat Virtualization with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | rhv                             |
@@ -271,7 +283,8 @@ Feature: Only about install page
     When I run the :go_to_bare_metal_ipi_install_page web action
     Then the step should succeed
     When I perform the :check_bare_metal_ipi_install_page web action with:
-      | title | Install OpenShift on Bare Metal with installer-provisioned infrastructure |
+      | page_flag  | Bare Metal Installer-Provisioned Infrastructure |
+      | title      | Install OpenShift on Bare Metal with installer-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | metal                                |
@@ -287,7 +300,8 @@ Feature: Only about install page
     When I run the :go_to_bare_metal_upi_install_page web action
     Then the step should succeed
     When I perform the :check_bare_metal_upi_install_page web action with:
-      | title | Install OpenShift on Bare Metal with user-provisioned infrastructure |
+      | page_flag  | Bare Metal User-Provisioned Infrastructure |
+      | title      | Install OpenShift on Bare Metal with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
       | provider_link  | metal                           |
@@ -303,7 +317,8 @@ Feature: Only about install page
     When I run the :go_to_ibm_z_install_page web action
     Then the step should succeed
     When I perform the :check_ibm_z_install_page web action with:
-      | title | Install OpenShift on IBM Z with user-provisioned infrastructure |
+      | page_flag | IBM Z |
+      | title     | Install OpenShift on IBM Z with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
       | provider_name | IBM Z |
@@ -317,7 +332,8 @@ Feature: Only about install page
     When I run the :go_to_power_upi_install_page web action
     Then the step should succeed
     When I perform the :check_power_upi_install_page web action with:
-      | title | Install OpenShift on Power with user-provisioned infrastructure |
+      | page_flag | Power |
+      | title     | Install OpenShift on Power with user-provisioned infrastructure |
     Then the step should succeed
     When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
       | provider_name | Power |
