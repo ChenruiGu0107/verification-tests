@@ -192,3 +192,52 @@ Feature: tests on catalog page
     When I perform the :check_item_in_list web action with:
       | item | 2.0 |
     Then the step should fail
+
+  # @author yapei@redhat.com
+  # @case_id OCP-40405
+  @admin
+  @destructive
+  Scenario: Add Kata container RuntimeClass to workload detail pages
+    Given the master version >= "4.8"
+    Given the kata-operator is installed using OLM CLI
+    #And I verify kata container runtime is installed into a worker node
+    Given I switch to the first user
+    Given I have a project
+    Given I obtain test data file "pods/two_container_sleep.yaml"
+    Given I obtain test data file "deployment/dc-kataruntime.yaml"
+    Given I obtain test data file "deployment/deployment-kataruntime.yaml"
+    Given I obtain test data file "statefulset/statefulset-kataruntime.yaml"
+    When I run the :create client command with:
+      | f | two_container_sleep.yaml     |
+      | f | dc-kataruntime.yaml          |
+      | f | deployment-kataruntime.yaml  |
+      | f | statefulset-kataruntime.yaml |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= project.name %> |
+      | resource_name | sleeppod            |
+    Then the step should succeed
+    When I run the :check_runtimeclass_missing web action
+    Then the step should succeed
+
+    When I perform the :goto_one_deployment_page web action with:
+      | project_name  | <%= project.name %> |
+      | deploy_name   | hello-openshift     |
+    Then the step should succeed
+    When I run the :check_runtimeclass web action
+    Then the step should succeed
+
+    When I perform the :goto_one_dc_page web action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | custom-deployment   |
+    Then the step should succeed
+    When I run the :check_runtimeclass web action
+    Then the step should succeed
+
+    When I perform the :goto_one_statefulset_page web action with:
+      | project_name     | <%= project.name %> |
+      | statefulset_name | hello               |
+    Then the step should succeed
+    When I run the :check_runtimeclass web action
+    Then the step should succeed

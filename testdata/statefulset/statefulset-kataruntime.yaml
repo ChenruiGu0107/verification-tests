@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    note: this is my example annotation, happy boy
+  labels:
+    app: hello
+    name: hello
+  name: hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+  serviceName: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      runtimeClassName: kata
+      containers:
+      - image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
+        name: hello
+        ports:
+        - containerPort: 8080
+          name: web
+          protocol: TCP
+        resources:
+          limits:
+            memory: 256Mi
+      restartPolicy: Always
