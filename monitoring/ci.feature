@@ -350,12 +350,11 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     #Deploy prometheus rules under user's namespace
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_name clipboard
@@ -731,12 +730,11 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    
     #Deploy prometheus rules under proj1
     When I use the "<%= cb.project_name1 %>" project
     Given I obtain test data file "monitoring/prometheus_rules-OCP-28957.yaml"
@@ -1002,12 +1000,11 @@ Feature: Install and configuration related scenarios
       | overwrite | true                               |
     Then the step should succeed
     #ThanosRuler related resouces are created
-    When I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
+    Given I use the "openshift-user-workload-monitoring" project
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     When I run the :get client command with:
       | resource | ThanosRuler |
     Then the step should succeed
@@ -1048,7 +1045,7 @@ Feature: Install and configuration related scenarios
       | o             | yaml           |
     Then the step should succeed
     And the output should contain:
-      | thanos-rule.rules               |
+      | ThanosNoRuleEvaluations |
     """
     When evaluation of `route('thanos-ruler').spec.host` is stored in the :thanos_ruler_route clipboard
     When I use the "openshift-monitoring" project
@@ -1067,7 +1064,7 @@ Feature: Install and configuration related scenarios
       """
     Then the step should succeed
     And the output should not contain:
-      | thanos-rule.rules |
+      | ThanosNoRuleEvaluations |
 
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1081,7 +1078,7 @@ Feature: Install and configuration related scenarios
       | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/rules |
     Then the step should succeed
     And the output should contain:
-      | thanos-rule.rules |
+      | ThanosNoRuleEvaluations |
     """
 
     #Create one project and prometheus rules under it
@@ -1253,12 +1250,11 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
-    When I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
+    Given I use the "openshift-user-workload-monitoring" project
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     When I run the :get client command with:
       | resource | all                                |
       | n        | openshift-user-workload-monitoring |
@@ -1403,7 +1399,10 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     #Check resources are created under openshift-user-workload-monitoring namespaces
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
     And I wait up to 360 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -1413,8 +1412,6 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | pod/prometheus-operator-                  |
       | pod/prometheus-user-workload-             |
-    And the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
     """
 
     #Create one namespace, create resources in the namespace
@@ -2226,12 +2223,11 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    when the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     #create project and deploy pod
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
@@ -2385,12 +2381,11 @@ Feature: Install and configuration related scenarios
       | overwrite | true                               |
     Then the step should succeed
 
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     And evaluation of `deployment('prometheus-operator').container_spec(name: 'prometheus-operator').args.map{|n| n[/deny-namespaces=(.*)/]}.compact![0].split('=')[1].split(',')` is stored in the :deny_namespaces clipboard
 
     When I run the :get client command with:
@@ -3111,12 +3106,11 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
     Given I use the "openshift-user-workload-monitoring" project
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    When the pod named "prometheus-user-workload-1" status becomes :running
-    And the pod named "thanos-ruler-user-workload-1" status becomes :running
-    """
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
     #create project and deploy pod
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
@@ -3226,3 +3220,26 @@ Feature: Install and configuration related scenarios
     And the expression should be true> prometheus("k8s").log_level(cached: false) == "error"
     And the expression should be true> deployment("thanos-querier").containers_spec(cached: false).first.args.include?("--log.level=debug")
     """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-41205
+  @admin
+  @destructive
+  Scenario: Support Monitoring to run in a single node cluster environment
+    Given the master version >= "4.8"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+    When evaluation of `infrastructure("cluster").infra_topology=="SingleReplica"?"0":"1"` is stored in the :prometheusPodNum clipboard
+    Given I use the "openshift-user-workload-monitoring" project
+    When the pod named "prometheus-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+    And the pod named "thanos-ruler-user-workload-<%= cb.prometheusPodNum %>" status becomes :running
+
+    When I check replicas of monitoring components for sno cluster
+    Then the step should succeed
