@@ -96,28 +96,13 @@ Feature: elasticsearch related tests
   @destructive
   Scenario: elasticsearch alerting rules test: ElasticsearchNodeDiskWatermarkReached
     Given default storageclass is stored in the :default_sc clipboard
-    When I delete the clusterlogging instance
-    Then the step should succeed
-    Given I use the "openshift-logging" project
-    And I register clean-up steps:
-    """
-    Given I delete the clusterlogging instance
-    Then the step should succeed
-    And I run the :delete client command with:
-      | object_type | pvc               |
-      | all         | true              |
-      | n           | openshift-logging |
-    Then the step should succeed
-    """
     Given I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
-    When I process and create:
-      | f | clusterlogging-storage-template.yaml    |
-      | p | STORAGE_CLASS=<%= cb.default_sc.name %> |
-      | p | PVC_SIZE=5Gi                            |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 5Gi                                  |
     Then the step should succeed
-    Given I wait for the "instance" clusterloggings to appear
-    And I wait for the "elasticsearch" elasticsearches to appear
-    And I wait until ES cluster is ready
     Given a pod becomes ready with labels:
       | es-node-master=true |
     When I execute on the pod:
