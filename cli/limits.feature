@@ -34,37 +34,40 @@ Feature: limit range related scenarios:
     Given I obtain test data file "quota/openshift-object-counts.yaml"
     When I run the :create admin command with:
       | f | openshift-object-counts.yaml |
-      | n | <%= project.name %> |
+      | n | <%= project.name %>          |
     Then the step should succeed
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
-      | resource      | quota |
+      | resource      | quota                   |
       | resource_name | openshift-object-counts |
-      | template      | {{.status.used}} |
-      | n             | <%= project.name %> |
+      | template      | {{.status.used}}        |
+      | n             | <%= project.name %>     |
+    Then the step should succeed
     Then the output should match "openshift.io/imagestreams:0"
     """
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
+      | app_repo | quay.io/openshifttest/ruby-25-centos7:build~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
     When I run the :get client command with:
-      | resource      | quota |
+      | resource      | quota                   |
       | resource_name | openshift-object-counts |
-      | template      | {{.status.used}} |
-      | n             | <%= project.name %> |
+      | template      | {{.status.used}}        |
+      | n             | <%= project.name %>     |
+    Then the step should succeed
     Then the output should match "openshift.io/imagestreams:2"
     When I run the :start_build client command with:
       | buildconfig | ruby-ex |
     Then the step should succeed
     Then the "ruby-ex-2" build completes
     When I run the :get client command with:
-      | resource      | quota |
+      | resource      | quota                   |
       | resource_name | openshift-object-counts |
-      | template      | {{.status.used}} |
-      | n             | <%= project.name %> |
+      | template      | {{.status.used}}        |
+      | n             | <%= project.name %>     |
+    Then the step should succeed
     Then the output should match "openshift.io/imagestreams:2"
 
 
