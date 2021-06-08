@@ -375,3 +375,80 @@ Feature: deployment/dc related features via web
       | pod_status | ImagePullBackOff |
     Then the step should succeed
 
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-40533
+  Scenario: Allow Rollbback for deploymentconfig/deployment
+    Given the master version >= "4.8"
+    Given I have a project
+    
+    # check deploymentconfig rollback
+    Given I obtain test data file "deployment/OCP-40533/deployment1.json"
+    When I run the :create client command with:
+      | f | deployment1.json |
+    Then the step should succeed
+    Then the expression should be true> deployment_config('hooks').replicas == 1
+    And the expression should be true> !deployment_config('hooks').selector.inspect.include? 'selectortest'
+    Then the expression should be true> deployment_config('hooks').strategy.inspect.include? 'Recreate'
+    And the expression should be true> deployment_config('hooks').triggers.inspect.include? 'ConfigChange'
+    Given I wait until the status of deployment "hooks" becomes :complete
+
+    Given I obtain test data file "deployment/OCP-40533/updatev1.json"
+    When I run the :replace client command with:
+      | f | updatev1.json |
+    Then the step should succeed
+    Then the expression should be true> deployment_config('hooks').replicas == 2
+    And the expression should be true> deployment_config('hooks').selector['test'].include? 'selectortest'
+    Then the expression should be true> deployment_config('hooks').strategy['type'].include? 'Rolling'
+    And the expression should be true> deployment_config('hooks').triggers.inspect.include? 'ImageChange'
+    And the expression should be true> deployment_config('hooks').containers.inspect.include? 'envtest'
+
+    And I open admin console in a browser
+    # rollback to hooks-1 with all options selected
+    When I perform the :goto_one_rc_page web action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | hooks-1             |
+    Then the step should succeed
+    When I perform the :rollback_with_options web action with:
+      | replica_count_and_selector | true |
+      | strategy                   | true |
+      | trigger                    | true |
+    Then the step should succeed
+    Then the expression should be true> deployment_config('hooks').replicas.to_i == 1
+    And the expression should be true> !deployment_config('hooks').selector.inspect.include? 'selectortest'
+    Then the expression should be true> deployment_config('hooks').strategy.inspect.include? 'Recreate'
+    And the expression should be true> deployment_config('hooks').triggers.inspect.include? 'ConfigChange'
+    And the expression should be true> !deployment_config('hooks').containers.inspect.include? 'envtest'
+
+    # rollback to hooks-2 without selecting options
+    When I perform the :goto_one_rc_page web action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | hooks-2             |
+    Then the step should succeed
+    When I run the :rollback_with_options web action
+    Then the step should succeed
+    Then the expression should be true> deployment_config('hooks').replicas.to_i == 1
+    And the expression should be true> !deployment_config('hooks').selector.inspect.include? 'selectortest'
+    Then the expression should be true> deployment_config('hooks').strategy.inspect.include? 'Recreate'
+    And the expression should be true> deployment_config('hooks').triggers.inspect.include? 'ConfigChange'
+    And the expression should be true> deployment_config('hooks').containers.inspect.include? 'envtest'
+
+    # check deployment rollback
+    When I perform the :goto_deployment_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+    And current replica set name of "example" deployment stored into :first_replicaset_name clipboard
+    When I run the :set_env client command with:
+      | resource | deployment/example |
+      | env_name | test=envtest       |
+    Then the step should succeed
+    And the expression should be true> deployment('example').containers.inspect.include? 'envtest'
+
+    When I perform the :goto_one_rs_page web action with:
+      | project_name | <%= project.name %>             |
+      | rs_name      | <%= cb.first_replicaset_name %> |
+    Then the step should succeed
+    When I run the :rollback_with_options web action
+    Then the step should succeed
+    And the expression should be true> !deployment('example').containers.inspect.include? 'envtest'
