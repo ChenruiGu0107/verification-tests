@@ -122,3 +122,24 @@ Feature: admin console api related
     Then the step should succeed
     When I run the :check_pages_in_korean web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-41056
+  @admin
+  Scenario: Added 'Advanced Cluster Management' to Perspective Switcher
+    Given the master version >= "4.8"
+    Given admin ensures "acm-console-link" console_links_console_openshift_io is deleted after scenario
+    Given the first user is cluster-admin
+    Given I use the "openshift-console" project
+    And evaluation of `route('console').spec.host` is stored in the :consolehostname clipboard
+    Given I obtain test data file "templates/ui/acm-console-link.yaml"
+    Given I replace lines in "acm-console-link.yaml":
+      | CONSOLE_ROUTE | <%= cb.consolehostname %> |
+    When I run the :create admin command with:
+      | f | acm-console-link.yaml |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I run the :check_acm_in_perspective_switcher web action
+    Then the step should succeed
+    When I run the :check_acm_not_in_applauncher web action
+    Then the step should succeed
