@@ -205,8 +205,18 @@ Feature: projects related features via cli
 
   # @author xxia@redhat.com
   # @case_id OCP-10350
+  @admin
   Scenario: compensate for raft/cache delay in namespace admission
     Given evaluation of `rand_str(5,:dns)` is stored in the :proj_name clipboard
+    # When normal user `oc get project` can't see the deleted project, admin can still see it Terminating for a bit more time.
+    # But if still Terminating after 60s (default time of "I wait for the steps to pass:"), the case will fail.
+    # Then print the project YAML to see .status.conditions to debug why
+    And I register clean-up steps:
+    """
+    When I run the :get admin command with:
+      | resource | ns/<%= cb.proj_name %> |
+      | o        | yaml                   |
+    """
     Then I run the steps 15 times:
     """
     Given I wait for the steps to pass:
