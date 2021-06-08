@@ -1,0 +1,16 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotContent
+metadata:
+  name: snapcontent-test
+spec:
+  deletionPolicy: Delete
+  driver: hostpath.csi.k8s.io
+  source:
+    volumeHandle: vol-082fdb8b2bf763d5b
+    snapshotHandle: snap-0eff852303ea5b33e
+  volumeSnapshotClassName: csi-snapshotclass
+  volumeSnapshotRef:
+    apiVersion: snapshot.storage.k8s.io/v1
+    kind: VolumeSnapshot
+    name: mysnapshot
+    namespace: snapshot-test

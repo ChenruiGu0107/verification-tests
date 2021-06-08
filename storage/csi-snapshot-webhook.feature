@@ -53,3 +53,38 @@ Feature: CSI snapshot webhook related scenarios
     """
     Then the expression should be true> deployment("csi-snapshot-webhook").containers_spec(cached: false).first.args.include?("--v=8")
     """
+
+
+  # @author wduan@redhat.com
+  Scenario Outline: csi-snapshot-webhook blocks volumesnapshot creation
+    Given I have a project
+    Given I obtain test data file "storage/snapshot/<test-file>"
+    When I run the :create client command with:
+      | f | <test-file> |
+    Then the step should fail
+    And the output should match:
+      | <output> |
+
+    Examples:
+      | test-file                                           | output                                                                          |
+      | invailid-volumesnapshot-both-nil.yaml               | "spec.source" must validate one and only one schema.*Found none valid           | # @case_id OCP-37745
+      | invailid-volumesnapshot-both.yaml                   | "spec.source" must validate one and only one schema.*Found 2 valid alternatives | # @case_id OCP-37746
+      | invailid-volumesnapshot-snapshotclass-nil.yaml      | Spec.VolumeSnapshotClassName must not be the empty string                       | # @case_id OCP-37747
+
+
+  # @author wduan@redhat.com
+  @admin
+  Scenario Outline: csi-snapshot-webhook blocks volumesnapshotcontent creation
+    Given I switch to cluster admin pseudo user
+    And I obtain test data file "storage/snapshot/<test-file>"
+    When I run the :create client command with:
+      | f | <test-file> |
+    Then the step should fail
+    And the output should match:
+      | <output> |
+
+    Examples:
+      | test-file                                           | output                                                                          |
+      | invailid-volumesnapshotcontent-both-nil.yaml        | "spec.source" must validate one and only one schema.*Found none valid           | # @case_id OCP-37748
+      | invailid-volumesnapshotcontent-both.yaml            | "spec.source" must validate one and only one schema.*Found 2 valid alternatives | # @case_id OCP-37749
+      | invailid-volumesnapshotcontent-snapshotref-nil.yaml | spec.volumeSnapshotRef: Required value                                          | # @case_id OCP-37750
