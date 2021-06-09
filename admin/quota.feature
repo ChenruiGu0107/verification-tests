@@ -708,8 +708,8 @@ Feature: Quota related scenarios
 
     Examples:
       | image                            |
-      | openshifttest/fedora_base:latest | # @case_id OCP-11797
-      | openshifttest/singlelayer:latest | # @case_id OCP-11963
+      | openshifttest/mysql-56-centos7:latest | # @case_id OCP-11797
+      | openshifttest/singlelayer:latest      | # @case_id OCP-11963
 
   # @author weinliu@redhat.com
   # @case_id OCP-15821
