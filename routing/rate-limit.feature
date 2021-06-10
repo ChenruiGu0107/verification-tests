@@ -103,7 +103,7 @@ Feature: Testing haproxy rate limit related features
     Then the step should succeed
     And the pod named "httpbin-pod2" becomes ready
 
-    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/routetimeout/service_unsecure.json"
     When I run the :create client command with:
       | f | service_unsecure.json |
     Then the step should succeed
