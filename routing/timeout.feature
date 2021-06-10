@@ -10,7 +10,7 @@ Feature: Testing timeout route
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
-    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/routetimeout/service_unsecure.json"
     When I run the :create client command with:
       | f  | service_unsecure.json |
     Then the step should succeed
@@ -45,7 +45,7 @@ Feature: Testing timeout route
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
-    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/routetimeout/service_unsecure.json"
     When I run the :create client command with:
       | f  | service_unsecure.json |
     Then the step should succeed
@@ -90,7 +90,7 @@ Feature: Testing timeout route
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
-    Given I obtain test data file "routing/routetimeout/reencrypt/service_secure.json"
+    Given I obtain test data file "routing/routetimeout/service_secure.json"
     When I run the :create client command with:
       | f  | service_secure.json |
     Then the step should succeed
@@ -137,7 +137,7 @@ Feature: Testing timeout route
   @admin
   Scenario: Set invalid timeout server for route
     Given I have a project
-    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
+    Given I obtain test data file "routing/routetimeout/service_unsecure.json"
     When I run the :create client command with:
       | f  | service_unsecure.json |
     Then the step should succeed
