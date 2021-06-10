@@ -86,7 +86,7 @@ Feature: customize console related
     Given the master version >= "4.1"
 
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given a "htpasswd" file is created with the following lines:
     """
