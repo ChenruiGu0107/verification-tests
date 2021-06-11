@@ -5,7 +5,7 @@ Feature: idp feature
   @admin
   @destructive
   Scenario: User can login if and only if user and identity exist and reference to correct user or identity for provision strategy lookup
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
     Given a "htpasswd" file is created with the following lines:
     """
     ocp23517_user:$2y$05$tm9rviPntbmDEL0S5pbF/eWYNP.rcws.dx.KNjfiqwFWH/hC9Dh1e
@@ -86,7 +86,7 @@ Feature: idp feature
   @admin
   @destructive
   Scenario: Config provision strategy as "add"(4.x)
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
     Given a "htpasswd" file is created with the following lines:
     """
     ocp23514_user:$2y$05$qpxXM/d/GSXVsTp0wwJ.guOCEOSSZeX4JOkG631tQUTXprDDSfYGm
@@ -175,7 +175,7 @@ Feature: idp feature
   @admin
   @destructive
   Scenario: Config provision strategy as "claim"(4.x)
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     # htpasswd file creation
     Given a "htpasswd" file is created with the following lines:
@@ -277,7 +277,7 @@ Feature: idp feature
   @admin
   @destructive
   Scenario: [BUG: 1814898] User should able to login when ldap query times out when htpasswd IDP credentials are used.
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
     Given a "htpasswd" file is created with the following lines:
     """
     newton:$2y$05$i1Q2aEoyGGMEVscWl9rGlO5ELMf3gmfea7oZ/eI0Qe0LkdB.Nn75q

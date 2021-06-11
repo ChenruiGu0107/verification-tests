@@ -6,7 +6,7 @@ Feature: add idp from console
   Scenario: Configure Basic Authentication IDP
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -53,7 +53,7 @@ Feature: add idp from console
   Scenario: Config github IDP from cluster setting page
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
     Given I open admin console in a browser
     Given the first user is cluster-admin
     When I run the :goto_cluster_oauth_configuration_page web action
@@ -131,7 +131,7 @@ Feature: add idp from console
   Scenario: Add GitLab IDP on console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -172,7 +172,7 @@ Feature: add idp from console
   Scenario: Add LDAP IDP from console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -224,7 +224,7 @@ Feature: add idp from console
   Scenario: Configure Google IDP for cluster
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -267,7 +267,7 @@ Feature: add idp from console
   Scenario: Create OpenId Oauth IDP for Gitlab
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -316,7 +316,7 @@ Feature: add idp from console
   Scenario: Check IDP with Request Header
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -367,7 +367,7 @@ Feature: add idp from console
   Scenario: Add Keystone as a IDP for cluster settings
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
-    Given the "cluster" oauth CRD is restored after scenario
+    Given the "cluster" oauth CR is restored after scenario
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
