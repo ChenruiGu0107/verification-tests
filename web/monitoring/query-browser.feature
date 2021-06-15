@@ -214,12 +214,12 @@ Feature: query browser
       """
     Then the step should succeed
     And the output should contain:
-      | kube_pod_status_scheduled |
-      | ALERTS                    |
+      | kubelet_http_requests_total |
+      | ALERTS                      |
     #check metrics from ocp conosle
     #check selected query from dropdown list
     When I perform the :perform_metric_query_drop_down_admin web action with:
-      | metrics_name | kube_pod_status_scheduled |
+      | metrics_name | kubelet_http_requests_total |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
@@ -262,14 +262,14 @@ Feature: query browser
     Then the step should succeed
     #check selected query from dropdown list
     When I perform the :perform_metric_query_drop_down_admin web action with:
-      | metrics_name | kube_pod_status_scheduled |
+      | metrics_name | kubelet_http_requests_total |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
     Then the step should succeed
     #check query by filter metrics
     When I perform the :perform_filter_query web action with:
-      | metrics | kube_pod_status_scheduled |
+      | metrics | kubelet_http_requests_total |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |

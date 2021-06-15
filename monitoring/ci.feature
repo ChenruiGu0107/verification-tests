@@ -1645,7 +1645,7 @@ Feature: Install and configuration related scenarios
       | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/rules |
     Then the step should succeed
     And the output should contain:
-      | ThanosQueryRangeLatencyHigh |
+      | ThanosSidecarPrometheusDown |
 
     Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
     When I run the :apply client command with:
