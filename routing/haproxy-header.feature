@@ -870,3 +870,134 @@ Feature: Testing HTTP Headers related scenarios
       | bash | -lc | grep -w "route-unsecure-2" haproxy.config -A3 \|grep "never" -q   |
     Then the step should succeed
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41934
+  @admin
+  Scenario: HTTP header case can be modified with "headerNameCaseAdjustments" ingresscontroller parameter for unsecure/REEN/Edge routes
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-41934" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    # deply router with "headerNameCaseAdjustments" options
+    Given I obtain test data file "routing/operator/ingressctl-case-adjust.yaml"
+    And I run oc create over "ingressctl-case-adjust.yaml" replacing paths:
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-41934") %> |
+      | ["metadata"]["name"] | test-41934                                    |
+    Then the step should succeed
+    Given I use the router project
+    # Verify the state of the routers and collect router pod names
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-41934 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-41934').exists?
+    # Deploy project with resources
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    # deploy unsecure/edge/REEN routes.
+    When I run the :create_route_edge client command with:
+      | name     | edge-route                                       |
+      | service  | service-unsecure                                 |
+      | hostname | edge-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    # Create REEN route over 'service-secure' service
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route                                       |
+      | service    | service-secure                                   |
+      | destcacert | route_reencrypt_dest.ca                          |
+      | hostname   | reen-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    # expose a clear route through "service-unsecure"
+    When I run the :expose client command with:
+      | resource      | service                                              |
+      | resource_name | service-unsecure                                     |
+      | name          | unsecure-route                                       |
+      | hostname      | unsecure-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    # Curl the routes to verify the HTTP response header cases.
+    Given I have a pod-for-ping in the project
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sSI | --resolve | unsecure-route-<%= cb.proj_name %>.41934.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://unsecure-route-<%= cb.proj_name %>.41934.example.com/ |
+    Then the step should succeed
+    And the output should match:
+      | Server         |
+      | Content-Length |
+      | Cache-Control  |
+    When I execute on the pod:
+      | curl | -sSIk | --resolve | edge-route-<%= cb.proj_name %>.41934.example.com:443:<%= cb.router_ip %> | --max-time | 10 | https://edge-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    And the output should match:
+      | Server         |
+      | Content-Length |
+      | Cache-Control  |
+    When I execute on the pod:
+      | curl | -sSIk | --resolve | reen-route-<%= cb.proj_name %>.41934.example.com:443:<%= cb.router_ip %> | --max-time | 10 | https://reen-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    And the output should match:
+      | Server         |
+      | Content-Length |
+      | Cache-Control  |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41998
+  @admin
+  Scenario: HTTP header case using "headerNameCaseAdjustments" parameter cannot be modified for the passthrough routes.
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-41998" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    # deply router with "headerNameCaseAdjustments" options
+    Given I obtain test data file "routing/operator/ingressctl-case-adjust.yaml"
+    And I run oc create over "ingressctl-case-adjust.yaml" replacing paths:
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-41998") %> |
+      | ["metadata"]["name"] | test-41998                                    |
+    Then the step should succeed
+    Given I use the router project
+    # Verify the state of the routers and collect router pod names
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-41998 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-41998').exists?
+    # Deploy project with resources
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    # Deploy passthrough route
+    When I run the :create_route_passthrough client command with:
+      | service  | service-secure                                     |
+      | name     | passth-route                                       |
+      | hostname | passth-route-<%= cb.proj_name %>.41998.example.com |
+    # Curl the route to verify the header cases
+    Given I have a pod-for-ping in the project
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sSIk | --resolve | passth-route-<%= cb.proj_name %>.41998.example.com:443:<%= cb.router_ip %> | --max-time | 10 | https://passth-route-<%= cb.proj_name %>.41998.example.com |
+    Then the step should succeed
+    And the output should match:
+      | server         |
+      | content-length |
+    """

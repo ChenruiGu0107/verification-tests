@@ -1,0 +1,24 @@
+kind: IngressController
+apiVersion: operator.openshift.io/v1
+metadata:
+  name: nodeport
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: router-certs-default
+  domain: case-adjust.example.com
+  replicas: 1
+  endpointPublishingStrategy:
+    type: NodePortService
+  httpHeaders:
+    headerNameCaseAdjustments:
+    - Cache-Control
+    - Server
+    - Content-Length
+  nodePlacement:
+    nodeSelector:
+      matchLabels:
+        beta.kubernetes.io/os: linux
+    tolerations:
+    - effect: NoSchedule
+      operator: Exists
