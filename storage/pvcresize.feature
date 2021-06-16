@@ -113,7 +113,8 @@ Feature: PVC resizing Test
       | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 1   |
     Then the step should succeed
 
-    Given admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    Given admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"] | Immediate |
     Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
     When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -228,7 +229,8 @@ Feature: PVC resizing Test
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    Given admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"] | Immediate |
 
     Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
     When I run oc create over "quota-pvc-storage.yaml" replacing paths:
@@ -243,6 +245,7 @@ Feature: PVC resizing Test
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
+
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
     And the expression should be true> resource_quota("project-quota").total_used(cached: false).storage_requests_raw == "1Gi"
 
@@ -268,7 +271,8 @@ Feature: PVC resizing Test
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    Given admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"] | Immediate |
 
     Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
     When I run oc create over "quota-pvc-storage.yaml" replacing paths:
