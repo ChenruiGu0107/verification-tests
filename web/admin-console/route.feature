@@ -414,9 +414,12 @@ Feature: route related
     When I perform the :check_route_name_and_icon web action with:
       | route_name | example |
     Then the step should succeed
+    Given I wait up to 40 seconds for the steps to pass:
+    """
     When I perform the :check_route_name_and_icon web action with:
       | route_name | mytestroute |
     Then the step should fail
+    """
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-33744

@@ -705,7 +705,6 @@ Feature: operatorhub feature related
     Given admin waits for the "serverless-operator" subscriptions to become ready in the "openshift-serverless" project up to 240 seconds
     And evaluation of `subscription("serverless-operator").current_csv` is stored in the :current_csv clipboard
     Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-serverless" project after scenario
-
     Given admin ensures "knative-serving" project is deleted after scenario
     # create knative-serving namespace and instance
     When I run the :create admin command with:
@@ -833,6 +832,7 @@ Feature: operatorhub feature related
   Scenario: Custom Resource List view updates
     Given the master version >= "4.4"
     Given I have a project
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     Given the first user is cluster-admin
     And I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
@@ -883,20 +883,22 @@ Feature: operatorhub feature related
     Then the step should succeed
     Given admin checks that the "hippo" pgcluster exists in the "<%= project.name %>" project
 
+    Given admin ensures "kiali-ossm" subscription is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "kiali-operator.v1.24.7" clusterserviceversions is deleted from the "openshift-operators" project after scenario
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | kiali                 |
-      | catalog_name     | community-operators   |
-      | target_namespace | <%= project.name %>   |
-    Then the step should succeed
-    When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | package_name     | kiali-ossm          |
+      | catalog_name     | redhat-operators    |
+      | target_namespace | <%= project.name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    Given a pod becomes ready with labels:
+    Given I use the "openshift-operators" project
+    And a pod becomes ready with labels:
       | app=kiali-operator |
+    And evaluation of `subscription("kiali-ossm").current_csv` is stored in the :kiali_csv clipboard
+    Given I use the "<%= cb.userproject_name %>" project
     When I perform the :goto_installed_operators_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :create_custom_resource web action with:
       | api | Kiali |
@@ -905,19 +907,18 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
-    Given admin checks that the "kiali" kiali exists in the "<%= project.name %>" project
-
+    Given admin checks that the "kiali" kiali exists in the "<%= cb.userproject_name %>" project
     #check phase status
     When I run the :get admin command with:
-      | resource      | etcdcluster         |
-      | resource_name | example             |
-      | n             | <%= project.name %> |
-      | output        | yaml                |
+      | resource      | etcdcluster                |
+      | resource_name | example                    |
+      | n             | <%= cb.userproject_name %> |
+      | output        | yaml                       |
     Then the step should succeed
     Given evaluation of `@result[:parsed]["status"]["phase"]` is stored in the :etcd_phase clipboard
     And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard
     When I perform the :goto_operand_list_page web action with:
-      | project_name | <%= project.name %>                          |
+      | project_name | <%= cb.userproject_name %>                   |
       | csv_name     | <%= cb.etcd_csv %>                           |
       | operand_name | etcd.database.coreos.com~v1beta2~EtcdCluster |
     Then the step should succeed
@@ -927,15 +928,15 @@ Feature: operatorhub feature related
 
     #check state status
     When I run the :get admin command with:
-      | resource      | pgcluster           |
-      | resource_name | hippo               |
-      | n             | <%= project.name %> |
-      | output        | yaml                |
+      | resource      | pgcluster                  |
+      | resource_name | hippo                      |
+      | n             | <%= cb.userproject_name %> |
+      | output        | yaml                       |
     Then the step should succeed
     Given evaluation of `@result[:parsed]["status"]["state"]` is stored in the :postgresql_state clipboard
     And evaluation of `subscription("postgresql").current_csv` is stored in the :postgresql_csv clipboard
     When I perform the :goto_operand_list_page web action with:
-      | project_name | <%= project.name %>          |
+      | project_name | <%= cb.userproject_name %>   |
       | csv_name     | <%= cb.postgresql_csv %>     |
       | operand_name | crunchydata.com~v1~Pgcluster |
     Then the step should succeed
@@ -945,15 +946,14 @@ Feature: operatorhub feature related
 
     # check condition status
     When I run the :get admin command with:
-      | resource      | kiali               |
-      | resource_name | kiali               |
-      | n             | <%= project.name %> |
-      | output        | yaml                |
+      | resource      | kiali                      |
+      | resource_name | kiali                      |
+      | n             | <%= cb.userproject_name %> |
+      | output        | yaml                       |
     Then the step should succeed
     Given evaluation of `@result[:parsed]["status"]["conditions"][-1]["type"]` is stored in the :kiali_condition clipboard
-    And evaluation of `subscription("kiali").current_csv` is stored in the :kiali_csv clipboard
     When I perform the :goto_operand_list_page web action with:
-      | project_name | <%= project.name %>        |
+      | project_name | <%= cb.userproject_name %> |
       | csv_name     | <%= cb.kiali_csv %>        |
       | operand_name | kiali.io~v1alpha1~Kiali    |
     Then the step should succeed
@@ -963,8 +963,8 @@ Feature: operatorhub feature related
 
     #check all instance page
     When I perform the :goto_operator_all_instance_page web action with:
-      | project_name | <%= project.name %> |
-      | csv_name     | <%= cb.etcd_csv %>  |
+      | project_name | <%= cb.userproject_name %> |
+      | csv_name     | <%= cb.etcd_csv %>         |
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
       | field | Status |
