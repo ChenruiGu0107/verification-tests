@@ -580,17 +580,13 @@ Feature: only about page related to cluster login page
       | us-west1, The Dalles, Oregon, USA                 ||
       | us-west2, Los Angeles, California, USA            ||
       | asia-northeast2, Osaka, Japan                     ||
-      | asia-northeast3, Seoul, Korea                     ||
       | asia-south1, Mumbai, India                        ||
-      | asia-southeast2, Jakarta, Indonesia               ||
       | australia-southeast1, Sydney, Australia           ||
       | europe-north1, Hamina, Finland                    ||
       | europe-west3, Frankfurt, Germany                  ||
       | europe-west6, Zürich, Switzerland                 ||
       | northamerica-northeast1, Montréal, Québec, Canada ||
       | southamerica-east1, Osasco (São Paulo), Brazil    ||
-      | us-west3, Salt Lake City, Utah, USA               ||
-      | us-west4, Las Vegas, Nevada, USA                  ||
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :select_region_by_text web action with:
