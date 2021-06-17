@@ -101,9 +101,9 @@ Feature: Alerting for machine-api
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "mapi_instance_create_failed"
 
     Examples:
-      | valid_field       | invalid_value           | machineset-name          |
-      | /machineType:.*/  | machineType: invalid    | machineset-invalid-37846 | # @case_id OCP-37846
-      | /instanceType:.*/ | instanceType: invalid   | machineset-invalid-36989 | # @case_id OCP-36989
-      | /vmSize:.*/       | vmSize: invalid         | machineset-invalid-37847 | # @case_id OCP-37847
-      | /flavor:.*/       | flavor: invalid         | machineset-invalid-37848 | # @case_id OCP-37848
-      | /folder:.*/       | folder: /dc1/vm/invalid | machineset-invalid-37849 | # @case_id OCP-37849
+      | valid_field       | invalid_value                       | machineset-name          |
+      | /machineType:.*/  | machineType: invalid                | machineset-invalid-37846 | # @case_id OCP-37846
+      | /instanceType:.*/ | instanceType: invalid               | machineset-invalid-36989 | # @case_id OCP-36989
+      | /vmSize:.*/       | vmSize: invalid                     | machineset-invalid-37847 | # @case_id OCP-37847
+      | /flavor:.*/       | flavor: invalid                     | machineset-invalid-37848 | # @case_id OCP-37848
+      | /folder:.*/       | folder: /SDDC-Datacenter/vm/invalid | machineset-invalid-37849 | # @case_id OCP-37849
