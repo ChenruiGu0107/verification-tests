@@ -1001,3 +1001,58 @@ Feature: Testing HTTP Headers related scenarios
       | server         |
       | content-length |
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-41935
+  @admin
+  Scenario: HTTP request header cases adjustments only gets applied for routes with "haproxy.router.openshift.io/h1-adjust-case=true" annotation
+    Given the master version >= "4.8"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-41935" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    # deply router with "headerNameCaseAdjustments" options
+    Given I obtain test data file "routing/operator/ingressctl-case-adjust.yaml"
+    And I run oc create over "ingressctl-case-adjust.yaml" replacing paths:
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-41935") %> |
+      | ["metadata"]["name"] | test-41935                                    |
+    Then the step should succeed
+    Given I use the router project
+    # Verify the state of the routers and collect router pod names
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-41935 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Then the expression should be true> deployment('router-test-41935').exists?
+    # Deploy project with resources
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run oc create over "web-server-rc.yaml" replacing paths:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+    # Expose a route through the ingresscontroller
+    When I run the :expose client command with:
+      | resource      | service                                              |
+      | resource_name | service-unsecure                                     |
+      | name          | unsecure-route                                       |
+      | hostname      | unsecure-route-<%= cb.proj_name %>.41934.example.com |
+    Then the step should succeed
+    # annotate the route
+    When I run the :annotate client command with:
+      | resource     | route                                           |
+      | resourcename | unsecure-route                                  |
+      | keyval       | haproxy.router.openshift.io/h1-adjust-case=true |
+    Then the step should succeed
+    # Check the haproxy pod for the parameter set
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | grep -w '<%= cb.proj_name %>:unsecure-route' /var/lib/haproxy/conf/haproxy.config -A6 \|grep "h1-case-adjust-bogus-server" -q |
+    Then the step should succeed
+    """
