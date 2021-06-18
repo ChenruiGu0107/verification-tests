@@ -679,3 +679,49 @@ Feature: elasticsearch operator related tests
     """
     And the expression should be true> pod('<%= cb.es_pod %>').ready?[:success]
     And the expression should be true> elasticsearch('elasticsearch').nodes_status[0]['upgradeStatus'].empty?
+
+  # @author qitang@redhat.com
+  # @case_id OCP-40575
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: Elasticsearch-operator metrics checking
+    Given I wait up to 360 seconds for the steps to pass:
+    """
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query?                               |
+      | query | eo_elasticsearch_cr_cluster_management_state |
+    Then the step should succeed
+    And the expression should be true>  @result[:parsed]['data']['result'][0]['value']
+    """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-39940
+  @admin
+  @destructive
+  Scenario: Mark operator/cluster as degraded when missing cert/keys in ES
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                         |
+      | crd_yaml            | example_indexmanagement.yaml |
+    Then the step should succeed
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"managementState": "Unmanaged"}} |
+    When I run the :extract client command with:
+      | resource | secret/elasticsearch |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | secret        |
+      | object_name_or_id | elasticsearch |
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | name        | elasticsearch                       |
+      | secret_type | generic                             |
+      | from_file   | admin-ca=admin-ca                   |
+      | from_file   | elasticsearch.crt=elasticsearch.crt |
+      | from_file   | elasticsearch.key=elasticsearch.key |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Given the expression should be true> !((elasticsearch('elasticsearch').cluster_conditions.select {|x| x["type"]=="Degraded"}).empty?)
+    """

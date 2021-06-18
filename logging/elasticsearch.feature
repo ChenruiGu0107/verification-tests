@@ -142,6 +142,46 @@ Feature: elasticsearch related tests
       | ["ElasticsearchBulkRequestsRejectionJumps"]                                                      | # @case_id OCP-22311
 
   # @author qitang@redhat.com
+  # @case_id OCP-41997
+  @admin
+  @destructive
+  Scenario: Alerts: ElasticsearchNodeDiskWatermarkReached -- prediction
+    Given default storageclass is stored in the :default_sc clipboard
+    And I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 1Gi                                  |
+    Then the step should succeed
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
+    When I run the :new_app client command with:
+      | file | container_json_log_template.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | rc                        |
+      | resource_name | centos-logtest            |
+      | p             | {"spec": {"replicas": 3}} |
+    Then the step should succeed
+    And 3 pods becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I perform the GET prometheus rest client with:
+      | path  | /api/v1/query?                                            |
+      | query | ALERTS{alertname="ElasticsearchNodeDiskWatermarkReached"} |
+    Then the step should succeed
+    And the output should match:
+      | "alertstate":"pending\|firing" |
+      | "severity":"warning" |
+    """
+
+  # @author qitang@redhat.com
   # @case_id OCP-35767
   @admin
   @destructive
