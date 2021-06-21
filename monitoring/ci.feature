@@ -1110,27 +1110,25 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | KubePodNotReady |
     """
+
     #alerts can be found in thanos-ruler page
-    When I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :exec admin command with:
-      | n                | openshift-monitoring |
-      | pod              | alertmanager-main-0  |
-      | c                | alertmanager         |
-      | oc_opts_end      |                      |
-      | exec_command     | sh                   |
-      | exec_command_arg | -c                   |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-ruler.openshift-user-workload-monitoring.svc:9091/alerts |
+    When I perform the HTTP request:
+      """
+      :url: https://<%= cb.thanos_ruler_route %>/api/v1/rules?type=alert
+      :method: get
+      :headers:
+         :Authorization: Bearer <%= cb.sa_token %>
+      """
     Then the step should succeed
     And the output should contain:
       | KubePodNotReady |
       | Watchdog        |
       | TargetDown      |
-    """
+
     #check rules could be found on thanos-ruler UI with specific project
     When I perform the HTTP request:
       """
-      :url: https://<%= cb.thanos_ruler_route %>/rules
+      :url: https://<%= cb.thanos_ruler_route %>/api/v1/rules
       :method: get
       :headers:
          :Authorization: Bearer <%= cb.sa_token %>
@@ -1362,6 +1360,9 @@ Feature: Install and configuration related scenarios
       | o             | yaml           |
     Then the step should succeed
     Then the expression should be true> YAML.load(@result[:stdout])["spec"]["endpoints"][0]["scheme"] == "https"
+    When I use the "openshift-monitoring" project
+    # get sa/prometheus-k8s token
+    And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
     #curl the thanos-querier target
     When evaluation of `endpoints('thanos-querier').subsets.first.addresses.first.ip.to_s` is stored in the :thanosquery_endpoint_ip clipboard
     And evaluation of `cb.thanosquery_endpoint_ip + ':9091'` is stored in the :thanosquery_endpoint clipboard
@@ -1372,7 +1373,7 @@ Feature: Install and configuration related scenarios
       | oc_opts_end      |                                                        |
       | exec_command     | sh                                                     |
       | exec_command_arg | -c                                                     |
-      | exec_command_arg | curl -k https://<%= cb.thanosquery_endpoint %>/metrics |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://<%= cb.thanosquery_endpoint %>/metrics |
     Then the step should succeed
     And the output should contain:
       | thanos_status |
