@@ -110,10 +110,12 @@ Feature: Node related
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.machines[0].name %> |
     Then the step should succeed
+    Given I wait up to 40 seconds for the steps to pass:
+    """
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.machines[1].name %> |
     Then the step should fail
-
+    """
     # filter by node name
     When I perform the :set_filter_strings web action with:
       | filter_text | <%= cb.schedule_workers[0].name %> |
@@ -121,6 +123,7 @@ Feature: Node related
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.schedule_workers[0].name %> |
     Then the step should succeed
+    
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.schedule_workers[2].name %> |
     Then the step should fail
