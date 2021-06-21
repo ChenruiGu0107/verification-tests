@@ -354,12 +354,12 @@ Feature: log forwarding related tests
       | relative_url | infra*/_count?pretty  |
       | op           | GET                   |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] = 0
+    And the expression should be true> @result[:parsed]['count'] == 0
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | audit*/_count?pretty  |
       | op           | GET                   |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] = 0
+    And the expression should be true> @result[:parsed]['count'] == 0
     Given I wait up to 300 seconds for the steps to pass:
     """
     And I execute on the "<%= cb.log_receiver.name %>" pod:
