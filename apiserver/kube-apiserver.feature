@@ -9,7 +9,7 @@ Feature: KUBE API server related features
     Then the output should contain:
       | project "openshift-kube-apiserver" on server |
     And I run the :port_forward background admin command with:
-      | pod       | kube-apiserver-<%= cb.nodes[1].name %> |
+      | pod       | kube-apiserver-<%= cb.nodes[0].name %> |
       | port_spec | 6080                                   |
       | _timeout  | 60                                     |
     Then the step should succeed
