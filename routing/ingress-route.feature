@@ -187,6 +187,36 @@ Feature: Testing ingress to route object
 
 
   # @author aiyengar@redhat.com
+  # @case_id OCP-33961
+  Scenario: Setting "route.openshift.io/termination" annotation to "Passthrough" in ingress resource deploys "passthrough" terminated route object
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+  # Create project with resources
+    Given I obtain test data file "routing/web-server-rc.yaml"
+    When I run the :create client command with:
+      | f | web-server-rc.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=web-server-rc |
+
+  # Deploy a passthrough route
+    Given I obtain test data file "routing/ingress/ingress-passth-resource.yaml"
+    And I run oc create over "ingress-passth-resource.yaml" replacing paths:
+      | ["spec"]["rules"][0]["host"] | ingress-passth-<%= project.name %>.<%= cb.subdomain %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the output should contain "passthrough/Redirect"
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "ingress-passth-<%= project.name %>.<%= cb.subdomain %>" url
+    And the output should contain "Hello-OpenShift"
+    """
+
+
+  # @author aiyengar@redhat.com
   # @case_id OCP-33962
   Scenario: Setting "route.openshift.io/termination" annotation to "Reencrypt" in ingress resource deploys "reen" terminated route object
     Given the master version >= "4.6"
