@@ -166,7 +166,7 @@ Feature: elasticsearch related tests
       | resource_name | centos-logtest            |
       | p             | {"spec": {"replicas": 3}} |
     Then the step should succeed
-    And 3 pods becomes ready with labels:
+    And 3 pods become ready with labels:
       | run=centos-logtest,test=centos-logtest |
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project

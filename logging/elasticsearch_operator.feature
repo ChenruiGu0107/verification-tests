@@ -725,3 +725,165 @@ Feature: elasticsearch operator related tests
     """
     Given the expression should be true> !((elasticsearch('elasticsearch').cluster_conditions.select {|x| x["type"]=="Degraded"}).empty?)
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-39894
+  @admin
+  @destructive
+  Scenario: [bz 1923788]Elasticsearch operator should always update ES cluster after secret changed
+    Given default storageclass is stored in the :default_sc clipboard
+    And I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 10Gi                                 |
+      | es_node_count       | 3                                    |
+      | redundancy_policy   | SingleRedundancy                     |
+    Then the step should succeed
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    Given I register clean-up steps:
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    When I run the :delete client command with:
+      | object_type        | deployments              |
+      | object_name_or_id  | cluster-logging-operator |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    """
+    # recreate secret/master-certs
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 0                        |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | name=cluster-logging-operator |
+    Then the step should succeed
+    Given I ensure "master-certs" secret is deleted
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 1                        |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    And I wait for the "master-certs" secrets to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given all existing pods die with labels:
+      | es-node-master=true |
+    """
+    # when EO restarting ES cluster, recreate secret/master-certs again
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 0                        |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type        | secret       |
+      | object_name_or_id  | master-certs |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 1                        |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    And I wait for the "master-certs" secrets to appear up to 300 seconds
+    # wait for EO to restart all ES pods
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given all existing pods die with labels:
+      | es-node-master=true |
+    """
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters(cached: false)[:desired] == deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:updated]
+    """
+    And 3 pods become ready with labels:
+      | es-node-master=true |
+    And a pod becomes ready with labels:
+      | component=kibana |
+    And I wait until ES cluster is ready
+    # check if Kibana can connect to ES or not
+    Given I switch to the first user
+    Given I login to kibana logging web console
+    Then the step should succeed
+    When I run the :check_kibana_status web action
+    Then the step should succeed
+
+  # @author qitang@redhat.com
+  # @case_id OCP-40027
+  @admin
+  @destructive
+  Scenario: [bz 1923788]Secret change shouldn't affect ES cluster's upgrading.
+    Given default storageclass is stored in the :default_sc clipboard
+    And I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 10Gi                                 |
+      | es_node_count       | 3                                    |
+      | redundancy_policy   | SingleRedundancy                     |
+    Then the step should succeed
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    Given I register clean-up steps:
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    When I run the :delete client command with:
+      | object_type        | deployments              |
+      | object_name_or_id  | cluster-logging-operator |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    """
+    # when ES cluster under rolling restart, recreate secret/master-certs
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 0                        |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | name=cluster-logging-operator |
+    Then the step should succeed
+    Given I ensure "master-certs" secret is deleted
+    # update log store configuration to make ES cluster rolling restart
+    # to avoid CLO rewriting configurations, update cl/instance and es/elasticsearch
+    Given as admin I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"resources": {"requests": {"memory": "2Gi"}}}}}} |
+    And as admin I successfully merge patch resource "elasticsearch/elasticsearch" with:
+      | {"spec": {"nodeSpec": {"resources": {"requests": {"memory": "2Gi"}}}}} |
+    # wait for EO to restart the first ES
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+      Given the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters(cached: false)[:available] != 1
+    """
+    # scale up CLO to regenerate secrets
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 1                        |
+    Then the step should succeed
+    And I wait for the "master-certs" secrets to appear up to 300 seconds
+    # wait for the ES cluster to be ready
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    And the expression should be true> deployment("kibana").replica_counters(cached: false)[:desired] == deployment("kibana").replica_counters[:updated]
+    """
+    And a pod becomes ready with labels:
+      | component=kibana |
+    And I wait until ES cluster is ready
+    # check if Kibana can connect to ES or not
+    Given I switch to the first user
+    Given I login to kibana logging web console
+    Then the step should succeed
+    When I run the :check_kibana_status web action
+    Then the step should succeed

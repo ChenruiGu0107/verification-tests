@@ -402,33 +402,30 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: Logging should work as usual when secrets deleted or regenerated.
-    Given I obtain test data file "logging/clusterlogging/example.yaml"
-    When I create clusterlogging instance with:
-      | remove_logging_pods | true         |
-      | crd_yaml            | example.yaml |
+    Given default storageclass is stored in the :default_sc clipboard
+    And I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                 |
+      | crd_yaml            | clusterlogging-storage-template.yaml |
+      | storage_class       | <%= cb.default_sc.name %>            |
+      | storage_size        | 10Gi                                 |
+      | es_node_count       | 3                                    |
+      | redundancy_policy   | SingleRedundancy                     |
     Then the step should succeed
     Given evaluation of `secret('master-certs').raw_resource` is stored in the :master_certs_before clipboard
     And evaluation of `secret('elasticsearch').raw_resource` is stored in the :elasticsearch_before clipboard
     And evaluation of `secret('kibana').raw_resource` is stored in the :kibana_before clipboard
     And evaluation of `secret('fluentd').raw_resource` is stored in the :fluentd_before clipboard
-    Given I wait up to 300 seconds for the steps to pass:
-    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And the expression should be true> cb.es_genuuid != nil
-    """
     When I run the :delete client command with:
       | object_type       | secret        |
       | object_name_or_id | master-certs  |
-      | object_name_or_id | elasticsearch |
     Then the step should succeed
-    # CLO should recreate the secrets without changes
+    # CLO should recreate the secret without changes
     Given I wait for the "master-certs" secrets to appear
-    Given I wait for the "elasticsearch" secrets to appear
     Then the expression should be true> cb.master_certs_before['data']['masterca'] ==  secret('master-certs').raw_value_of('masterca', cached: false)
     And the expression should be true> cb.master_certs_before['data']['masterkey'] ==  secret('master-certs').raw_value_of('masterkey')
-    And the expression should be true> cb.elasticsearch_before['data']['logging-es.crt'] == secret('elasticsearch').raw_value_of('logging-es.crt', cached: false)
-    And the expression should be true> cb.elasticsearch_before['data']['logging-es.key'] == secret('elasticsearch').raw_value_of('logging-es.key')
-    And the expression should be true> cb.elasticsearch_before['data']['elasticsearch.key'] == secret('elasticsearch').raw_value_of('elasticsearch.key')
 
     Given I register clean-up steps:
     """
@@ -457,7 +454,13 @@ Feature: cluster-logging-operator related cases
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=cluster-logging-operator |
-    Given I wait for the "master-certs" secrets to appear up to 300 seconds
+    # wait for the EO to remove all ES pods
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given all existing pods die with labels:
+      | es-node-master=true |
+    """
+    And I wait for the "master-certs" secrets to appear up to 300 seconds
     # seems with the new structure of the secret/master-certs, the masterca and masterkey won't change
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -473,21 +476,15 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> cb.fluentd_before['data']['ca-bundle.crt'] != secret('fluentd').raw_value_of('ca-bundle.crt')
     And the expression should be true> cb.fluentd_before['data']['tls.key'] != secret('fluentd').raw_value_of('tls.key')
     """
-    # wait for the EO to remove all ES pods
-    Given I wait up to 300 seconds for the steps to pass:
-    """
-    Given all existing pods die with labels:
-      | es-node-master=true |
-    """
     # wait for the EO to redeploy ES pods
     Given I wait up to 600 seconds for the steps to pass:
     """
-    Given the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:desired] == deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:updated]
-    And a pod becomes ready with labels:
+    Given the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters(cached: false)[:desired] == deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:updated]
+    """
+    And 3 pods become ready with labels:
       | es-node-master=true |
     And a pod becomes ready with labels:
       | component=kibana |
-    """
     Given I switch to the first user
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
