@@ -96,13 +96,8 @@ Feature: Node related
     Given I store the schedulable workers in the :schedule_workers clipboard
     Given I store all machines in the "openshift-machine-api" project to the :machines clipboard
 
-    When I run the :goto_node_page web action
+    When I run the :goto_machines_page web action
     Then the step should succeed
-    Given I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :click_to_machines_page web action
-    Then the step should succeed
-    """
     # filter by machine name
     When I perform the :set_filter_strings web action with:
       | filter_text | <%= cb.machines[0].name %> |
@@ -116,6 +111,7 @@ Feature: Node related
       | item | <%= cb.machines[1].name %> |
     Then the step should fail
     """
+
     # filter by node name
     When I perform the :set_filter_strings web action with:
       | filter_text | <%= cb.schedule_workers[0].name %> |
@@ -123,10 +119,12 @@ Feature: Node related
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.schedule_workers[0].name %> |
     Then the step should succeed
-    
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.schedule_workers[2].name %> |
     Then the step should fail
+    """
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-19722

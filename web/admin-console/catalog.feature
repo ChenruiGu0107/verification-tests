@@ -139,7 +139,6 @@ Feature: tests on catalog page
     """
     When I run the :get client command with:
       | resource | all |
-    Then the step should succeed
     And the output should not contain "dotnet-example"
     """
 

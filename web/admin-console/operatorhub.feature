@@ -1454,13 +1454,13 @@ Feature: operatorhub feature related
       | catalog_name     | ui-33250-operators  |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
-
+    Given I wait for the "etcd" subscription to appear in the "<%= project.name %>" project up to 20 seconds
     When I perform the :subscribe_operator_to_namespace web action with:
       | package_name     | strimzi-kafka-operator |
       | catalog_name     | ui-33250-operators     |
       | target_namespace | <%= project.name %>    |
     Then the step should succeed
-    Given I wait up to 120 seconds for the steps to pass:
+    Given I wait up to 300 seconds for the steps to pass:
     """
     When I get project csv
     Then the output should match:

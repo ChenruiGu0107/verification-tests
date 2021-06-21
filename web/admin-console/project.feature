@@ -125,6 +125,7 @@ Feature: projects related features via web
     Then the step should succeed
 
     # check same row: project name,  display name and creation time
+    Given 60 seconds have passed
     When I perform the :check_resource_data_in_table web action with:
       | resource_name | project-<%= cb.pro_name %> |
       | data          | display-<%= cb.pro_name %> |
