@@ -10,15 +10,15 @@ Feature: console-operator related
     Given 2 pods become ready with labels:
       | app=console  |
       | component=ui |
-    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' and pod.containers.first.spec.memory_request_raw == '100Mi'
+    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' && pod.containers.first.spec.memory_request_raw == '100Mi'
     Given 2 pods become ready with labels:
       | app=console         |
       | component=downloads |
-    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' and pod.containers.first.spec.memory_request_raw == '50Mi'
+    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' && pod.containers.first.spec.memory_request_raw == '50Mi'
     Given I use the "openshift-console-operator" project
     Given a pod becomes ready with labels:
       | name=console-operator |
-    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' and pod.containers.first.spec.memory_request_raw == '100Mi'
+    Then the expression should be true> pod.containers.first.spec.cpu_request_raw == '10m' && pod.containers.first.spec.memory_request_raw == '100Mi'
 
   # @author hasha@redhat.com
   # @case_id OCP-25230
@@ -34,8 +34,8 @@ Feature: console-operator related
 
     Given I obtain test data file "cases/console-operator-role.yaml"
     When I run the :apply client command with:
-      | f          | console-operator-role.yaml |
-      | overwrite  | true |
+      | f         | console-operator-role.yaml |
+      | overwrite | true                       |
     Then the step should succeed
     Given I ensure "console" deployments is deleted
     And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear

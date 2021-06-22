@@ -90,7 +90,7 @@ Feature: genericbuild.feature
     And I wait for the steps to pass:
     """
     And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :after_change clipboard
-    And the expression should be true> cb.after_change - cb.before_change >=1
+    And the expression should be true> cb.after_change - cb.before_change >= 1
     """
 
   # @author xiuwang@redhat.com

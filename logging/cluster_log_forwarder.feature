@@ -184,7 +184,7 @@ Feature: cluster log forwarder testing
       | exec_command_arg | -c                   |
       | exec_command_arg | curl -sk -XGET "https://localhost:9200/*/_count?format=JSON" -H "Content-Type: application/json" -d '{"query": {"exists": {"field": "systemd"}}}' |
     Then the step should succeed
-    And the expression should be true> JSON.parse(@result[:stdout])['count'] = 0
+    And the expression should be true> JSON.parse(@result[:stdout])['count'] == 0
 
     When I run the :exec admin command with:
       | pod              | <%= cb.server_pod %> |
@@ -194,7 +194,7 @@ Feature: cluster log forwarder testing
       | exec_command_arg | -c                   |
       | exec_command_arg | curl -sk -XGET "https://localhost:9200/*/_count?format=JSON" -H "Content-Type: application/json" -d '{"query": {"exists": {"field": "kubernetes.namespace_name"}}}' |
     Then the step should succeed
-    And the expression should be true> JSON.parse(@result[:stdout])['count'] = 0
+    And the expression should be true> JSON.parse(@result[:stdout])['count'] == 0
 
     # check audit logs in elasticsearch-server
     When I run the :exec admin command with:
