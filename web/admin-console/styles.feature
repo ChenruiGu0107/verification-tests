@@ -101,11 +101,6 @@
     When I run the :check_list_view_style web action
     Then the step should succeed
 
-    When I run the :goto_storageclass_page web action
-    Then the step should succeed
-    When I run the :check_list_view_style web action
-    Then the step should succeed
-
     When I perform the :goto_imagestreams_page web action with:
       | project_name  | openshift |
     Then the step should succeed
