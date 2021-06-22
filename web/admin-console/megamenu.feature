@@ -55,7 +55,7 @@ Feature: mega menu on console
     Then the step should succeed
 
     # first subscription will be created
-    Given admin waits for the "openshift-pipelines-operator-rh" subscriptions to become ready in the "openshift-operators" project up to 360 seconds
+    Given admin waits for the "openshift-pipelines-operator-rh" subscription to become ready in the "openshift-operators" project up to 360 seconds
     # get exact CSV name
     And evaluation of `subscription("openshift-pipelines-operator-rh").current_csv` is stored in the :current_csv clipboard
 

@@ -288,7 +288,7 @@ Feature: operatorhub feature related
     When I run the :click_subscribe_button web action
     Then the step should succeed
 
-    And I wait for the "cockroachdb" subscriptions to become ready
+    And I wait for the "cockroachdb" subscription to become ready
     And evaluation of `subscription("cockroachdb").current_csv` is stored in the :cockroachdb_csv clipboard
     Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
       | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |
@@ -336,7 +336,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    And I wait for the "radanalytics-spark" subscriptions to become ready
+    And I wait for the "radanalytics-spark" subscription to become ready
     And evaluation of `subscription("radanalytics-spark").current_csv` is stored in the :spark_csv clipboard
     When I perform the :goto_operand_list_page web action with:
       | project_name | <%= cb.userproject_name %>       |
@@ -400,9 +400,9 @@ Feature: operatorhub feature related
     Given I obtain test data file "olm/catalogsource-template.yaml"
     When I process and create:
       | f | catalogsource-template.yaml |
-      | p | NAME=custom-console-catalogsource-infrasubs                      |
-      | p | IMAGE=quay.io/openshifttest/uitestoperators:infrasubs            |
-      | p | DISPLAYNAME=Custom Console AUTO Testing                          |
+      | p | NAME=custom-console-catalogsource-infrasubs         |
+      | p | IMAGE=quay.io/openshifttest/uioperatorsinfra:latest |
+      | p | DISPLAYNAME=Custom Console AUTO Testing             |
     Then the step should succeed
     And a pod becomes ready with labels:
       | olm.catalogSource=custom-console-catalogsource-infrasubs |
@@ -425,13 +425,14 @@ Feature: operatorhub feature related
     When I run the :check_fips_mode_infras_value_in_operator_modal web action
     Then the step should succeed
 
-    # check operator KEDA has infrastructure feature && valid subscription badge in operator modal
+    # check operator has infrastructure feature && valid subscription badge in operator modal
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
-    When I run the :click_checkbox_proxy_from_infrastructure_features web action
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Custom Console AUTO Testing |
     Then the step should succeed
     When I perform the :open_operator_modal web action with:
-      | operator_name | KEDA |
+      | operator_name | keda |
     Then the step should succeed
     When I run the :check_disconnected_infra_value web action
     Then the step should succeed
@@ -439,27 +440,72 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_fips_infra_value web action
     Then the step should fail
+    When I run the :check_integration_subs_value web action
+    Then the step should succeed
     When I run the :check_3scale_subs_value web action
+    Then the step should fail
+
+    # check operator only has infrastructure feature badge in operator modal
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Custom Console AUTO Testing |
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | kubestone |
+    Then the step should succeed
+    When I run the :check_disconnected_infra_value web action
+    Then the step should succeed
+    When I run the :check_proxy_infra_value web action
+    Then the step should succeed
+    When I run the :check_fips_infra_value web action
+    Then the step should succeed
+    When I run the :check_3scale_subs_value web action
+    Then the step should fail
+
+    # check operator only has Valid Subscription badge in operator modal
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Custom Console AUTO Testing |
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | cockroachdb |
     Then the step should succeed
     When I run the :check_integration_subs_value web action
     Then the step should succeed
-
-    # check operator Kubestone only has infrastructure feature badge in operator modal
-    When I run the :goto_operator_hub_page web action
-    Then the step should succeed
-    When I run the :click_checkbox_fips_from_infrastructure_features web action
-    Then the step should succeed
-    When I perform the :open_operator_modal web action with:
-      | operator_name | Kubestone |
+    When I run the :check_3scale_subs_value web action
     Then the step should succeed
     When I run the :check_disconnected_infra_value web action
-    Then the step should succeed
-    When I run the :check_proxy_infra_value web action
-    Then the step should succeed
-    When I run the :check_fips_infra_value web action
-    Then the step should succeed
-    When I run the :check_3scale_subs_value web action
     Then the step should fail
+
+    # check operator Valid Subscription annotation accepts any string value
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Custom Console AUTO Testing |
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | postgresql |
+    Then the step should succeed
+    When I run the :check_other_subs_value web action
+    Then the step should succeed        
+
+    # check operator has no Valid Subscription and Infrastucture Features property shown
+    # when no annotations
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Custom Console AUTO Testing |
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | teiid |
+    Then the step should succeed
+    When I run the :check_validsubscription_property_missing web action
+    Then the step should succeed
+    When I run the :check_infrastructure_property_missing web action
+    Then the step should succeed    
+
 
   # @author hasha@redhat.com
   # @case_id OCP-29477
@@ -701,8 +747,8 @@ Feature: operatorhub feature related
     When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I use the "openshift-serverless" project
-    Given I wait for the "serverless-operator" subscriptions to appear
-    Given admin waits for the "serverless-operator" subscriptions to become ready in the "openshift-serverless" project up to 240 seconds
+    Given I wait for the "serverless-operator" subscription to appear
+    Given admin waits for the "serverless-operator" subscription to become ready in the "openshift-serverless" project up to 240 seconds
     And evaluation of `subscription("serverless-operator").current_csv` is stored in the :current_csv clipboard
     Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-serverless" project after scenario
     Given admin ensures "knative-serving" project is deleted after scenario
@@ -738,25 +784,24 @@ Feature: operatorhub feature related
     When I run the :click_subscribe_button web action
     Then the step should succeed
     """
-    Given I wait for the "spark-gcp" subscriptions to become ready up to 360 seconds
+    Given I wait for the "spark-gcp" subscription to become ready in the "<%= project.name %>" project up to 360 seconds
     And evaluation of `subscription("spark-gcp").current_csv` is stored in the :spark_csv clipboard
     And evaluation of `project.name` is stored in the :project_name clipboard
 
     # prepare an operator for all namespaces
-    When I use the "openshift-operators" project
+    Given admin ensures "argocd-operator" subscription is deleted from the "openshift-operators" project after scenario
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | container-security-operator |
-      | catalog_name     | redhat-operators            |
-      | target_namespace |                             |
+      | package_name     | argocd-operator     |
+      | catalog_name     | community-operators |
+      | target_namespace |                     |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
     """
-    Given admin ensures "container-security-operator" subscriptions is deleted from the "openshift-operators" project after scenario
-    Given I wait for the "container-security-operator" subscriptions to become ready up to 360 seconds
-    Given admin ensures "<%= subscription('container-security-operator').current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
+    Given I wait for the "argocd-operator" subscription to become ready in the "openshift-operators" project up to 360 seconds
+    Given admin ensures "<%= subscription('argocd-operator').current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
 
     ## project selector: one project
     #check column: Managed Namespaces
@@ -770,7 +815,7 @@ Feature: operatorhub feature related
       | project_name  | <%= cb.project_name %> |
     Then the step should succeed
     When I perform the :check_managed_namespace_column_installed_for_all_ns web action with:
-      | operator_name | Container Security |
+      | operator_name | Argo CD |
     Then the step should succeed
 
     ## project selector: all projects
@@ -782,7 +827,7 @@ Feature: operatorhub feature related
       | project_name  | <%= cb.project_name %> |
     Then the step should succeed
     When I perform the :check_namespace_column_installed_for_all_ns_under_all_projects web action with:
-      | operator_name | Container Security |
+      | operator_name | Argo CD |
     Then the step should succeed
     #check column: Managed Namespaces
     When I perform the :check_managed_namespace_column_installed_for_one_ns_under_all_projects web action with:
@@ -790,7 +835,7 @@ Feature: operatorhub feature related
       | project_name  | <%= cb.project_name %> |
     Then the step should succeed
     When I perform the :check_managed_namespace_column_installed_for_all_ns_under_all_projects web action with:
-      | operator_name | Container Security |
+      | operator_name | Argo CD |
     Then the step should succeed
 
     ## check operators detail page and subscription page
@@ -812,7 +857,7 @@ Feature: operatorhub feature related
 
     When I perform the :goto_csv_detail_page web action with:
       | project_name | openshift-operators                                            |
-      | csv_name     | <%= subscription("container-security-operator").current_csv %> |
+      | csv_name     | <%= subscription("argocd-operator").current_csv %> |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | namespace         | openshift-operators |
@@ -820,7 +865,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I perform the :goto_csv_subscription_page web action with:
       | project_name | openshift-operators                                            |
-      | csv_name     | <%= subscription("container-security-operator").current_csv %> |
+      | csv_name     | <%= subscription("argocd-operator").current_csv %> |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | namespace | openshift-operators |
@@ -1106,7 +1151,7 @@ Feature: operatorhub feature related
       | catalog_name     | ui-auto-operators    |
       | target_namespace | <%= project.name %>  |
     Then the step should succeed
-    Given admin waits for the "argocd-operator" subscriptions to become ready in the "<%= project.name %>" project up to 360 seconds
+    Given admin waits for the "argocd-operator" subscription to become ready in the "<%= project.name %>" project up to 360 seconds
     And evaluation of `subscription("argocd-operator").current_csv` is stored in the :argocd_csv clipboard
     When I perform the :create_operand web action with:
       | project_name | <%= project.name %>   |
@@ -1179,7 +1224,7 @@ Feature: operatorhub feature related
       | catalog_name     | ui-auto-operators    |
       | target_namespace | <%= project.name %>  |
     Then the step should succeed
-    Given admin waits for the "argocd-operator" subscriptions to become ready in the "<%= project.name %>" project up to 360 seconds
+    Given admin waits for the "argocd-operator" subscription to become ready in the "<%= project.name %>" project up to 360 seconds
     And evaluation of `subscription("argocd-operator").current_csv` is stored in the :argocd_csv clipboard
     When I perform the :create_operand web action with:
       | project_name | <%= project.name %>   |
@@ -1251,7 +1296,7 @@ Feature: operatorhub feature related
       | catalog_name     | ui-auto-operators   |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
-    Given admin waits for the "argocd-operator" subscriptions to become ready in the "<%= project.name %>" project up to 360 seconds
+    Given admin waits for the "argocd-operator" subscription to become ready in the "<%= project.name %>" project up to 360 seconds
     And evaluation of `subscription("argocd-operator").current_csv` is stored in the :argocd_csv clipboard
 
     # check operand description on operator details page and Subscription page details
