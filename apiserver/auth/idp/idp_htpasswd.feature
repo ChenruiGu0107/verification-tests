@@ -19,11 +19,11 @@ Feature: idp feature
     And admin ensures "htpass-secret-ocp23517" secret is deleted from the "openshift-config" project after scenario
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"htpassidp-23517","mappingMethod":"lookup","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23517"}}}]}} |
-    Given I wait for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -100,11 +100,11 @@ Feature: idp feature
     And admin ensures "htpass-secret-ocp23514" secret is deleted from the "openshift-config" project after scenario
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
-    Given I wait for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -134,11 +134,11 @@ Feature: idp feature
 
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"new-htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
-    Given I wait for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -193,11 +193,11 @@ Feature: idp feature
     # Adding htpasswd idp as claim method
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"htpassidp-23515","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23515"}}}]}} |
-    Given I wait for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -230,11 +230,11 @@ Feature: idp feature
     # Adding new htpasswd idp with claim method
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | {"spec":{"identityProviders":[{"name":"new-htpassidp-23515","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23515"}}}]}} |
-    Given I wait for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -292,7 +292,7 @@ Feature: idp feature
     Given I obtain test data file "authorization/idp/OCP-29916/OCP-29916_idp_spec.json"
     Given as admin I successfully merge patch resource "oauth/cluster" with:
       | <%= File.read("OCP-29916_idp_spec.json") %> |
-    Given operator "authentication" becomes progressing
+    Given operator "authentication" becomes progressing within 120 seconds
     And operator "authentication" becomes available/non-progressing/non-degraded within 120 seconds
     Given I wait up to 120 seconds for the steps to pass:
     """
@@ -315,8 +315,8 @@ Feature: idp feature
     When I run the :get admin command with:
       | resource | user/newton |
     Then the step should succeed
- 
-    # When request comes, it select random available pod to write logs in it  and same log is not written in another pod. It writes in only one pod. 
+
+    # When request comes, it select random available pod to write logs in it  and same log is not written in another pod. It writes in only one pod.
     # So here getting one pod and checking logs for the same and stored in match1
     When I run the :get admin command with:
       | resource | pods                               |
@@ -329,7 +329,7 @@ Feature: idp feature
       | n             | openshift-authentication |
     Then the step should succeed
     And evaluation of `@result[:response].include? "Error authenticating login"` is stored in the :match1 clipboard
-    
+
     # Here getting second pod and checking logs for the same and stored in match2
     And I run the :get admin command with:
       | resource | pods                               |
