@@ -1,4 +1,27 @@
 Feature: dashboards related cases
+ 
+  # @author xiyuzhao@redhat.com
+  # @case_id OCP-38262
+  @admin
+  Scenario: Check cpu/memrory request in Cluster Utilization card
+    Given the master version >= "4.7"
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :check_cpu_request web action
+    Then the step should succeed
+    When I run the :check_memory_request web action
+    Then the step should succeed
+
+    When I perform the :goto_one_project_page web action with:
+      | project_name | openshift-apiserver |
+    Then the step should succeed
+    When I run the :check_cpu_request web action
+    Then the step should succeed
+    When I run the :check_memory_request web action
+    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-27584
