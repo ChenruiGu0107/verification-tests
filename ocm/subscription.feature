@@ -5,9 +5,11 @@ Feature: About subscriptions list page
   Scenario: Check the empty page for Openshift Dedicated card and Openshift Container Platform card
     Given I open ocm portal as an noAnyQuotaUser user
     Then the step should succeed
-    When I run the :switch_subscriptions_page web action
+    When I run the :go_to_subscription_quota_annual_page web action
     Then the step should succeed
-    When I run the :subscriptions_page_loaded web action
+    When I run the :check_quota_annual_page web action
     Then the step should succeed
-    When I run the :check_subscriptions_page web action
+    When I run the :go_to_subscription_quota_limit_page web action
+    Then the step should succeed
+    When I run the :check_quota_limit_page web action
     Then the step should succeed
