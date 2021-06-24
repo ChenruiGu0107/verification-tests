@@ -99,7 +99,7 @@ Feature: buildconfig.feature
     And the "ruby-sample-build-2" build failed
     When I run the :logs client command with:
       | resource_name | build/ruby-sample-build-2 |
-    Then the output should match "lookup incorrect.proxy|Name or service not known"
+    Then the output should match "lookup incorrect.proxy|Name or service not known|HTTPError"
 
   # @author haowang@redhat.com
   # @case_id OCP-12120
