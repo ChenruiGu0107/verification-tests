@@ -51,25 +51,25 @@ Feature: only about add-on page for OSD cluster
       | addons_tab   |                 |
     Then the step should succeed
     When I perform the :install_addon web action with:
-      | addon_name               | API Management service |
-      | set_parameter            |                        |
-      | set_cidr_default         |                        |
-      | parameter_key            | notification-email     |
-      | parameter_value          | xueli@redhat.com       |
-      | parameter_input_finished |                        |
+      | addon_name               | Cluster Logging Operator |
+      | set_parameter            |                          |
+      | set_cidr_default         |                          |
+      | parameter_key            | cloudwatch-region        |
+      | parameter_value          | us-west-1                |
+      | parameter_input_finished |                          |
     Then the step should succeed
     When I perform the :delete_addon web action with:
-      | addon_name | API Management service |
-      | input_text | API Management service |
+      | addon_name | Cluster Logging Operator |
+      | input_text | Cluster Logging Operator |
     Then the step should succeed
     When I perform the :wait_for_addon_to_status web action with:
-      | wait_status | Uninstalling           |
-      | timeout     | 10                     |
-      | addon_name  | API Management service |
+      | wait_status | Uninstalling             |
+      | timeout     | 10                       |
+      | addon_name  | Cluster Logging Operator |
     Then the step should succeed
     When I perform the :wait_for_addon_install_button_show web action with:
-      | addon_name | API Management service |
-      | timeout    | 1800                   |
+      | addon_name | Cluster Logging Operator|
+      | timeout    | 1800                    |
     Then the step should succeed
     
 

@@ -414,7 +414,7 @@ Feature: only about page related to cluster login page
       | account_id     | 111111111111                               |
       | aws_access_key | invalidaccesskey                           |
       | aws_secret     | invalidawssecret                           |
-      | error_reason   | The provided AWS credentials are not valid |
+      | error_reason   | Failed to get the user details             |
       | cluster_name   | aws-test                                   |
       | machine_type   | m5.xlarge                                  |
     Then the step should succeed
