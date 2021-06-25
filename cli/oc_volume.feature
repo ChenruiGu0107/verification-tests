@@ -177,9 +177,9 @@ Feature: oc_volume.feature
   # @case_id OCP-12134
   Scenario: Add/Remove volumes against multiple resources
     Given I have a project
-
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    Then the step should succeed
+    When I obtain test data file "templates/application-template-stibuild.json"
+    And I run the :new_app client command with:
+      | file | application-template-stibuild.json |
 
     # Add volume to dc
     Given I wait until replicationController "database-1" is ready
