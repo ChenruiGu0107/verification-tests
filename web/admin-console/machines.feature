@@ -44,12 +44,15 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :set_filter_strings web action with:
       | filter_text | <%= cb.machineconfigs[0].name %> |
     Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.machineconfigs[0].name %> |
     Then the step should succeed
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.machineconfigs[1].name %> |
     Then the step should fail
+    """
 
   # @author yapei@redhat.com
   # @case_id OCP-23688
