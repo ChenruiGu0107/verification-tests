@@ -62,29 +62,6 @@ Feature: imagestream related
   @destructive
   Scenario: Show example docker commands for pushing and pulling image stream tags
     Given the master version >= "4.2"
-    Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | openshift/python:latest                 |
-      | code         | https://github.com/sclorg/django-ex.git |
-      | name         | python-sample                           |
-    Then the step should succeed
-    Given I open admin console in a browser
-    When I perform the :goto_one_imagestream_page web action with:
-      | project_name     | <%= project.name %> |
-      | imagestream_name | python-sample       |
-    Then the step should succeed
-    When I run the :wait_box_loaded web action
-    Then the step should succeed
-    When I run the :get admin command with:
-      | resource | configs.imageregistry.operator.openshift.io/cluster |
-      | o        | yaml |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]["spec"]["defaultRoute"]` is stored in the :defaultroute clipboard
-    When I run the :patch admin command with:
-      | resource | configs.imageregistry.operator.openshift.io/cluster |
-      | type     | merge                                               |
-      | p        | {"spec":{"defaultRoute": true}}                     |
-    Then the step should succeed
     Given I register clean-up steps:
     """
     When I run the :patch admin command with:
@@ -93,12 +70,31 @@ Feature: imagestream related
       | p        | {"spec":{"defaultRoute": null}}                     |
     Then the step should succeed
     """
-
-    Given I wait up to 240 seconds for the steps to pass:
+    When I run the :patch admin command with:
+      | resource | configs.imageregistry.operator.openshift.io/cluster |
+      | type     | merge                                               |
+      | p        | {"spec":{"defaultRoute": true}}                     |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource | route                    |
+      | n        | openshift-image-registry |
+    Then the step should succeed
+    And the output should match "default-route"
+    """
+    Given the first user is cluster-admin
+    Given I use the "openshift" project
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> image_stream("cli").public_docker_image_repository.include?("default-route")
+    """
+    Given I open admin console in a browser
+    Given I wait up to 120 seconds for the steps to pass:
     """
     When I perform the :goto_one_imagestream_page web action with:
-      | project_name     | <%= project.name %> |
-      | imagestream_name | python-sample       |
+      | project_name     | openshift |
+      | imagestream_name | cli       |
     Then the step should succeed
     When I run the :check_imagestream_help_link web action
     Then the step should succeed

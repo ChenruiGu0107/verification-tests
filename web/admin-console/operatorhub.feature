@@ -674,29 +674,17 @@ Feature: operatorhub feature related
       | content | Namespace does not support installation mode |
     Then the step should succeed
 
-    #The operator is recommending an install namespace
+    # operator has recommended ns for installation but user still can subscribe to other ns
     And I wait up to 30 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | cluster-logging     |
-      | catalog_name     | qe-app-registry     |
-      | target_namespace | <%= project.name %> |
+      | package_name     | sealed-secrets-operator-helm |
+      | catalog_name     | community-operators          |
+      | target_namespace | <%= project.name %>          |
     Then the step should succeed
     """
     When I perform the :check_specific_namespace_installation_mode_with_recommended_ns web action with:
-      | recommended_ns | openshift-logging |
-    Then the step should succeed
-
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | kubevirt-hyperconverged |
-      | catalog_name     | redhat-operators        |
-      | target_namespace | <%= project.name %>     |
-    Then the step should succeed
-    """
-    When I perform the :check_specific_namespace_installation_mode_with_recommended_ns web action with:
-      | recommended_ns | openshift-cnv |
+      | recommended_ns | sealed-secrets |
     Then the step should succeed
 
     When I run the :click_radio_to_pick_ns web action
@@ -706,7 +694,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    Given I wait for the "kubevirt-hyperconverged" subscription to appear in the "<%= project.name %>" project up to 30 seconds
+    Given I wait for the "sealed-secrets-operator-helm" subscription to appear in the "<%= project.name %>" project up to 30 seconds
 
     #enable metrics service discovery
     And I wait up to 30 seconds for the steps to pass:
