@@ -117,6 +117,9 @@ Feature: KUBE API server related features
   Scenario: customize audit config of apiservers
     Given I switch to cluster admin pseudo user
     Given evaluation of `Time.now.utc.strftime "%s"` is stored in the :now clipboard
+    
+    # Bug 1943804 caused rolling out takes more time on AWS platform, so we have to increase more waiting time
+    Given evaluation of `env.iaas[:type] == "aws" ? "1500" : "1300"` is stored in the :wait_time clipboard
 
     # Checking audit log default setting
     When I run the :get admin command with:
@@ -162,11 +165,12 @@ Feature: KUBE API server related features
     And the output should contain:
       | --audit-policy-file="/etc/kubernetes/static-pod-resources/configmaps/kube-apiserver-audit-policies/default.yaml" |
 
+    # Because of bug 1879182, the audit profile names are changed.
     When I use the "openshift-apiserver" project
     And a pod becomes ready with labels:
       | app=openshift-apiserver-a |
     When I execute on the pod:
-      | grep | /var/run/configmaps/audit/secure-oauth-storage-default.yaml | /var/run/configmaps/config/config.yaml |
+      | grep | /var/run/configmaps/audit/.*default.yaml | /var/run/configmaps/config/config.yaml |
     Then the step should succeed
 
     When I use the "openshift-oauth-apiserver" project
@@ -178,7 +182,8 @@ Feature: KUBE API server related features
       | o             | jsonpath='{.spec.containers[0].args}' |
     Then the step should succeed
     And the output should contain:
-      | /var/run/configmaps/audit/secure-oauth-storage-default.yaml |
+      | audit-policy-file |
+      | default.yaml      |
 
     # Set WriteRequestBodies profile to audit log
     Given as admin I successfully merge patch resource "apiserver/cluster" with:
@@ -189,18 +194,18 @@ Feature: KUBE API server related features
     Given as admin I successfully merge patch resource "apiserver/cluster" with:
       | {"spec": {"audit": {"profile": "Default"}}} |
     Given operator "kube-apiserver" becomes progressing within 100 seconds
-    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
+    Given operator "kube-apiserver" becomes non-progressing within <%= cb.wait_time %> seconds
     """
 
     Given operator "kube-apiserver" becomes progressing within 100 seconds
-    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
+    Given operator "kube-apiserver" becomes non-progressing within <%= cb.wait_time %> seconds
 
     # Validation for WriteRequestBodies profile setting
     When I use the "openshift-apiserver" project
     And a pod becomes ready with labels:
       | app=openshift-apiserver-a |
     When I execute on the pod:
-      | grep | /var/run/configmaps/audit/secure-oauth-storage-writerequestbodies.yaml | /var/run/configmaps/config/config.yaml |
+      | grep | /var/run/configmaps/audit/.*writerequestbodies.yaml | /var/run/configmaps/config/config.yaml |
     Then the step should succeed
 
     When I use the "openshift-oauth-apiserver" project
@@ -212,7 +217,8 @@ Feature: KUBE API server related features
       | o             | jsonpath='{.spec.containers[0].args}' |
     Then the step should succeed
     And the output should contain:
-      | /var/run/configmaps/audit/secure-oauth-storage-writerequestbodies.yaml |
+      | audit-policy-file       |
+      | writerequestbodies.yaml |
 
     When I use the "openshift-kube-apiserver" project
     And a pod becomes ready with labels:
@@ -243,14 +249,14 @@ Feature: KUBE API server related features
     Given as admin I successfully merge patch resource "apiserver/cluster" with:
       | {"spec": {"audit": {"profile": "AllRequestBodies"}}} |
     Given operator "kube-apiserver" becomes progressing within 100 seconds
-    Given operator "kube-apiserver" becomes non-progressing within 1200 seconds
+    Given operator "kube-apiserver" becomes non-progressing within <%= cb.wait_time %> seconds
 
     # Validation for AllRequestBodies profile setting
     When I use the "openshift-apiserver" project
     And a pod becomes ready with labels:
       | app=openshift-apiserver-a |
     When I execute on the pod:
-      | grep | secure-oauth-storage-allrequestbodies.yaml | /var/run/configmaps/config/config.yaml |
+      | grep | /var/run/configmaps/audit/.*allrequestbodies.yaml | /var/run/configmaps/config/config.yaml |
     Then the step should succeed
 
     When I use the "openshift-oauth-apiserver" project
@@ -262,7 +268,8 @@ Feature: KUBE API server related features
       | o             | jsonpath='{.spec.containers[0].args}' |
     Then the step should succeed
     And the output should contain:
-      | /var/run/configmaps/audit/secure-oauth-storage-allrequestbodies.yaml |
+      | audit-policy-file     |
+      | allrequestbodies.yaml |
 
     When I use the "openshift-kube-apiserver" project
     And a pod becomes ready with labels:
