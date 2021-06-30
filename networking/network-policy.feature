@@ -2343,11 +2343,12 @@ Feature: Network policy plugin scenarios
     Given a pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(0).node_name` is stored in the :p1pod1node clipboard
     Then the step should succeed
     When I expose the "test-service" service
     And I wait up to 60 seconds for a web server to become available via the "test-service" route
     Then the step should succeed
-    And evaluation of `BushSlicer::Pod.get_labeled("app=multus", user: admin, project: project("openshift-multus", switch: false))` is stored in the :multus_pods clipboard
+    Given I save multus pod on master node to the :multuspod clipboard
 
     # create another project and pods
     Given I create a new project
@@ -2370,7 +2371,7 @@ Feature: Network policy plugin scenarios
     """
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-multus" project
-    When I execute on the "<%= cb.multus_pods.first.name %>" pod:
+    When I execute on the "<%= cb.multuspod %>" pod:
       | curl | -I | <%= cb.p1pod1ip %>:8080 | --connect-timeout | 5 |
     Then the output should not contain "200 OK"
     Given I use the "<%= cb.proj2 %>" project
@@ -2394,7 +2395,7 @@ Feature: Network policy plugin scenarios
     Then the step should fail
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-multus" project
-    When I execute on the "<%= cb.multus_pods.first.name %>" pod:
+    When I execute on the "<%= cb.multuspod %>" pod:
       | curl | -I | <%= cb.p1pod1ip %>:8080 |
     Then the output should contain "200 OK"
     Given the cluster has "LoadBalancerService" endpoint publishing strategy
@@ -2408,7 +2409,7 @@ Feature: Network policy plugin scenarios
     """
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-multus" project
-    When I execute on the "<%= cb.multus_pods.first.name %>" pod:
+    When I execute on the "<%= cb.multuspod %>" pod:
       | curl | -I | <%= cb.p1pod1ip %>:8080 | --connect-timeout | 5 |
     Then the output should not contain "200 OK"
     """
@@ -2428,32 +2429,11 @@ Feature: Network policy plugin scenarios
       | name=test-pods |
     And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
     Then the step should succeed
-    And evaluation of `BushSlicer::Pod.get_labeled("app=multus", user: admin, project: project("openshift-multus", switch: false))` is stored in the :multus_pods clipboard
+    Given I save multus pod on master node to the :multuspod clipboard
 
-    # create another project and pods
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :proj2 clipboard
-    Given I obtain test data file "networking/list_for_pods.json"
-    When I run oc create over "list_for_pods.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"]  | 1    |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=test-pods |
-    And evaluation of `pod(1).name` is stored in the :p2pod2name clipboard
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should succeed
-   
     # Apply policies to first project
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
-    And I wait up to 20 seconds for the steps to pass:
-    """
-    Given I use the "<%= cb.proj2 %>" project
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should fail
-    """
 
     Given I obtain test data file "networking/networkpolicy/allow-from-hostnetwork.yaml"
     When I run the :create admin command with:
@@ -2461,15 +2441,11 @@ Feature: Network policy plugin scenarios
       | n | <%= cb.proj1 %>                 |
     Then the step should succeed
 
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 20 seconds for the steps to pass:
     """
-    Given I use the "<%= cb.proj2 %>" project
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should fail
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-multus" project
-    When I execute on the "<%= cb.multus_pods.first.name %>" pod:
+    When I execute on the "<%= cb.multuspod %>" pod:
       | curl | -I | <%= cb.p1pod1ip %>:8080 |
     Then the output should contain "200 OK"
     """
@@ -2491,44 +2467,19 @@ Feature: Network policy plugin scenarios
     And I wait up to 60 seconds for a web server to become available via the "test-service" route
     Then the step should succeed
 
-    # create another project and pods
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :proj2 clipboard
-    Given I obtain test data file "networking/list_for_pods.json"
-    When I run oc create over "list_for_pods.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"]  | 1    |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=test-pods |
-    And evaluation of `pod(1).name` is stored in the :p2pod2name clipboard
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should succeed
-
     # Apply policies to first project
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
-    Then I wait up to 10 seconds for the steps to pass:
-    """
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should fail
-    """
-
     Given I obtain test data file "networking/networkpolicy/allow-from-<pollabel>.yaml"
     When I run the :create admin command with:
       | f | allow-from-<pollabel>.yaml     |
       | n | <%= cb.proj1 %>                 |
     Then the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 20 seconds for the steps to pass:
     """
     Given I use the "<%= cb.proj1 %>" project
     When I open web server via the "test-service" route
     Then the step should succeed
-    Given I use the "<%= cb.proj2 %>" project
-    When I execute on the "<%= cb.p2pod2name %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
-    Then the step should fail
     """
     Examples:
       | pollabel         |
